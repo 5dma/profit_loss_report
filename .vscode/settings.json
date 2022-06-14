@@ -1,0 +1,27 @@
+{
+    "files.associations": {
+        "headers.h": "c",
+        "gtk.h": "c",
+        "typeinfo": "c",
+        "constants.h": "c",
+        "slip_headers.h": "c",
+        "string.h": "c",
+        "glib.h": "c",
+        "random": "c",
+        "limits": "c",
+        "functional": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
+    },
+    "cSpell.words": [
+    //    "gchararray",
+    //    "gint",
+    //    "guint",
+    //    "gfloat",
+    //    "gvalue",
+    //    "hbox",
+    //    "gdouble",
+    //    "gerror"
+    ]
+}
