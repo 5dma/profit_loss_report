@@ -1,15 +1,17 @@
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "headers.h"
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
+static int callback(void *user_data, int argc, char **argv, char **azColName) {
+  /*   int *gag = (int *)user_data;
+    (*gag) ++;
+    printf("The value of gag is %d\n",*gag);
    int i;
    for(i = 0; i<argc; i++) {
       printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
    }
-   printf("\n");
+   printf("\n"); */
    return 0;
 }
 
@@ -28,7 +30,9 @@ int main(int argc, char *argv[]) {
 
     sql = "SELECT guid,name,description FROM accounts WHERE parent_guid = \"09f67b1fbae223eca818ba617edf1b3c\";";
 
-    rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+    int barf = 0;
+
+    rc = sqlite3_exec(db, sql, callback, &barf, &zErrMsg);
 
     if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
@@ -38,6 +42,7 @@ int main(int argc, char *argv[]) {
     }
 
     sqlite3_close(db);
-    printf("Here we are\n");
+
+    GSList *properties = setup(db);
     return 0;
 }

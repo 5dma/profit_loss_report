@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/abba/programming/c_programs/csv_analysis/csv_analysis",
+            "program": "/home/abba/programming/c_programs/profit_loss_report/profit_loss_report",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
