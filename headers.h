@@ -1,4 +1,4 @@
-#include <gtk/gtk.h>
+#include <glib-2.0/glib.h>
 #ifndef __HEADER
 #define __HEADER
 
