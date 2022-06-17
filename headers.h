@@ -16,9 +16,17 @@ typedef struct {
 } Property;
 
 typedef struct {
+    gchar *split_guid;
+    gchar *transaction_id;
+    gdouble value;
+    GDateTime *post_date;
+} Transaction;
+
+typedef struct {
     sqlite3 *db;
 } Data_passer;
 
 GSList *setup (sqlite3 *db);
+void accumulate_income(gpointer data, gpointer user_data);
 
 #endif

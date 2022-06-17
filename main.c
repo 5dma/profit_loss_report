@@ -32,8 +32,6 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Opened database successfully\n");
     }
 
- //   data_passer->db = db;
-
     sql = "SELECT guid,name,description FROM accounts WHERE parent_guid = \"09f67b1fbae223eca818ba617edf1b3c\";";
 
     int barf = 0;
@@ -48,7 +46,7 @@ int main(int argc, char *argv[]) {
     }
     GSList *properties = setup(data_passer->db);
 
-    sqlite3_close(data_passer->db);
+ 
 
     for (int i = 0; i < g_slist_length(properties); i++) {
         gpointer *barf = g_slist_nth_data(properties, i);
@@ -57,7 +55,7 @@ int main(int argc, char *argv[]) {
         g_print("guid %s, description %s\n", omg->guid, omg->description);
     }
 
-//    g_slist_foreach(properties, (GFunc)accumulate_income, NULL);
-
+    g_slist_foreach(properties, accumulate_income, data_passer);
+   sqlite3_close(data_passer->db);
     return 0;
 }
