@@ -28,6 +28,28 @@ static int property_list_builder(void *user_data, int argc, char **argv, char **
     return 0;
 }
 
+void add_accounts(Property *property, JsonObject *property_object, gint account_type) {
+    JsonArray *account_array;
+    
+    if (account_type == INCOME) {
+     account_array = (JsonArray *)json_object_get_array_member(property_object, "income_accounts");
+    } else {
+        account_array = (JsonArray *)json_object_get_array_member(property_object, "expense_accounts");
+    }
+    guint len_accounts = json_array_get_length(account_array);
+    GSList *accounts = NULL;
+    for (int i = 0; i < len_accounts; i++) {
+        gchar *account_number = strdup(json_array_get_string_element(account_array, i));
+        accounts = g_slist_append(accounts, account_number);
+    }
+
+ if (account_type == INCOME) {
+    property->income_accounts = accounts;
+    } else {
+        property->expense_accounts = accounts;
+    }
+}
+
 Data_passer *setup() {
     Data_passer *data_passer = g_new(Data_passer, 1);
     data_passer->properties = NULL;
@@ -61,7 +83,7 @@ Data_passer *setup() {
             data_passer->default_tz = g_time_zone_new_local();
 
             /* Pretty sure no need to free following string as it is a const. */
-             const gchar *start_date_string = json_object_get_string_member(root_obj, "start_date");
+            const gchar *start_date_string = json_object_get_string_member(root_obj, "start_date");
             if (start_date_string != NULL) {
                 data_passer->start_date = g_date_time_new_from_iso8601(start_date_string, data_passer->default_tz);
             } else {
@@ -76,12 +98,16 @@ Data_passer *setup() {
             }
             JsonArray *property_array = (JsonArray *)json_object_get_array_member(root_obj, "properties");
             guint len_properties = json_array_get_length(property_array);
-             for (int i = 0; i < len_properties; i++) {
-                 JsonObject *property_object = json_array_get_object_element(property_array, i);
-                 Property *property =  g_new(Property, 1);
-                 property->guid = g_strdup(json_object_get_string_member(property_object, "guid"));
-                 data_passer->properties = g_slist_append(data_passer->properties,property);
-             }
+            for (int i = 0; i < len_properties; i++) {
+                JsonObject *property_object = json_array_get_object_element(property_array, i);
+                Property *property = g_new(Property, 1);
+                property->guid = g_strdup(json_object_get_string_member(property_object, "guid"));
+
+                add_accounts(property, property_object, INCOME);
+                add_accounts(property, property_object, EXPENSE);
+
+                data_passer->properties = g_slist_append(data_passer->properties, property);
+            }
         }
         g_object_unref(parser);
     } else {

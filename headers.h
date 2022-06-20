@@ -35,4 +35,6 @@ typedef struct {
 Data_passer *setup ();
 void accumulate_income(gpointer data, gpointer user_data);
 
+enum account_type{INCOME, EXPENSE };
+
 #endif
