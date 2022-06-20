@@ -30,6 +30,7 @@ static int property_list_builder(void *user_data, int argc, char **argv, char **
 
 Data_passer *setup() {
     Data_passer *data_passer = g_new(Data_passer, 1);
+    data_passer->properties = NULL;
     int rc;
     char *sql;
     char *zErrMsg = 0;
@@ -53,7 +54,6 @@ Data_passer *setup() {
         if (error) {
             g_print("Unable to parse `%s': %s\n", input_file, error->message);
             g_error_free(error);
-            g_object_unref(parser);
         } else {
             JsonNode *root = json_parser_get_root(parser);
             JsonObject *root_obj = json_node_get_object(root);
@@ -74,7 +74,16 @@ Data_passer *setup() {
             } else {
                 data_passer->end_date = NULL;
             }
+            JsonArray *property_array = (JsonArray *)json_object_get_array_member(root_obj, "properties");
+            guint len_properties = json_array_get_length(property_array);
+             for (int i = 0; i < len_properties; i++) {
+                 JsonObject *property_object = json_array_get_object_element(property_array, i);
+                 Property *property =  g_new(Property, 1);
+                 property->guid = g_strdup(json_object_get_string_member(property_object, "guid"));
+                 data_passer->properties = g_slist_append(data_passer->properties,property);
+             }
         }
+        g_object_unref(parser);
     } else {
         g_print("Input file does not exist.\n");
     }

@@ -15,7 +15,6 @@ typedef struct {
     GSList *expense_accounts;
     GSList *income_transactions;
     GSList *expense_transactions;
-
 } Property;
 
 typedef struct {
