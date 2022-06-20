@@ -11,8 +11,11 @@ typedef struct {
 typedef struct {
     gchar *guid;
     gchar *description;
-    GSList *income;
-    GSList *expenses;
+    GSList *income_accounts;
+    GSList *expense_accounts;
+    GSList *income_transactions;
+    GSList *expense_transactions;
+
 } Property;
 
 typedef struct {
@@ -24,9 +27,13 @@ typedef struct {
 
 typedef struct {
     sqlite3 *db;
+    GDateTime *start_date;
+    GDateTime *end_date;
+     GTimeZone *default_tz;
+    GSList *properties;
 } Data_passer;
 
-GSList *setup (sqlite3 *db);
+Data_passer *setup ();
 void accumulate_income(gpointer data, gpointer user_data);
 
 #endif

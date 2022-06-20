@@ -29,7 +29,7 @@ void accumulate_income(gpointer data, gpointer user_data) {
     sql =
         "SELECT splits.guid,tx_guid,value_num,value_denom, (value_num/value_denom) as real_number, post_date FROM splits JOIN transactions ON tx_guid=transactions.guid WHERE account_guid = \"7958e79e10b723bae9c3f5fef5234d24\" AND post_date > \"2022-01-01 00:00:00\";";
 
-    rc = sqlite3_exec(data_passer->db, sql, total_up_income, &(property->income), &zErrMsg);
+    rc = sqlite3_exec(data_passer->db, sql, total_up_income, &(property->income_transactions), &zErrMsg);
 
     if (rc != SQLITE_OK) {
         g_print("SQL error: %s\n", zErrMsg);
@@ -38,6 +38,6 @@ void accumulate_income(gpointer data, gpointer user_data) {
         g_print("Table created successfully\n");
     }
 
-    gint i = g_slist_length(property->income);
+    gint i = g_slist_length(property->income_transactions);
     g_print("After it's all over,  length: %d\n", i);
 }

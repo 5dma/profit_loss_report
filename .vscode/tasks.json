@@ -30,6 +30,7 @@
                 "-lglib-2.0",
                 "-lm",
                 "-lsqlite3",
+                "-ljson-glib-1.0",
                 "-I/usr/include/gtk-3.0",
                 "-I/usr/include/at-spi2-atk/2.0",
                 "-I/usr/include/at-spi-2.0",
@@ -50,7 +51,9 @@
                 "-I/usr/include/blkid",
                 "-I/usr/include/glib-2.0",
                 "-I/usr/lib/x86_64-linux-gnu/glib-2.0/include",
-                "-I/usr/include"
+                "-I/usr/include",
+                 "-ljson-glib-1.0",
+                 "-I/usr/include/json-glib-1.0"
             ],
             "options": {
                 "cwd": "${fileDirname}"
