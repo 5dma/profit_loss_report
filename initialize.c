@@ -85,14 +85,14 @@ Data_passer *setup() {
             /* Pretty sure no need to free following string as it is a const. */
             const gchar *start_date_string = json_object_get_string_member(root_obj, "start_date");
             if (start_date_string != NULL) {
-                data_passer->start_date = g_date_time_new_from_iso8601(start_date_string, data_passer->default_tz);
+                data_passer->start_date = g_strdup(start_date_string);
             } else {
                 data_passer->start_date = NULL;
             }
             /* Pretty sure no need to free following string as it is a const. */
             const gchar *end_date_string = json_object_get_string_member(root_obj, "end_date");
             if (end_date_string != NULL) {
-                data_passer->end_date = g_date_time_new_from_iso8601(end_date_string, data_passer->default_tz);
+                data_passer->end_date = g_strdup(end_date_string);
             } else {
                 data_passer->end_date = NULL;
             }

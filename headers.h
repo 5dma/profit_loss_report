@@ -13,8 +13,9 @@ typedef struct {
     gchar *description;
     GSList *income_accounts;
     GSList *expense_accounts;
-    GSList *income_transactions;
-    GSList *expense_transactions;
+    GSList *income_subtotals;
+    GSList *expense_subtotals;
+    gchar *p_l_report_html;
 } Property;
 
 typedef struct {
@@ -26,8 +27,8 @@ typedef struct {
 
 typedef struct {
     sqlite3 *db;
-    GDateTime *start_date;
-    GDateTime *end_date;
+    gchar *start_date;
+    gchar *end_date;
      GTimeZone *default_tz;
     GSList *properties;
 } Data_passer;
