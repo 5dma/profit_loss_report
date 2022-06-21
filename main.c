@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
     Data_passer *data_passer = setup();
 
     g_slist_foreach (data_passer->properties,make_pl_report,data_passer);
+    //write_full_report(data_passer->properties);
 
 
   /*   for (int i = 0; i < g_slist_length(properties); i++) {

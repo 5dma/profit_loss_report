@@ -13,10 +13,16 @@ typedef struct {
     gchar *description;
     GSList *income_accounts;
     GSList *expense_accounts;
-    GSList *income_subtotals;
-    GSList *expense_subtotals;
     gchar *p_l_report_html;
 } Property;
+
+typedef struct {
+    gchar *guid;
+    gchar *description;
+    gdouble subtotal;
+} Account_summary;
+
+
 
 typedef struct {
     gchar *split_guid;
@@ -35,6 +41,7 @@ typedef struct {
 
 Data_passer *setup ();
 void accumulate_income(gpointer data, gpointer user_data);
+void make_pl_report(gpointer data, gpointer user_data);
 
 enum account_type{INCOME, EXPENSE };
 

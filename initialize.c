@@ -15,8 +15,8 @@ static int property_list_builder(void *user_data, int argc, char **argv, char **
 
     property->guid = g_strdup(argv[0]);
     property->description = g_strdup(argv[1]);
-    property->income_transactions = income;
-    property->expense_transactions = expenses;
+    property->income_accounts = income;
+    property->expense_accounts = expenses;
     *properties = g_slist_append(*properties, property);
 
     /*     int i;
@@ -30,21 +30,24 @@ static int property_list_builder(void *user_data, int argc, char **argv, char **
 
 void add_accounts(Property *property, JsonObject *property_object, gint account_type) {
     JsonArray *account_array;
-    
+
     if (account_type == INCOME) {
-     account_array = (JsonArray *)json_object_get_array_member(property_object, "income_accounts");
+        account_array = (JsonArray *)json_object_get_array_member(property_object, "income_accounts");
     } else {
         account_array = (JsonArray *)json_object_get_array_member(property_object, "expense_accounts");
     }
     guint len_accounts = json_array_get_length(account_array);
     GSList *accounts = NULL;
     for (int i = 0; i < len_accounts; i++) {
-        gchar *account_number = strdup(json_array_get_string_element(account_array, i));
-        accounts = g_slist_append(accounts, account_number);
+        Account_summary *account_summary = g_new(Account_summary,1);
+        account_summary->guid = strdup(json_array_get_string_element(account_array, i));
+        account_summary->description = NULL;
+        account_summary->subtotal = 0;
+        accounts = g_slist_append(accounts, account_summary);
     }
 
- if (account_type == INCOME) {
-    property->income_accounts = accounts;
+    if (account_type == INCOME) {
+        property->income_accounts = accounts;
     } else {
         property->expense_accounts = accounts;
     }
@@ -102,6 +105,7 @@ Data_passer *setup() {
                 JsonObject *property_object = json_array_get_object_element(property_array, i);
                 Property *property = g_new(Property, 1);
                 property->guid = g_strdup(json_object_get_string_member(property_object, "guid"));
+                property->description = NULL;
 
                 add_accounts(property, property_object, INCOME);
                 add_accounts(property, property_object, EXPENSE);
