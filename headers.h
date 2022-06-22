@@ -42,6 +42,7 @@ typedef struct {
 Data_passer *setup ();
 void accumulate_income(gpointer data, gpointer user_data);
 void make_pl_report(gpointer data, gpointer user_data);
+void generate_property_report(Property *property);
 
 enum account_type{INCOME, EXPENSE };
 

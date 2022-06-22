@@ -18,9 +18,9 @@ void make_subtotals(gpointer data, gpointer user_data) {
     char sql[1000];
     char *zErrMsg = 0;
   /*   sql =
-        "SELECT SUM(value_num/value_denom), accounts.description FROM splits JOIN transactions ON tx_guid=transactions.guid JOIN accounts ON account_guid = accounts.guid WHERE account_guid = "fb38e7e53effab63c885bcaa6f6f8cec" AND post_date > "2022-01-01 00:00:00";"; */
+        "SELECT SUM(value_num/value_denom), parent.description FROM splits JOIN transactions ON tx_guid=transactions.guid JOIN accounts child ON account_guid = child.guid JOIN accounts parent ON child.parent_guid = parent.guid  WHERE account_guid = "fb38e7e53effab63c885bcaa6f6f8cec" AND post_date > "2022-01-01 00:00:00";"; */
 
-    gchar *format_string = "SELECT SUM(value_num/value_denom), accounts.description FROM splits JOIN transactions ON tx_guid=transactions.guid JOIN accounts ON account_guid = accounts.guid WHERE account_guid = \"%s\" AND post_date > \"%s\";";
+    gchar *format_string = "SELECT ABS(SUM(value_num/value_denom)), parent.description FROM splits JOIN transactions ON tx_guid=transactions.guid JOIN accounts child ON account_guid = child.guid JOIN accounts parent ON child.parent_guid = parent.guid  WHERE account_guid = \"%s\" AND post_date > \"%s\";";
 
     gint num_bytes = g_snprintf (sql, 1000, format_string, income_account->guid, data_passer->start_date);
 
@@ -39,6 +39,6 @@ void make_pl_report(gpointer data, gpointer user_data) {
   
     g_slist_foreach(property->income_accounts, make_subtotals, user_data);
     g_slist_foreach(property->expense_accounts, make_subtotals, user_data);
-    //generate_property_report(property);
+    generate_property_report(property);
 
 }
