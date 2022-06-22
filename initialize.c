@@ -19,12 +19,6 @@ static int property_list_builder(void *user_data, int argc, char **argv, char **
     property->expense_accounts = expenses;
     *properties = g_slist_append(*properties, property);
 
-    /*     int i;
-        for (i = 0; i < argc; i++) {
-            printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-        }
-        printf("\n");
-     */
     return 0;
 }
 
@@ -36,22 +30,60 @@ void add_accounts(Property *property, JsonObject *property_object, gint account_
     } else {
         account_array = (JsonArray *)json_object_get_array_member(property_object, "expense_accounts");
     }
-    guint len_accounts = json_array_get_length(account_array);
-    GSList *accounts = NULL;
-    for (int i = 0; i < len_accounts; i++) {
-        Account_summary *account_summary = g_new(Account_summary,1);
-        account_summary->guid = strdup(json_array_get_string_element(account_array, i));
-        account_summary->description = NULL;
-        account_summary->subtotal = 0;
-        accounts = g_slist_append(accounts, account_summary);
-    }
 
+    GSList *accounts = NULL;
+
+    if (account_array != NULL) {
+        guint len_accounts = json_array_get_length(account_array);
+
+        for (int i = 0; i < len_accounts; i++) {
+            Account_summary *account_summary = g_new(Account_summary, 1);
+            account_summary->guid = strdup(json_array_get_string_element(account_array, i));
+            account_summary->description = NULL;
+            account_summary->subtotal = 0;
+            accounts = g_slist_append(accounts, account_summary);
+        }
+    }
     if (account_type == INCOME) {
         property->income_accounts = accounts;
     } else {
         property->expense_accounts = accounts;
     }
 }
+
+static int retrieve_property_description(void *user_data, int argc, char **argv, char **azColName) {
+    Property *property = (Property *)user_data;
+
+    property->description = g_strdup(argv[0]);
+
+    return 0;
+}
+
+void add_property_descriptions(gpointer data, gpointer user_data) {
+    Property *property = (Property *)data;
+    Data_passer *data_passer = (Data_passer *)user_data;
+
+    int rc;
+    char sql[1000];
+    char *zErrMsg = 0;
+  /*   sql =
+        "SELECT description FROM accounts WHERE guid = "9a092a83bb01405f966c58952fd098cb"; */
+
+    gchar *format_string = "SELECT description FROM accounts WHERE guid = \"%s\";";
+
+    gint num_bytes = g_snprintf (sql, 1000, format_string, property->guid);
+
+    rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, property, &zErrMsg);
+
+    if (rc != SQLITE_OK) {
+        g_print("SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    } else {
+        g_print("Table created successfully\n");
+    }
+
+}
+
 
 Data_passer *setup() {
     Data_passer *data_passer = g_new(Data_passer, 1);
@@ -146,6 +178,8 @@ Data_passer *setup() {
 
            g_print("guid %s, description %s\n", omg->guid, omg->description);
        } */
+
+        g_slist_foreach(data_passer->properties,add_property_descriptions,data_passer);
 
     return data_passer;
 }
