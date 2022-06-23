@@ -41,6 +41,7 @@ typedef struct {
     FILE *output_file;
     gdouble total_revenues;
     gdouble total_expenses;
+    gboolean subtotaling_revenues;
 } Data_passer;
 
 Data_passer *setup ();

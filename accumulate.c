@@ -40,9 +40,13 @@ void make_subtotals(gpointer data, gpointer user_data) {
         g_print("Table created successfully\n");
     }
 
+    if (data_passer->subtotaling_revenues) {
     data_passer->total_revenues += income_account->subtotal;
+    } else {
+        data_passer->total_expenses += income_account->subtotal;
+    }
 
-    gchar *line_item = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";
+    gchar *line_item = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%-#4.2f</td>\n</tr>\n";
 
     fprintf(data_passer->output_file, line_item, income_account->description, income_account->subtotal);
 }
@@ -50,15 +54,31 @@ void make_subtotals(gpointer data, gpointer user_data) {
 void make_property_report(gpointer data, gpointer user_data) {
     Property *property = (Property *)data;
     Data_passer *data_passer = (Data_passer *)user_data;
-    gchar *property_header = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";
+    gchar *property_header = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n";
     fprintf(data_passer->output_file, property_header, property->description);
     data_passer->total_revenues = 0;
     data_passer->total_expenses = 0;
+    gchar *income_header = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";
+    fputs(income_header, data_passer->output_file);
+
+    data_passer->subtotaling_revenues = TRUE;
     g_slist_foreach(property->income_accounts, make_subtotals, data_passer);
-
-
     gchar *income_total = "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";
     fprintf(data_passer->output_file, income_total,data_passer->total_revenues);
+
+    gchar *expense_header = "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n";
+    fputs(expense_header, data_passer->output_file);
+    data_passer->subtotaling_revenues = FALSE;
+    g_slist_foreach(property->expense_accounts, make_subtotals, data_passer);
+
+ gchar *expenses_total = "<tr>\n<td>Total expenses</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";
+    fprintf(data_passer->output_file, expenses_total,data_passer->total_expenses);
+
+    gchar *net_income = "<tr class=\"table-success\">\n<td>Net income</td>\n<td><span class=\"double_underline\">%-#4.2f</span></td>\n</tr>\n";
+
+    fprintf(data_passer->output_file, net_income,data_passer->total_revenues - data_passer->total_expenses);
+
+
     fputs("</table>\n", data_passer->output_file);
 }
 
