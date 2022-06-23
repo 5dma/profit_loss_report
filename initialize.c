@@ -99,6 +99,13 @@ Data_passer *setup() {
         return (NULL);
     }
 
+      data_passer->output_file = fopen("/tmp/property_pl.html","w");
+
+    if (data_passer->output_file == NULL){
+        g_print("Cannot create the report, exiting\n");
+        return (NULL);
+    }
+
     /* Memory is freed at end of this function */
     gchar *input_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
     gboolean input_file_exists = g_file_test(input_file, G_FILE_TEST_EXISTS);

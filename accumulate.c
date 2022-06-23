@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "headers.h"
 
 static int total_up_income(void *user_data, int argc, char **argv, char **azColName) {
@@ -39,10 +41,20 @@ void make_subtotals(gpointer data, gpointer user_data) {
     }
 }
 
-void make_pl_report(gpointer data, gpointer user_data) {
-    Property *property = (Property *)data;
+/* make_property_report(property->income_accounts, make_subtotals, data_passer) {
 
-    g_slist_foreach(property->income_accounts, make_subtotals, user_data);
-    g_slist_foreach(property->expense_accounts, make_subtotals, user_data);
-    generate_property_report(property);
+} */
+
+void make_pl_report(gpointer user_data) {
+    Data_passer *data_passer = (Data_passer *)user_data;
+
+    gchar *report_start = "<!DOCTYPE HTML>\n<html lang=\"en\">\n<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>P &amp; L Rental Properties</title>\n<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC\" crossorigin=\"anonymous\">\n<style>\ntd:nth-child(2) {text-align: right;}\n.single_underline {text-decoration: underline;}\n.double_underline {border-bottom:double black;}\n.left_indent {padding-left: 10px}\nh3 {margin-top: 50px;}\n</style>\n</head>\n<body class=\"p-4\">";
+
+    gchar *report_end = "</body>\n</html>";
+    fputs(report_start, data_passer->output_file);
+    fputs(report_end, data_passer->output_file);
+
+    /*    g_slist_foreach(property->income_accounts, make_subtotals, data_passer);
+       g_slist_foreach(property->expense_accounts, make_subtotals, data_passer);
+       generate_property_report(property, data_passer); */
 }

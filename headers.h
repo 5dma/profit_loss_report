@@ -1,5 +1,6 @@
 #include <glib-2.0/glib.h>
 #include <sqlite3.h>
+#include <stdio.h>
 #ifndef __HEADER
 #define __HEADER
 
@@ -13,7 +14,7 @@ typedef struct {
     gchar *description;
     GSList *income_accounts;
     GSList *expense_accounts;
-    gchar *p_l_report_html;
+    gchar *property_report_html;
 } Property;
 
 typedef struct {
@@ -37,12 +38,15 @@ typedef struct {
     gchar *end_date;
      GTimeZone *default_tz;
     GSList *properties;
+    FILE *output_file;
+    gdouble total_revenues;
+    gdouble total_expenses;
 } Data_passer;
 
 Data_passer *setup ();
 void accumulate_income(gpointer data, gpointer user_data);
-void make_pl_report(gpointer data, gpointer user_data);
-void generate_property_report(Property *property);
+void make_pl_report(gpointer user_data);
+void generate_property_report(Property *property, Data_passer *data_passer);
 
 enum account_type{INCOME, EXPENSE };
 

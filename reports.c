@@ -7,7 +7,7 @@ void write_subtotals(gpointer data, gpointer user_data) {
     *total += account_summary->subtotal;
 }
 
-void generate_property_report(Property *property) {
+void generate_property_report(Property *property, Data_passer *data_passer) {
 
     gdouble total_revenues;
     gdouble total_expenses;
@@ -17,5 +17,8 @@ void generate_property_report(Property *property) {
     g_print("Expenses\n");
     g_slist_foreach(property->expense_accounts,write_subtotals, &total_expenses);
     g_print("Net income: %-#4.2f\n",total_revenues - total_expenses);
+
+    gchar *property_heading = "<h3>9820 Georgia Ave., Silver Spring, MD</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>";
+    
 
 }
