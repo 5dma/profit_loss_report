@@ -4,17 +4,11 @@
 #ifndef __HEADER
 #define __HEADER
 
-typedef struct { 
-    gchar *description;
-    gdouble *amount;
-} Line_Item;    
-
 typedef struct {
     gchar *guid;
     gchar *description;
     GSList *income_accounts;
     GSList *expense_accounts;
-    gchar *property_report_html;
 } Property;
 
 typedef struct {
@@ -24,19 +18,10 @@ typedef struct {
 } Account_summary;
 
 
-
-typedef struct {
-    gchar *split_guid;
-    gchar *transaction_id;
-    gdouble value;
-    GDateTime *post_date;
-} Transaction;
-
 typedef struct {
     sqlite3 *db;
     gchar *start_date;
     gchar *end_date;
-     GTimeZone *default_tz;
     GSList *properties;
     FILE *output_file;
     gdouble total_revenues;
@@ -45,9 +30,10 @@ typedef struct {
 } Data_passer;
 
 Data_passer *setup ();
-void accumulate_income(gpointer data, gpointer user_data);
+
 void make_pl_report(gpointer user_data);
 void generate_property_report(Property *property, Data_passer *data_passer);
+void cleanup(Data_passer *data_passer);
 
 enum account_type{INCOME, EXPENSE };
 

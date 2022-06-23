@@ -14,7 +14,8 @@
         "string": "c",
         "string_view": "c",
         "json-glib.h": "c",
-        "sqlite3.h": "c"
+        "sqlite3.h": "c",
+        "stdlib.h": "c"
     },
     "cSpell.words": [
     //    "gchararray",
