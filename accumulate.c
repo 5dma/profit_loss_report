@@ -39,19 +39,40 @@ void make_subtotals(gpointer data, gpointer user_data) {
     } else {
         g_print("Table created successfully\n");
     }
+
+    data_passer->total_revenues += income_account->subtotal;
+
+    gchar *line_item = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";
+
+    fprintf(data_passer->output_file, line_item, income_account->description, income_account->subtotal);
 }
 
-/* make_property_report(property->income_accounts, make_subtotals, data_passer) {
+void make_property_report(gpointer data, gpointer user_data) {
+    Property *property = (Property *)data;
+    Data_passer *data_passer = (Data_passer *)user_data;
+    gchar *property_header = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";
+    fprintf(data_passer->output_file, property_header, property->description);
+    data_passer->total_revenues = 0;
+    data_passer->total_expenses = 0;
+    g_slist_foreach(property->income_accounts, make_subtotals, data_passer);
 
-} */
+
+    gchar *income_total = "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";
+    fprintf(data_passer->output_file, income_total,data_passer->total_revenues);
+    fputs("</table>\n", data_passer->output_file);
+}
 
 void make_pl_report(gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
-    gchar *report_start = "<!DOCTYPE HTML>\n<html lang=\"en\">\n<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>P &amp; L Rental Properties</title>\n<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC\" crossorigin=\"anonymous\">\n<style>\ntd:nth-child(2) {text-align: right;}\n.single_underline {text-decoration: underline;}\n.double_underline {border-bottom:double black;}\n.left_indent {padding-left: 10px}\nh3 {margin-top: 50px;}\n</style>\n</head>\n<body class=\"p-4\">";
+    gchar *report_start = "<!DOCTYPE HTML>\n<html lang=\"en\">\n<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>P &amp; L Rental Properties</title>\n<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC\" crossorigin=\"anonymous\">\n<style>\ntd:nth-child(2) {text-align: right;}\n.single_underline {text-decoration: underline;}\n.double_underline {border-bottom:double black;}\n.left_indent {padding-left: 10px}\nh3 {margin-top: 50px;}\n</style>\n</head>\n<body class=\"p-4\">\n";
 
     gchar *report_end = "</body>\n</html>";
+
     fputs(report_start, data_passer->output_file);
+
+    g_slist_foreach(data_passer->properties, make_property_report, data_passer);
+
     fputs(report_end, data_passer->output_file);
 
     /*    g_slist_foreach(property->income_accounts, make_subtotals, data_passer);
