@@ -27,6 +27,7 @@ typedef struct {
     gdouble total_revenues;
     gdouble total_expenses;
     gboolean subtotaling_revenues;
+    int number_of_children;
 } Data_passer;
 
 Data_passer *setup ();
