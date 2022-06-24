@@ -67,9 +67,7 @@ void add_property_descriptions(gpointer data, gpointer user_data) {
     char sql[1000];
     char *zErrMsg = 0;
 
-    gchar *format_string = "SELECT description FROM accounts WHERE guid = \"%s\";";
-
-    gint num_bytes = g_snprintf(sql, 1000, format_string, property->guid);
+    gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, property->guid);
 
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, property, &zErrMsg);
 

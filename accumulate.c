@@ -24,12 +24,8 @@ void make_subtotals(gpointer data, gpointer user_data) {
     int rc;
     char sql[1000];
     char *zErrMsg = 0;
-    /*   sql =
-          "SELECT COUNT(*), ABS(SUM(value_num/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid="4a99ed7935764f35822f93f3526db596") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = "4a99ed7935764f35822f93f3526db596" AND post_date > "2022-01-01 00:00:00";"; */
 
-    gchar *format_string = "SELECT COUNT(*), ABS(SUM(value_num/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date > \"%s\";";
-
-    gint num_bytes = g_snprintf(sql, 1000, format_string, income_account->guid, income_account->guid, data_passer->start_date);
+    gint num_bytes = g_snprintf(sql, 1000, SUM_OF_ACCOUNT_ACTIVITY, income_account->guid, income_account->guid, data_passer->start_date);
 
     rc = sqlite3_exec(data_passer->db, sql, total_up_income, income_account, &zErrMsg);
 
@@ -46,37 +42,28 @@ void make_subtotals(gpointer data, gpointer user_data) {
         data_passer->total_expenses += income_account->subtotal;
     }
 
-    gchar *line_item = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%-#4.2f</td>\n</tr>\n";
-
-    fprintf(data_passer->output_file, line_item, income_account->description, income_account->subtotal);
+    fprintf(data_passer->output_file, ACCOUNT_REPORT, income_account->description, income_account->subtotal);
 }
 
 void make_property_report(gpointer data, gpointer user_data) {
     Property *property = (Property *)data;
     Data_passer *data_passer = (Data_passer *)user_data;
-    gchar *property_header = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n";
-    fprintf(data_passer->output_file, property_header, property->description);
+    fprintf(data_passer->output_file, PROPERTY_HEADER, property->description);
     data_passer->total_revenues = 0;
     data_passer->total_expenses = 0;
-    gchar *income_header = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";
-    fputs(income_header, data_passer->output_file);
+    fputs(INCOME_HEADER, data_passer->output_file);
 
     data_passer->subtotaling_revenues = TRUE;
     g_slist_foreach(property->income_accounts, make_subtotals, data_passer);
-    gchar *income_total = "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";
-    fprintf(data_passer->output_file, income_total, data_passer->total_revenues);
+    fprintf(data_passer->output_file, INCOME_TOTAL, data_passer->total_revenues);
 
-    gchar *expense_header = "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n";
-    fputs(expense_header, data_passer->output_file);
+    fputs(EXPENSE_HEADER, data_passer->output_file);
     data_passer->subtotaling_revenues = FALSE;
     g_slist_foreach(property->expense_accounts, make_subtotals, data_passer);
 
-    gchar *expenses_total = "<tr>\n<td>Total expenses</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";
-    fprintf(data_passer->output_file, expenses_total, data_passer->total_expenses);
+   fprintf(data_passer->output_file, EXPENSE_TOTAL, data_passer->total_expenses);
 
-    gchar *net_income = "<tr class=\"table-success\">\n<td>Net income</td>\n<td><span class=\"double_underline\">%-#4.2f</span></td>\n</tr>\n";
-
-    fprintf(data_passer->output_file, net_income, data_passer->total_revenues - data_passer->total_expenses);
+    fprintf(data_passer->output_file, NET_INCOME, data_passer->total_revenues - data_passer->total_expenses);
 
     fputs("</table>\n", data_passer->output_file);
 }
