@@ -79,9 +79,10 @@ void add_property_descriptions(gpointer data, gpointer user_data) {
     }
 }
 
-Data_passer *setup() {
+Data_passer *setup(GApplication *app) {
     Data_passer *data_passer = g_new(Data_passer, 1);
     data_passer->properties = NULL;
+    data_passer->app = app;
     int rc;
     char *sql;
     char *zErrMsg = 0;

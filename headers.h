@@ -1,3 +1,4 @@
+#include <gtk/gtk.h>
 #include <glib-2.0/glib.h>
 #include <sqlite3.h>
 #include <stdio.h>
@@ -28,6 +29,7 @@ typedef struct {
     gdouble total_expenses;
     gboolean subtotaling_revenues;
     int number_of_children;
+    GApplication *app;
 } Data_passer;
 
 Data_passer *setup ();
@@ -38,7 +40,21 @@ void cleanup(Data_passer *data_passer);
 
 enum account_type{INCOME, EXPENSE };
 
+enum account_store_fields {
+    GUID,
+    NAME,
+    DESCRIPTION,
+    COLUMNS
+};
 
+typedef struct {
+    gchar *guid;
+    gchar *name;
+    gchar *description;
+} Account;
+
+void on_app_activate(GApplication *app, gpointer data);
+GtkWidget *make_window(Data_passer *data_passer);
 
 static gchar *SELECT_DESCRIPTION_FROM_ACCOUNT = "SELECT description FROM accounts WHERE guid = \"%s\";";
 static gchar *SUM_OF_ACCOUNT_ACTIVITY = "SELECT COUNT(*), ABS(SUM(value_num/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date > \"%s\";";

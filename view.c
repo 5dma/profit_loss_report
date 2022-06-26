@@ -1,0 +1,85 @@
+#include <gtk/gtk.h>
+
+#include "headers.h"
+
+GtkWidget *make_window(Data_passer *data_passer) {
+    GApplication *app = data_passer->app;
+
+    GtkWidget *window = gtk_application_window_new(GTK_APPLICATION(app));
+    gtk_window_set_title(GTK_WINDOW(window), "Property P&L");
+
+    GtkWidget *lbl_accounts = gtk_label_new("Accounts");
+    GtkWidget *lbl_reports = gtk_label_new("Reports");
+
+    GtkWidget *tree_view_accounts = gtk_tree_view_new();
+    GtkWidget *tree_view_reports = gtk_tree_view_new();
+
+    GtkCellRenderer *renderer;
+    GtkTreeViewColumn *column;
+
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("Name", renderer, "text", NAME, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_accounts), column);
+
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("Name", renderer, "text", NAME, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_reports), column);
+
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("Description", renderer, "text", DESCRIPTION, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_accounts), column);
+
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("Description", renderer, "text", DESCRIPTION, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_reports), column);
+
+    Account accounts[] = {
+        {"1010101", "Barf", "Gag"},
+        {"1010101", "Barf", "Gag"},
+        {"1010101", "Barf", "Gag"}};
+    GtkTreeStore *store = gtk_tree_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+    guint i = 0;
+    GtkTreeIter iter;
+    while (i < 3) {
+        gtk_tree_store_append(store, &iter, NULL);
+        gtk_tree_store_set(store, &iter, GUID, accounts[i].guid, NAME, accounts[i].name, DESCRIPTION, accounts[i].description, -1);
+        i++;
+    }
+
+    gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_accounts), GTK_TREE_MODEL(store));
+    gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_reports), GTK_TREE_MODEL(store));
+
+    GtkWidget *btn_save = gtk_button_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON);
+    GtkWidget *btn_revert = gtk_button_new_from_icon_name("document-revert", GTK_ICON_SIZE_BUTTON);
+    GtkWidget *btn_delete = gtk_button_new_from_icon_name("edit-delete", GTK_ICON_SIZE_BUTTON);
+    GtkWidget *btn_go = gtk_button_new_from_icon_name("system-run", GTK_ICON_SIZE_BUTTON);
+    GtkWidget *btn_exit = gtk_button_new_from_icon_name("application-exit", GTK_ICON_SIZE_BUTTON);
+
+    gtk_widget_set_tooltip_text(btn_save, "Save");
+    gtk_widget_set_tooltip_text(btn_revert, "Revert");
+    gtk_widget_set_tooltip_text(btn_delete, "Delete");
+    gtk_widget_set_tooltip_text(btn_go, "Run");
+    gtk_widget_set_tooltip_text(btn_exit, "Exit");
+
+    GtkWidget *status_bar = gtk_statusbar_new();
+
+    GtkWidget *grid = gtk_grid_new();
+    gtk_grid_attach(GTK_GRID(grid), lbl_accounts, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), lbl_reports, 1, 0, 4, 1);
+    gtk_grid_attach(GTK_GRID(grid), tree_view_accounts, 0, 1, 1, 2);
+    gtk_grid_attach(GTK_GRID(grid), tree_view_reports, 1, 1, 5, 1);
+    gtk_grid_attach(GTK_GRID(grid), btn_save, 1, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), btn_revert, 2, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), btn_delete, 3, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), btn_go, 4, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), btn_exit, 5, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), status_bar, 0, 3, 6, 1);
+
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 20);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
+
+    gtk_container_add(GTK_CONTAINER(window), grid);
+    return window;
+    /* Upon destroying the application, free memory in data passer. */
+    g_signal_connect(window, "destroy", G_CALLBACK(cleanup), data_passer);
+}

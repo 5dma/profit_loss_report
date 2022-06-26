@@ -1,3 +1,4 @@
+#include <gtk/gtk.h>
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +10,7 @@ static int has_children(void *user_data, int argc, char **argv, char **azColName
 
     data_passer->number_of_children = atoi(argv[0]);
 
-//    g_print("The number of children is %d\n", data_passer->number_of_children);
+    //    g_print("The number of children is %d\n", data_passer->number_of_children);
     return (0);
 }
 
@@ -23,7 +24,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
     }
     char sql[1000];
     gint num_bytes = g_snprintf(sql, 1000, "SELECT COUNT(*) FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
-  //  g_print("%s\n", sql);
+    //  g_print("%s\n", sql);
     int rc;
     char *zErrMsg = 0;
 
@@ -32,24 +33,28 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
     if (data_passer->number_of_children > 0) {
         char child_sql[1000];
         gint num_bytes = g_snprintf(child_sql, 1000, "SELECT guid,name,description FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
-     //   g_print("%s\n", child_sql);
+        //   g_print("%s\n", child_sql);
         rc = sqlite3_exec(data_passer->db, child_sql, build_tree, data_passer, &zErrMsg);
 
         if (rc != SQLITE_OK) {
             g_print("SQL error: %s\n", zErrMsg);
             sqlite3_free(zErrMsg);
         } else {
-  //          g_print("Everything is good\n");
+            //          g_print("Everything is good\n");
         }
     }
     return 0;
 }
 
 int main(int argc, char *argv[]) {
-    /* Initialize data, primarily by reading the last saved JSON file. */
-    Data_passer *data_passer = setup();
+    GtkApplication *app = gtk_application_new(
+        "net.lautman.customgnucashplreport",
+        G_APPLICATION_FLAGS_NONE);
+    g_signal_connect(app, "activate", G_CALLBACK(on_app_activate), NULL);
+    int status = g_application_run(G_APPLICATION(app), argc, argv);
+  
 
-    const gchar *sql = "SELECT guid,name,description FROM accounts WHERE parent_guid = \"3b7d34a311409d76e3b83c7a575b02e1\";";
+ /*    const gchar *sql = "SELECT guid,name,description FROM accounts WHERE parent_guid = \"3b7d34a311409d76e3b83c7a575b02e1\";";
     int rc;
     char *zErrMsg = 0;
 
@@ -59,14 +64,12 @@ int main(int argc, char *argv[]) {
         g_print("SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     } else {
-   //     g_print("Everything is good\n");
-    }
+        //     g_print("Everything is good\n");
+    } */
 
-    /* Go make the report. */
-    make_pl_report(data_passer);
 
-    /* Free memory, close file handles. */
-    cleanup(data_passer);
 
+
+    g_object_unref(app);
     return 0;
 }
