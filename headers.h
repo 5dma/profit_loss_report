@@ -30,6 +30,9 @@ typedef struct {
     gboolean subtotaling_revenues;
     int number_of_children;
     GApplication *app;
+    GtkTreeStore *accounts_store;
+    GtkTreeIter parent;
+    GtkTreeIter child;
 } Data_passer;
 
 Data_passer *setup ();
@@ -37,6 +40,7 @@ Data_passer *setup ();
 void make_pl_report(gpointer user_data);
 void generate_property_report(Property *property, Data_passer *data_passer);
 void cleanup(Data_passer *data_passer);
+void read_accounts_tree (Data_passer *data_passer);
 
 enum account_type{INCOME, EXPENSE };
 

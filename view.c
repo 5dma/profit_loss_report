@@ -33,21 +33,10 @@ GtkWidget *make_window(Data_passer *data_passer) {
     column = gtk_tree_view_column_new_with_attributes("Description", renderer, "text", DESCRIPTION, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_reports), column);
 
-    Account accounts[] = {
-        {"1010101", "Barf", "Gag"},
-        {"1010101", "Barf", "Gag"},
-        {"1010101", "Barf", "Gag"}};
-    GtkTreeStore *store = gtk_tree_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
-    guint i = 0;
-    GtkTreeIter iter;
-    while (i < 3) {
-        gtk_tree_store_append(store, &iter, NULL);
-        gtk_tree_store_set(store, &iter, GUID, accounts[i].guid, NAME, accounts[i].name, DESCRIPTION, accounts[i].description, -1);
-        i++;
-    }
+       read_accounts_tree(data_passer);
 
-    gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_accounts), GTK_TREE_MODEL(store));
-    gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_reports), GTK_TREE_MODEL(store));
+    gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_accounts), GTK_TREE_MODEL(data_passer->accounts_store));
+    gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_reports), GTK_TREE_MODEL(data_passer->accounts_store));
 
     GtkWidget *btn_save = gtk_button_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON);
     GtkWidget *btn_revert = gtk_button_new_from_icon_name("document-revert", GTK_ICON_SIZE_BUTTON);

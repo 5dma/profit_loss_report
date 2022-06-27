@@ -18,13 +18,7 @@
         "stdlib.h": "c"
     },
     "cSpell.words": [
-    //    "gchararray",
-    //    "gint",
-    //    "guint",
-    //    "gfloat",
-    //    "gvalue",
-    //    "hbox",
-    //    "gdouble",
-    //    "gerror"
+        "customgnucashplreport",
+        "lautman"
     ]
 }
