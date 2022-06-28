@@ -1,5 +1,5 @@
-#include <gtk/gtk.h>
 #include <glib-2.0/glib.h>
+#include <gtk/gtk.h>
 #include <sqlite3.h>
 #include <stdio.h>
 #ifndef __HEADER
@@ -18,7 +18,6 @@ typedef struct {
     gdouble subtotal;
 } Account_summary;
 
-
 typedef struct {
     sqlite3 *db;
     gchar *start_date;
@@ -28,21 +27,27 @@ typedef struct {
     gdouble total_revenues;
     gdouble total_expenses;
     gboolean subtotaling_revenues;
-    int number_of_children;
     GApplication *app;
-    GtkTreeStore *accounts_store;
-    GtkTreeIter parent;
-    GtkTreeIter child;
+        GtkTreeStore *accounts_store;
 } Data_passer;
 
-Data_passer *setup ();
+typedef struct {
+    sqlite3 *db;
+    GtkTreeStore *accounts_store;
+    int number_of_children;
+    GtkTreeIter parent;
+    GtkTreeIter child;
+} Iter_passer;
+
+Data_passer *setup();
 
 void make_pl_report(gpointer user_data);
 void generate_property_report(Property *property, Data_passer *data_passer);
 void cleanup(Data_passer *data_passer);
-void read_accounts_tree (Data_passer *data_passer);
+void read_accounts_tree(Data_passer *data_passer);
 
-enum account_type{INCOME, EXPENSE };
+enum account_type { INCOME,
+                    EXPENSE };
 
 enum account_store_fields {
     GUID,

@@ -15,7 +15,8 @@
         "string_view": "c",
         "json-glib.h": "c",
         "sqlite3.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "atomic": "c"
     },
     "cSpell.words": [
         "customgnucashplreport",

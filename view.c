@@ -7,6 +7,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
 
     GtkWidget *window = gtk_application_window_new(GTK_APPLICATION(app));
     gtk_window_set_title(GTK_WINDOW(window), "Property P&L");
+    gtk_window_set_default_size (GTK_WINDOW(window), 500, 500);
 
     GtkWidget *lbl_accounts = gtk_label_new("Accounts");
     GtkWidget *lbl_reports = gtk_label_new("Reports");
@@ -33,7 +34,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     column = gtk_tree_view_column_new_with_attributes("Description", renderer, "text", DESCRIPTION, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_reports), column);
 
-       read_accounts_tree(data_passer);
+    read_accounts_tree(data_passer);
 
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_accounts), GTK_TREE_MODEL(data_passer->accounts_store));
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_reports), GTK_TREE_MODEL(data_passer->accounts_store));

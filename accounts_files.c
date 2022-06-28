@@ -3,39 +3,50 @@
 #include "headers.h"
 
 static int has_children(void *user_data, int argc, char **argv, char **azColName) {
-    Data_passer *data_passer = (Data_passer *)user_data;
+    Iter_passer *iter_passer = (Iter_passer *)user_data;
 
-    data_passer->number_of_children = atoi(argv[0]);
+    iter_passer->number_of_children = atoi(argv[0]);
 
     //    g_print("The number of children is %d\n", data_passer->number_of_children);
     return (0);
 }
 
 static int build_tree(void *user_data, int argc, char **argv, char **azColName) {
-    Data_passer *data_passer = (Data_passer *)user_data;
-    GtkTreeStore *store = data_passer->accounts_store;
+    Iter_passer *iter_passer = (Iter_passer *)user_data;
+    GtkTreeStore *store = iter_passer->accounts_store;
 
-    if (g_strcmp0 (  argv[0], "3b7d34a311409d76e3b83c7a575b02e1") == 0) {
-        gtk_tree_store_append(store, &(data_passer->parent), NULL);
-        gtk_tree_store_set(store, &(data_passer->parent), GUID, argv[0], NAME, argv[1], DESCRIPTION, argv[2], -1);
+    g_print("Processing results for guid %s %s\n",argv[0], argv[1]);
+
+    if (g_strcmp0(argv[3], "3b7d34a311409d76e3b83c7a575b02e1") == 0) {
+        gtk_tree_store_append(store, &(iter_passer->parent), NULL);
+        gtk_tree_store_set(store, &(iter_passer->parent), GUID, argv[0], NAME, argv[1], DESCRIPTION, argv[2], -1);
     } else {
-        gtk_tree_store_append(store, &(data_passer->child), &(data_passer->parent));
-        gtk_tree_store_set(store, &(data_passer->child), GUID, argv[0], NAME, argv[1], DESCRIPTION, argv[2], -1);
+        gtk_tree_store_append(store, &(iter_passer->child), &(iter_passer->parent));
+        gtk_tree_store_set(store, &(iter_passer->child), GUID, argv[0], NAME, argv[1], DESCRIPTION, argv[2], -1);
     }
 
     char sql[1000];
     gint num_bytes = g_snprintf(sql, 1000, "SELECT COUNT(*) FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
-    //  g_print("%s\n", sql);
+    g_print("%s\n", sql);
     int rc;
     char *zErrMsg = 0;
 
-    rc = sqlite3_exec(data_passer->db, sql, has_children, data_passer, &zErrMsg);
+    rc = sqlite3_exec(iter_passer->db, sql, has_children, iter_passer, &zErrMsg);
 
-    if (data_passer->number_of_children > 0) {
+    if (iter_passer->number_of_children > 0) {
         char child_sql[1000];
-        gint num_bytes = g_snprintf(child_sql, 1000, "SELECT guid,name,description FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
+        gint num_bytes = g_snprintf(child_sql, 1000, "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
+
+        g_print("%s\n", child_sql);
+        /* Memory freed below */
+        Iter_passer *iter_passer_child = g_new(Iter_passer, 1);
+        iter_passer_child->db = iter_passer->db;
+        iter_passer_child->accounts_store = iter_passer->accounts_store;
+        iter_passer_child->number_of_children = 0;
+        iter_passer_child->parent = iter_passer->child;
+
         //   g_print("%s\n", child_sql);
-        rc = sqlite3_exec(data_passer->db, child_sql, build_tree, data_passer, &zErrMsg);
+        rc = sqlite3_exec(iter_passer_child->db, child_sql, build_tree, iter_passer_child, &zErrMsg);
 
         if (rc != SQLITE_OK) {
             g_print("SQL error: %s\n", zErrMsg);
@@ -43,18 +54,50 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
         } else {
             //          g_print("Everything is good\n");
         }
+        g_free(iter_passer_child);
     }
     return 0;
 }
 
+/**
+     Retrieves the root account from the GnuCash database into a `GtkTreeStore`.
+*/
 void read_accounts_tree(Data_passer *data_passer) {
-    /* Retreieve the root account from the GnuCash database */
     data_passer->accounts_store = gtk_tree_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
-    const gchar *sql = "SELECT guid,name,description FROM accounts WHERE guid = \"3b7d34a311409d76e3b83c7a575b02e1\";";
+
+    Iter_passer *iter_passer = g_new(Iter_passer, 1);
+    iter_passer->db = data_passer->db;
+    
+    iter_passer->number_of_children = 0;
+
+    /*    gtk_tree_store_append( data_passer->accounts_store, &(iter_passer->parent), NULL);
+       gtk_tree_store_set( data_passer->accounts_store, &(iter_passer->parent), GUID,"12345", NAME, "12345", DESCRIPTION, "GAG", -1);
+
+       gtk_tree_store_append(data_passer->accounts_store, &(iter_passer->child), &(iter_passer->parent));
+       gtk_tree_store_set(data_passer->accounts_store, &(iter_passer->child),GUID,"54321", NAME, "54321", DESCRIPTION, "GAG", -1);
+
+       gtk_tree_store_append(data_passer->accounts_store, &(iter_passer->child), &(iter_passer->parent));
+       gtk_tree_store_set(data_passer->accounts_store, &(iter_passer->child),GUID,"55555", NAME, "55555", DESCRIPTION, "GAG", -1);
+
+
+     gtk_tree_store_append( data_passer->accounts_store, &(iter_passer->parent), NULL);
+       gtk_tree_store_set( data_passer->accounts_store, &(iter_passer->parent), GUID,"67890", NAME, "67890", DESCRIPTION, "GAG", -1);
+
+       gtk_tree_store_append(data_passer->accounts_store, &(iter_passer->child), &(iter_passer->parent));
+       gtk_tree_store_set(data_passer->accounts_store, &(iter_passer->child),GUID,"54321", NAME, "54321", DESCRIPTION, "GAG", -1);
+
+       gtk_tree_store_append(data_passer->accounts_store, &(iter_passer->child), &(iter_passer->parent));
+       gtk_tree_store_set(data_passer->accounts_store, &(iter_passer->child),GUID,"55555", NAME, "55555", DESCRIPTION, "GAG", -1); */
+
+    /* Memory freed below */
+
+    iter_passer->accounts_store = data_passer->accounts_store;
+
+    const gchar *sql = "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"3b7d34a311409d76e3b83c7a575b02e1\";";
     int rc;
     char *zErrMsg = 0;
 
-    rc = sqlite3_exec(data_passer->db, sql, build_tree, data_passer, &zErrMsg);
+    rc = sqlite3_exec(iter_passer->db, sql, build_tree, iter_passer, &zErrMsg);
 
     if (rc != SQLITE_OK) {
         g_print("SQL error: %s\n", zErrMsg);
@@ -62,4 +105,6 @@ void read_accounts_tree(Data_passer *data_passer) {
     } else {
         //     g_print("Everything is good\n");
     }
+
+    g_free(iter_passer);
 }
