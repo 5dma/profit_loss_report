@@ -75,7 +75,7 @@ void add_property_descriptions(gpointer data, gpointer user_data) {
         g_print("SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     } else {
-        g_print("Table created successfully\n");
+  //      g_print("Table created successfully\n");
     }
 }
 
