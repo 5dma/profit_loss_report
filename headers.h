@@ -35,8 +35,9 @@ typedef struct {
     sqlite3 *db;
     GtkTreeStore *accounts_store;
     int number_of_children;
-    GtkTreeIter parent;
-    GtkTreeIter child;
+    GtkTreeIter *parent;
+    GtkTreeIter *child;
+    guint tree_level;
 } Iter_passer;
 
 Data_passer *setup();
@@ -56,6 +57,11 @@ enum account_store_fields {
     COLUMNS
 };
 
+enum account_tree_levels {
+    ROOT,
+    LEVEL_1,
+    BELOW_LEVEL_1
+};
 typedef struct {
     gchar *guid;
     gchar *name;
