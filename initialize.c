@@ -52,7 +52,7 @@ void add_accounts(sqlite3 *db, Property *property, JsonObject *property_object, 
             char sql[1000];
             char *zErrMsg = 0;
 
-            gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, account_summary->guid);
+            gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT, account_summary->guid);
 
             rc = sqlite3_exec(db, sql, add_account_descriptions, account_summary, &zErrMsg);
 

@@ -28,6 +28,9 @@ void add_property_to_store(gpointer data, gpointer user_data) {
     GtkTreeIter child_iter_expenses;
     gtk_tree_store_append(data_passer->reports_store, &child_iter_expenses, &parent_iter);
     gtk_tree_store_set(data_passer->reports_store, &child_iter_expenses, 0, "Expenses", -1);
+    
+    iter_passer_reports->parent = child_iter_expenses;
+    g_slist_foreach(property->expense_accounts , add_income_to_report_store, iter_passer_reports);
 }
 
 void read_reports_tree(Data_passer *data_passer) {
