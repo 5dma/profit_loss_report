@@ -22,7 +22,13 @@ static int property_list_builder(void *user_data, int argc, char **argv, char **
     return 0;
 }
 
-void add_accounts(Property *property, JsonObject *property_object, gint account_type) {
+static int add_account_descriptions(void *user_data, int argc, char **argv, char **azColName) {
+    Account_summary *account_summary = (Account_summary *)user_data;
+    account_summary->description = strdup(argv[0]);
+    return 0;
+}
+
+void add_accounts(sqlite3 *db, Property *property, JsonObject *property_object, gint account_type) {
     JsonArray *account_array;
 
     if (account_type == INCOME) {
@@ -41,6 +47,22 @@ void add_accounts(Property *property, JsonObject *property_object, gint account_
             account_summary->guid = strdup(json_array_get_string_element(account_array, i));
             account_summary->description = NULL;
             account_summary->subtotal = 0;
+
+            int rc;
+            char sql[1000];
+            char *zErrMsg = 0;
+
+            gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, account_summary->guid);
+
+            rc = sqlite3_exec(db, sql, add_account_descriptions, account_summary, &zErrMsg);
+
+            if (rc != SQLITE_OK) {
+                g_print("SQL error: %s\n", zErrMsg);
+                sqlite3_free(zErrMsg);
+            } else {
+                //      g_print("Table created successfully\n");
+            }
+
             accounts = g_slist_append(accounts, account_summary);
         }
     }
@@ -55,7 +77,7 @@ static int retrieve_property_description(void *user_data, int argc, char **argv,
     Property *property = (Property *)user_data;
 
     property->description = g_strdup(argv[0]);
-
+    g_print("%s\n", property->description);
     return 0;
 }
 
@@ -68,14 +90,15 @@ void add_property_descriptions(gpointer data, gpointer user_data) {
     char *zErrMsg = 0;
 
     gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, property->guid);
+    g_print("%s\n", sql);
 
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, property, &zErrMsg);
-
+    g_print("%s\n", property->description);
     if (rc != SQLITE_OK) {
         g_print("SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     } else {
-  //      g_print("Table created successfully\n");
+        //      g_print("Table created successfully\n");
     }
 }
 
@@ -135,19 +158,19 @@ Data_passer *setup(GApplication *app) {
             } else {
                 data_passer->end_date = NULL;
             }
-            
+
             JsonArray *property_array = (JsonArray *)json_object_get_array_member(root_obj, "properties");
 
             guint len_properties = json_array_get_length(property_array);
-            
+
             for (int i = 0; i < len_properties; i++) {
                 JsonObject *property_object = json_array_get_object_element(property_array, i);
                 Property *property = g_new(Property, 1);
                 property->guid = g_strdup(json_object_get_string_member(property_object, "guid"));
                 property->description = NULL;
 
-                add_accounts(property, property_object, INCOME);
-                add_accounts(property, property_object, EXPENSE);
+                add_accounts(data_passer->db, property, property_object, INCOME);
+                add_accounts(data_passer->db, property, property_object, EXPENSE);
 
                 data_passer->properties = g_slist_append(data_passer->properties, property);
             }

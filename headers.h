@@ -41,6 +41,11 @@ typedef struct {
     gboolean at_root_level;
 } Iter_passer;
 
+typedef struct {
+    GtkTreeStore *reports_store;
+    GtkTreeIter parent;
+} Iter_passer_reports;
+
 Data_passer *setup();
 
 void make_pl_report(gpointer user_data);

@@ -10,8 +10,6 @@ static int total_up_income(void *user_data, int argc, char **argv, char **azColN
         gchar *end_ptr;
         account_summary->subtotal = g_ascii_strtod(argv[1], &end_ptr);
     }
-
-    account_summary->description = g_strdup(argv[2]);
     return 0;
 }
 
