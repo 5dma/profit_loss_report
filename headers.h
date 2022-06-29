@@ -35,8 +35,8 @@ typedef struct {
     sqlite3 *db;
     GtkTreeStore *accounts_store;
     int number_of_children;
-    GtkTreeIter *parent;
-    GtkTreeIter *child;
+    GtkTreeIter parent;
+    GtkTreeIter child;
     guint tree_level;
 } Iter_passer;
 

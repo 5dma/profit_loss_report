@@ -18,12 +18,12 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
     g_print("Processing results for guid %s %s\n", argv[0], argv[1]);
 
     if (iter_passer->tree_level == ROOT) {
-        gtk_tree_store_append(store, iter_passer->parent, NULL);
-        gtk_tree_store_set(store, iter_passer->parent, GUID, argv[0], NAME, argv[1], DESCRIPTION, argv[2], -1);
+        gtk_tree_store_append(store, &(iter_passer->parent), NULL);
+        gtk_tree_store_set(store, &(iter_passer->parent), GUID, argv[0], NAME, argv[1], DESCRIPTION, argv[2], -1);
         iter_passer->tree_level = LEVEL_1;
     } else {
-        gtk_tree_store_append(store, iter_passer->child, iter_passer->parent);
-        gtk_tree_store_set(store, iter_passer->child, GUID, argv[0], NAME, argv[1], DESCRIPTION, argv[2], -1);
+        gtk_tree_store_append(store, &(iter_passer->child), &(iter_passer->parent));
+        gtk_tree_store_set(store, &(iter_passer->child), GUID, argv[0], NAME, argv[1], DESCRIPTION, argv[2], -1);
     }
 
     char sql[1000];
@@ -50,7 +50,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
             iter_passer_child->parent = iter_passer->child;
         }
         iter_passer_child->tree_level = BELOW_LEVEL_1;
-        iter_passer_child->child = g_new(GtkTreeIter, 1);
+    
 
         //   g_print("%s\n", child_sql);
         rc = sqlite3_exec(iter_passer_child->db, child_sql, build_tree, iter_passer_child, &zErrMsg);
@@ -75,8 +75,6 @@ void read_accounts_tree(Data_passer *data_passer) {
     /* Memory freed below */
     Iter_passer *iter_passer = g_new(Iter_passer, 1);
     iter_passer->db = data_passer->db;
-    iter_passer->child = NULL;
-    iter_passer->parent = g_new(GtkTreeIter, 1);
     iter_passer->number_of_children = 0;
     iter_passer->accounts_store = data_passer->accounts_store;
     iter_passer->tree_level = ROOT;
