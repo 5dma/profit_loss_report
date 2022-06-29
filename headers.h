@@ -28,7 +28,8 @@ typedef struct {
     gdouble total_expenses;
     gboolean subtotaling_revenues;
     GApplication *app;
-        GtkTreeStore *accounts_store;
+    GtkTreeStore *accounts_store;
+    GtkTreeStore *reports_store;
 } Data_passer;
 
 typedef struct {
@@ -46,7 +47,7 @@ void make_pl_report(gpointer user_data);
 void generate_property_report(Property *property, Data_passer *data_passer);
 void cleanup(Data_passer *data_passer);
 void read_accounts_tree(Data_passer *data_passer);
-
+void read_reports_tree(Data_passer *data_passer);
 enum account_type { INCOME,
                     EXPENSE };
 

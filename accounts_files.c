@@ -1,5 +1,4 @@
 #include <sqlite3.h>
-
 #include "headers.h"
 
 static int has_children(void *user_data, int argc, char **argv, char **azColName) {
