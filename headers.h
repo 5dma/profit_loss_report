@@ -30,6 +30,8 @@ typedef struct {
     GApplication *app;
     GtkTreeStore *accounts_store;
     GtkTreeStore *reports_store;
+    GtkWidget *btn_add;
+    GtkWidget *btn_delete;
 } Data_passer;
 
 typedef struct {
@@ -53,6 +55,10 @@ void generate_property_report(Property *property, Data_passer *data_passer);
 void cleanup(Data_passer *data_passer);
 void read_accounts_tree(Data_passer *data_passer);
 void read_reports_tree(Data_passer *data_passer);
+
+void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
+
+
 enum account_type { INCOME,
                     EXPENSE };
 
@@ -61,6 +67,13 @@ enum account_store_fields {
     NAME,
     DESCRIPTION,
     COLUMNS
+};
+
+
+enum report_store_fields {
+    GUID_REPORT,
+    DESCRIPTION_REPORT,
+    COLUMNS_REPORT
 };
 
 typedef struct {

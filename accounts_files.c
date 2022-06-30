@@ -1,5 +1,12 @@
 #include <sqlite3.h>
+
 #include "headers.h"
+
+
+void save_top_level_iters(Data_passer *data_passer) {
+    
+}
+
 
 static int has_children(void *user_data, int argc, char **argv, char **azColName) {
     Iter_passer *iter_passer = (Iter_passer *)user_data;
@@ -44,7 +51,6 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
             iter_passer_child->parent = iter_passer->child;
         }
         iter_passer_child->at_root_level = FALSE;
-    
 
         rc = sqlite3_exec(iter_passer_child->db, child_sql, build_tree, iter_passer_child, &zErrMsg);
 
@@ -72,8 +78,16 @@ void read_accounts_tree(Data_passer *data_passer) {
     iter_passer->accounts_store = data_passer->accounts_store;
     iter_passer->at_root_level = TRUE;
 
-    /* Select all top-level accounts (children of ROOT) except the Imbalance-USD and Orphan-USD accounts. */
-    const gchar *sql = "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"3b7d34a311409d76e3b83c7a575b02e1\" AND guid NOT IN (\"894f0ff8c1ea9e1da084b8a50e396427\",\"34e3fc202d62305f5e9cfdeff2732cef\");";
+    /* Select all top-level accounts (children of ROOT) except the following:
+     * Liabilities
+     * Imbalance-USD
+     * Orphan-USD accounts. */
+    /*     const gchar *sql = "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"3b7d34a311409d76e3b83c7a575b02e1\" AND guid NOT IN (\"894f0ff8c1ea9e1da084b8a50e396427\",\"34e3fc202d62305f5e9cfdeff2732cef\", \"4c34d0b684e591b31042b8dabd52c20f\");";
+     */
+
+    /* Select the following accounts to be at the top level: Fixed assets, income, expenses. The forced sorting ensures the accounts tree starts in this order. */
+    const gchar *sql = "SELECT guid,name,description,parent_guid FROM accounts WHERE guid IN (\"09f67b1fbae223eca818ba617edf1b3c\",  \"bde70db24873e7950e43316a246a8131\", \"420eea01b86f3681273064826ef58c7d\") ORDER BY parent_guid DESC, name DESC;";
+
     int rc;
     char *zErrMsg = 0;
 
@@ -86,5 +100,7 @@ void read_accounts_tree(Data_passer *data_passer) {
         //     g_print("Everything is good\n");
     }
 
+    save_top_level_iters(data_passer);
+
     g_free(iter_passer);
-  }
+}
