@@ -63,12 +63,15 @@ enum account_store_fields {
     COLUMNS
 };
 
-
 typedef struct {
     gchar *guid;
     gchar *name;
     gchar *description;
 } Account;
+
+typedef enum {
+    STRING,
+} target_info;
 
 void on_app_activate(GApplication *app, gpointer data);
 GtkWidget *make_window(Data_passer *data_passer);
