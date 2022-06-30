@@ -72,7 +72,8 @@ void read_accounts_tree(Data_passer *data_passer) {
     iter_passer->accounts_store = data_passer->accounts_store;
     iter_passer->at_root_level = TRUE;
 
-    const gchar *sql = "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"3b7d34a311409d76e3b83c7a575b02e1\";";
+    /* Select all top-level accounts (children of ROOT) except the Imbalance-USD and Orphan-USD accounts. */
+    const gchar *sql = "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"3b7d34a311409d76e3b83c7a575b02e1\" AND guid NOT IN (\"894f0ff8c1ea9e1da084b8a50e396427\",\"34e3fc202d62305f5e9cfdeff2732cef\");";
     int rc;
     char *zErrMsg = 0;
 
