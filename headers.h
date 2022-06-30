@@ -63,10 +63,10 @@ enum account_type { INCOME,
                     EXPENSE };
 
 enum account_store_fields {
-    GUID,
-    NAME,
-    DESCRIPTION,
-    COLUMNS
+    GUID_ACCOUNT,
+    NAME_ACCOUNT,
+    DESCRIPTION_ACCOUNT,
+    COLUMNS_ACCOUNT
 };
 
 

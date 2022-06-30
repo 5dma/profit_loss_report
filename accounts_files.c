@@ -4,7 +4,7 @@
 
 
 void save_top_level_iters(Data_passer *data_passer) {
-    
+
 }
 
 
@@ -23,10 +23,10 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
 
     if (iter_passer->at_root_level == TRUE) {
         gtk_tree_store_append(store, &(iter_passer->parent), NULL);
-        gtk_tree_store_set(store, &(iter_passer->parent), GUID, argv[0], NAME, argv[1], DESCRIPTION, argv[2], -1);
+        gtk_tree_store_set(store, &(iter_passer->parent), GUID_ACCOUNT, argv[0], NAME_ACCOUNT, argv[1], DESCRIPTION_ACCOUNT, argv[2], -1);
     } else {
         gtk_tree_store_append(store, &(iter_passer->child), &(iter_passer->parent));
-        gtk_tree_store_set(store, &(iter_passer->child), GUID, argv[0], NAME, argv[1], DESCRIPTION, argv[2], -1);
+        gtk_tree_store_set(store, &(iter_passer->child), GUID_ACCOUNT, argv[0], NAME_ACCOUNT, argv[1], DESCRIPTION_ACCOUNT, argv[2], -1);
     }
 
     char sql[1000];
@@ -69,7 +69,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
      Retrieves the root account from the GnuCash database into a `GtkTreeStore`.
 */
 void read_accounts_tree(Data_passer *data_passer) {
-    data_passer->accounts_store = gtk_tree_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+    data_passer->accounts_store = gtk_tree_store_new(COLUMNS_ACCOUNT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
     /* Memory freed below */
     Iter_passer *iter_passer = g_new(Iter_passer, 1);

@@ -42,7 +42,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     GtkTreeViewColumn *column;
 
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("Name", renderer, "text", NAME, NULL);
+    column = gtk_tree_view_column_new_with_attributes("Name", renderer, "text", NAME_ACCOUNT, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_accounts), column);
 
     renderer = gtk_cell_renderer_text_new();
@@ -50,11 +50,11 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_reports), column);
 
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("Description", renderer, "text", DESCRIPTION, NULL);
+    column = gtk_tree_view_column_new_with_attributes("Description", renderer, "text", DESCRIPTION_ACCOUNT, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_accounts), column);
 
     /*  renderer = gtk_cell_renderer_text_new();
-     column = gtk_tree_view_column_new_with_attributes("Description", renderer, "text", DESCRIPTION, NULL);
+     column = gtk_tree_view_column_new_with_attributes("Description", renderer, "text", DESCRIPTION_ACCOUNT, NULL);
      gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_reports), column); */
 
     read_accounts_tree(data_passer);
