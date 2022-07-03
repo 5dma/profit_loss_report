@@ -2,11 +2,39 @@
 
 #include "headers.h"
 
-
 void save_top_level_iters(Data_passer *data_passer) {
+//    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(data_passer->tree_view_accounts));
 
+    GtkTreeIter iter;
+    gtk_tree_model_get_iter_first( GTK_TREE_MODEL(data_passer->accounts_store), &iter);
+    gchararray guid;
+
+    /*
+    09f67b1fbae223eca818ba617edf1b3c - Fixed Assets
+    420eea01b86f3681273064826ef58c7d - Expenses
+    bde70db24873e7950e43316a246a8131 - Income
+    */
+    do {
+    
+        gtk_tree_model_get(   GTK_TREE_MODEL(data_passer->accounts_store), &iter, 0, &guid, -1);
+        g_print("Current guid: %s\n",guid);
+        /* Is this a fixed asset iter? */
+        if (g_strcmp0(guid, "09f67b1fbae223eca818ba617edf1b3c") == 0) {
+            data_passer->fixed_asset_root = iter;
+        continue;
+        }
+        /* Is this an expenses iter? */
+        if (g_strcmp0(guid, "420eea01b86f3681273064826ef58c7d") == 0) {
+            data_passer->expenses_root = iter;
+        continue;
+        }
+        /* Is this an expenses iter? */
+        if (g_strcmp0(guid, "bde70db24873e7950e43316a246a8131") == 0) {
+            data_passer->income_root = iter;
+        }
+
+    } while (gtk_tree_model_iter_next( GTK_TREE_MODEL(data_passer->accounts_store), &iter) != FALSE);
 }
-
 
 static int has_children(void *user_data, int argc, char **argv, char **azColName) {
     Iter_passer *iter_passer = (Iter_passer *)user_data;
@@ -97,7 +125,7 @@ void read_accounts_tree(Data_passer *data_passer) {
         g_print("SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     } else {
-        //     g_print("Everything is good\n");
+        //     g_print("Everything is good\n");09f67b1fbae223eca818ba617edf1b3c
     }
 
     save_top_level_iters(data_passer);

@@ -30,9 +30,15 @@ typedef struct {
     GApplication *app;
     GtkTreeStore *accounts_store;
     GtkTreeStore *reports_store;
+    /* Do we need the following two members? */
+    GtkWidget *tree_view_accounts;
+    GtkWidget *tree_view_reports;
     GSList *accounts_in_reports_store;
     GtkWidget *btn_add;
     GtkWidget *btn_delete;
+    GtkTreeIter fixed_asset_root;
+    GtkTreeIter income_root;
+    GtkTreeIter expenses_root;
 } Data_passer;
 
 typedef struct {
@@ -57,6 +63,8 @@ void generate_property_report(Property *property, Data_passer *data_passer);
 void cleanup(Data_passer *data_passer);
 void read_accounts_tree(Data_passer *data_passer);
 void read_reports_tree(Data_passer *data_passer);
+void add_account_to_reports(GtkButton *button, gpointer user_data);
+void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
 
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
 
@@ -75,6 +83,9 @@ enum report_store_fields {
     DESCRIPTION_REPORT,
     COLUMNS_REPORT
 };
+
+static const gint LENGTH_PL_ACCOUNTS_ARRAY = 7;
+static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "323", "9820", "351", "242", "325", "353"};
 
 typedef struct {
     gchar *guid;
