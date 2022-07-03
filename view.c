@@ -60,6 +60,10 @@ GtkWidget *make_window(Data_passer *data_passer) {
     read_accounts_tree(data_passer);
     read_reports_tree(data_passer);
 
+        for (int i = 0; i < g_slist_length(data_passer->accounts_in_reports_store); i++) {
+        g_print("%s\n", (char *)g_slist_nth_data(data_passer->accounts_in_reports_store, i));
+    }
+
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_accounts), GTK_TREE_MODEL(data_passer->accounts_store));
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_reports), GTK_TREE_MODEL(data_passer->reports_store));
 

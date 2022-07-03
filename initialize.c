@@ -107,6 +107,7 @@ Data_passer *setup(GApplication *app) {
     data_passer->properties = NULL;
     data_passer->app = app;
     data_passer->accounts_store = NULL;
+    data_passer->accounts_in_reports_store = NULL;
     int rc;
     char *sql;
     char *zErrMsg = 0;
