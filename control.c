@@ -68,15 +68,27 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(data_passer->tree_view_accounts));
     GtkTreeIter iter;
     gboolean omg = gtk_tree_selection_get_selected(tree_view_accounts_selection, &model, &iter);
-    gchararray guid;
-    gtk_tree_model_get(model, &iter, 0, &guid, -1);
-    gchararray name;
-    gtk_tree_model_get(model, &iter, 1, &name, -1);
 
-    /* If a fixed asset, add to reports model. */
+    /* If a fixed asset, add to reports model and exit. */
     /* Get to which fixed asset the selection belongs */
     /* Get if it an expense or income. */
-    /* Add to the reports model. */
+    /* If fixed asset is in the reports model, add selected account to the reports model. */
     /* Add to the list of accounts in the reports tree. */
+
+    GtkTreeIter iter_parent;
+    gtk_tree_model_iter_parent(model, &iter_parent, &iter);
+    GtkTreePath *parent_tree_path = gtk_tree_model_get_path(model, &iter_parent);
+
+    if (gtk_tree_path_compare(data_passer->fixed_asset_root, parent_tree_path) == 0) {
+        GtkTreeIter iter_child;
+        gchararray guid;
+        gtk_tree_model_get(model, &iter, GUID_ACCOUNT, &guid, -1);
+        gchararray description;
+        gtk_tree_model_get(model, &iter, DESCRIPTION_ACCOUNT, &description, -1);
+
+        gtk_tree_store_append(data_passer->reports_store, &iter_child,NULL);
+        gtk_tree_store_set(data_passer->reports_store, &iter_child, GUID_REPORT,guid, DESCRIPTION_REPORT,description, -1);
+    }
+
     g_print("Button clicked!\n");
 }
