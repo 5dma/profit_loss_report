@@ -6,7 +6,7 @@ void add_income_to_report_store(gpointer data, gpointer user_data) {
     GtkTreeIter child;
     gtk_tree_store_append(iter_passer_reports->reports_store, &child, &(iter_passer_reports->parent));
     g_print("%s\n", account_summary->description);
-    gtk_tree_store_set(iter_passer_reports->reports_store, &child, 0, account_summary->description, -1);
+    gtk_tree_store_set(iter_passer_reports->reports_store, &child,GUID_REPORT,account_summary->guid, DESCRIPTION_REPORT, account_summary->description, -1);
     /* In following statement, structure access precedes dereferencing, so actually appending to the GSList pointer. */
     *iter_passer_reports->accounts_in_reports_store = g_slist_append(*iter_passer_reports->accounts_in_reports_store, account_summary->guid);
 }
@@ -23,7 +23,7 @@ void add_property_to_store(gpointer data, gpointer user_data) {
 
     GtkTreeIter child_iter_income;
     gtk_tree_store_append(data_passer->reports_store, &child_iter_income, &parent_iter);
-    gtk_tree_store_set(data_passer->reports_store, &child_iter_income, 0, "Revenue", -1);
+    gtk_tree_store_set(data_passer->reports_store, &child_iter_income, DESCRIPTION_REPORT, "Revenue", -1);
 
     Iter_passer_reports *iter_passer_reports = g_new(Iter_passer_reports, 1);
     iter_passer_reports->reports_store = data_passer->reports_store;
@@ -35,7 +35,7 @@ void add_property_to_store(gpointer data, gpointer user_data) {
 
     GtkTreeIter child_iter_expenses;
     gtk_tree_store_append(data_passer->reports_store, &child_iter_expenses, &parent_iter);
-    gtk_tree_store_set(data_passer->reports_store, &child_iter_expenses, 0, "Expenses", -1);
+    gtk_tree_store_set(data_passer->reports_store, &child_iter_expenses, DESCRIPTION_REPORT, "Expenses", -1);
 
     iter_passer_reports->parent = child_iter_expenses;
     g_slist_foreach(property->expense_accounts, add_income_to_report_store, iter_passer_reports);
