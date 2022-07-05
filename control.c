@@ -9,13 +9,21 @@ gint compare_guids(gpointer pa, gpointer pb) {
     return g_strcmp0(account_1, account_2);
 }
 
-gboolean is_p_l_account(gchar *name) {
+gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer) {
+    GtkTreePath *tree_path = gtk_tree_model_get_path(GTK_TREE_MODEL(data_passer->accounts_store), &iter);
+    gboolean is_pl_account = FALSE;
+
     for (gint i = 0; i < LENGTH_PL_ACCOUNTS_ARRAY; i++) {
-        if (g_strcmp0(name, PL_ACCOUNTS_ARRAY[i]) == 0) {
-            return TRUE;
+        if ((g_strcmp0(name, PL_ACCOUNTS_ARRAY[i]) == 0) &&
+            (gtk_tree_path_compare(data_passer->fixed_asset_root, tree_path) != 0) &&
+            (gtk_tree_path_compare(data_passer->income_root, tree_path) != 0) &&
+            (gtk_tree_path_compare(data_passer->expenses_root, tree_path) != 0)) {
+            is_pl_account = TRUE;
+            break;
         }
     }
-    return FALSE;
+    gtk_tree_path_free(tree_path);
+    return is_pl_account;
 }
 
 void btn_report_clicked(GtkButton *button, gpointer user_data) {
@@ -40,12 +48,13 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
     /* Check if the currently selected account is already in the reports list. */
     GSList *already_in_reports_list = g_slist_find_custom(data_passer->accounts_in_reports_store, guid, (GCompareFunc)compare_guids);
 
-    /* If the selected account is NOT already in the reports list, and if it
-       is an account that is eligible to be in the reports list, set
-       the add button's sensitivity. */
-    if ((already_in_reports_list == NULL) && is_p_l_account(name)) {
+    if ((already_in_reports_list == NULL) && is_p_l_account(name, iter, data_passer)) {
+        /* If the selected account is NOT already in the reports list, and if it
+           is an account that is eligible to be in the reports list, set
+           the add button's sensitivity. */
         gtk_widget_set_sensitive(data_passer->btn_add, TRUE);
     } else {
+        /* If the selected account is already in the reports list, clear the add button's sensitivity. */
         gtk_widget_set_sensitive(data_passer->btn_add, FALSE);
     }
 }

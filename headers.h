@@ -36,9 +36,9 @@ typedef struct {
     GSList *accounts_in_reports_store;
     GtkWidget *btn_add;
     GtkWidget *btn_delete;
-    GtkTreeIter fixed_asset_root;
-    GtkTreeIter income_root;
-    GtkTreeIter expenses_root;
+    GtkTreePath *fixed_asset_root;
+    GtkTreePath *income_root;
+    GtkTreePath *expenses_root;
 } Data_passer;
 
 typedef struct {
@@ -66,8 +66,6 @@ void read_reports_tree(Data_passer *data_passer);
 void add_account_to_reports(GtkButton *button, gpointer user_data);
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
 
-void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
-
 enum account_type { INCOME,
                     EXPENSE };
 
@@ -84,8 +82,8 @@ enum report_store_fields {
     COLUMNS_REPORT
 };
 
-static const gint LENGTH_PL_ACCOUNTS_ARRAY = 7;
-static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "323", "9820", "351", "242", "325", "353"};
+static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8;
+static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325","349","351","353","9820"};
 
 typedef struct {
     gchar *guid;
