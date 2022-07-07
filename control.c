@@ -26,13 +26,36 @@ gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer)
     return is_pl_account;
 }
 
+/**
+ * Finds the iter of a fixed asset in the reports tree corresponding to an iter in the accounts tree. If a match is found, returns TRUE, otherwise returns FALSE.
+ */
+gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_iter, GtkTreeIter *corresponding_report_iter, Data_passer *data_passer) {
+    gchararray name;
+    gtk_tree_model_get(model, &account_iter, 1, &name, -1);
+
+    GtkTreeIter report_tree_iter;
+    GtkTreeModel *report_model = GTK_TREE_MODEL(data_passer->reports_store);
+
+    gtk_tree_model_get_iter_first(report_model, &report_tree_iter);
+
+    do {
+        gchararray report_account_description;
+        gtk_tree_model_get(report_model, &report_tree_iter, DESCRIPTION_REPORT, &report_account_description, -1);
+
+        if (strstr(report_account_description, name) != NULL) {
+            *corresponding_report_iter = report_tree_iter;
+            return TRUE;
+        }
+    } while (gtk_tree_model_iter_next(report_model, &report_tree_iter));
+    return FALSE;
+}
+
 gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter accounts_iter, Data_passer *data_passer) {
     /* Check if under income or expense.
         Get name (323, 242, 349, etc.), which indicates the fixed asset
          Check if fixed asset is in top level of reports tree
      */
 
- 
     GtkTreePath *accounts_path_selection = gtk_tree_model_get_path(accounts_model, &accounts_iter);
     gboolean is_income_account = gtk_tree_path_is_descendant(accounts_path_selection, data_passer->income_root);
     gboolean is_expense_account = gtk_tree_path_is_descendant(accounts_path_selection, data_passer->expenses_root);
@@ -41,7 +64,7 @@ gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter
         /* Get the name */
         gchararray name;
         gtk_tree_model_get(accounts_model, &accounts_iter, NAME_ACCOUNT, &name, -1);
-       
+
         /* See if the name is in one of the top-level report accounts. */
         GtkTreeIter report_tree_iter;
         GtkTreeModel *report_model = GTK_TREE_MODEL(data_passer->reports_store);
@@ -100,9 +123,9 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
     GtkTreeSelection *tree_view_accounts_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data_passer->tree_view_accounts));
 
     gtk_tree_selection_set_mode(tree_view_accounts_selection, GTK_SELECTION_SINGLE);
-    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(data_passer->tree_view_accounts));
+    GtkTreeModel *accounts_model = gtk_tree_view_get_model(GTK_TREE_VIEW(data_passer->tree_view_accounts));
     GtkTreeIter iter_selection;
-    gboolean omg = gtk_tree_selection_get_selected(tree_view_accounts_selection, &model, &iter_selection);
+    gtk_tree_selection_get_selected(tree_view_accounts_selection, &accounts_model, &iter_selection);
 
     /* Get to which fixed asset the selection belongs */
     /* Get if it an expense or income. */
@@ -110,16 +133,16 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
     /* Add to the list of accounts in the reports tree. */
 
     GtkTreeIter iter_parent;
-    gtk_tree_model_iter_parent(model, &iter_parent, &iter_selection);
-    GtkTreePath *parent_tree_path = gtk_tree_model_get_path(model, &iter_parent);
+    gtk_tree_model_iter_parent(accounts_model, &iter_parent, &iter_selection);
+    GtkTreePath *parent_tree_path = gtk_tree_model_get_path(accounts_model, &iter_parent);
 
     /* If a fixed asset, add to reports model and exit. */
     if (gtk_tree_path_compare(data_passer->fixed_asset_root, parent_tree_path) == 0) {
         GtkTreeIter iter_child;
         gchararray guid;
-        gtk_tree_model_get(model, &iter_selection, GUID_ACCOUNT, &guid, -1);
+        gtk_tree_model_get(accounts_model, &iter_selection, GUID_ACCOUNT, &guid, -1);
         gchararray description;
-        gtk_tree_model_get(model, &iter_selection, DESCRIPTION_ACCOUNT, &description, -1);
+        gtk_tree_model_get(accounts_model, &iter_selection, DESCRIPTION_ACCOUNT, &description, -1);
 
         gtk_tree_store_append(data_passer->reports_store, &iter_child, NULL);
         gtk_tree_store_set(data_passer->reports_store, &iter_child, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
@@ -131,8 +154,44 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
     }
 
     /* Determine if selection is an expense or income account. */
-    GtkTreePath *tree_path_selection = gtk_tree_model_get_path(model, &iter_selection);
+    GtkTreePath *tree_path_selection = gtk_tree_model_get_path(accounts_model, &iter_selection);
     gboolean is_income_account = gtk_tree_path_is_descendant(tree_path_selection, data_passer->income_root);
+
+    /* Find the iter in the reports tree of the fixed asset. */
+    GtkTreeIter corresponding_report_iter;
+    if (get_report_tree_fixed_asset(accounts_model, iter_selection, &corresponding_report_iter, data_passer)) {
+        /* Find the iter of the fixed asset's income or expense list */
+
+        GtkTreeModel *reports_model = GTK_TREE_MODEL(data_passer->reports_store);
+        GtkTreeIter income_expense_parent;
+        gboolean found_income_expense_parent = gtk_tree_model_iter_children(reports_model, &income_expense_parent, &corresponding_report_iter);
+
+        if (found_income_expense_parent) {
+            do {
+                gchararray revenue_or_expenses;
+                gtk_tree_model_get(reports_model, &income_expense_parent, DESCRIPTION_REPORT, &revenue_or_expenses, -1);
+
+                if (((strstr(revenue_or_expenses, REVENUE) != NULL) && is_income_account) || 
+                ((strstr(revenue_or_expenses, EXPENSES) != NULL) && !is_income_account))
+                 {
+                    break;
+                }
+            } while (gtk_tree_model_iter_next(reports_model, &income_expense_parent));
+            gchararray guid;
+            gtk_tree_model_get(accounts_model, &iter_selection, GUID_ACCOUNT, &guid, -1);
+            gchararray description;
+            gtk_tree_model_get(accounts_model, &iter_selection, DESCRIPTION_ACCOUNT, &description, -1);
+
+            GtkTreeIter new_income_expense_entry;
+            g_print("Before append!\n");
+            gtk_tree_store_append(data_passer->reports_store, &new_income_expense_entry, &income_expense_parent);
+            g_print("After append!\n");
+            gtk_tree_store_set(data_passer->reports_store, &new_income_expense_entry, GUID_REPORT, "BARF", DESCRIPTION_REPORT, "GAG", -1);
+            g_print("After SET!\n");
+        }
+    }
+
+    /* Place the selected account in the store. */
 
     g_print("Button clicked!\n");
 }
