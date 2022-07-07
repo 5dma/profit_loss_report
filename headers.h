@@ -66,6 +66,9 @@ void read_reports_tree(Data_passer *data_passer);
 void add_account_to_reports(GtkButton *button, gpointer user_data);
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
 
+void delete_account_from_reports(GtkButton *button, gpointer user_data);
+void reports_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
+
 enum account_type { INCOME,
                     EXPENSE };
 

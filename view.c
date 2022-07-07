@@ -84,6 +84,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
 
 
     g_signal_connect(G_OBJECT(tree_view_accounts),"cursor-changed",G_CALLBACK(account_tree_cursor_changed), data_passer);
+       g_signal_connect(G_OBJECT(tree_view_reports),"cursor-changed",G_CALLBACK(reports_tree_cursor_changed), data_passer);
   /*
       GtkTargetEntry target_entries[] = {
         {"text/plain", 0, STRING}};
@@ -109,7 +110,8 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_widget_set_sensitive(btn_add, FALSE);
     gtk_widget_set_sensitive(btn_delete, FALSE);
 
-        g_signal_connect(btn_add, "clicked", G_CALLBACK(add_account_to_reports), data_passer);
+    g_signal_connect(btn_add, "clicked", G_CALLBACK(add_account_to_reports), data_passer);
+    g_signal_connect(btn_delete, "clicked", G_CALLBACK(delete_account_from_reports), data_passer);
 
     data_passer->btn_add = btn_add;
     data_passer->btn_delete = btn_delete;

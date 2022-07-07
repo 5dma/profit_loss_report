@@ -2,22 +2,31 @@
 
 #include "headers.h"
 
+/**
+ * Uses `g_strcmp0` to compare two guids.
+ */
 gint compare_guids(gpointer pa, gpointer pb) {
     const gchar *account_1 = (gchar *)pa;
     const gchar *account_2 = (gchar *)pb;
-    //g_print("pa: %s, pb: %s\n", account_1, account_2);
+    // g_print("pa: %s, pb: %s\n", account_1, account_2);
     return g_strcmp0(account_1, account_2);
 }
 
+/**
+ * Returns true if the selected account's name is one of the account codes (242, 323, 349, etc.)
+ */
 gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer) {
     GtkTreePath *tree_path = gtk_tree_model_get_path(GTK_TREE_MODEL(data_passer->accounts_store), &iter);
     gboolean is_pl_account = FALSE;
 
+    /*    if ((gtk_tree_path_compare(data_passer->fixed_asset_root, tree_path) == 0) ||
+           (gtk_tree_path_compare(data_passer->income_root, tree_path) == 0) ||
+           (gtk_tree_path_compare(data_passer->expenses_root, tree_path) == 0)) {
+           return is_p_l_account;
+       } */
+
     for (gint i = 0; i < LENGTH_PL_ACCOUNTS_ARRAY; i++) {
-        if ((g_strcmp0(name, PL_ACCOUNTS_ARRAY[i]) == 0) &&
-            (gtk_tree_path_compare(data_passer->fixed_asset_root, tree_path) != 0) &&
-            (gtk_tree_path_compare(data_passer->income_root, tree_path) != 0) &&
-            (gtk_tree_path_compare(data_passer->expenses_root, tree_path) != 0)) {
+        if (g_strcmp0(name, PL_ACCOUNTS_ARRAY[i]) == 0) {
             is_pl_account = TRUE;
             break;
         }
@@ -104,17 +113,25 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
     /* Check if the currently selected account is already in the reports list. */
     GSList *already_in_reports_list = g_slist_find_custom(data_passer->accounts_in_reports_store, guid, (GCompareFunc)compare_guids);
 
-    if ((already_in_reports_list == NULL) &&
-        is_p_l_account(name, iter, data_passer) &&
-        account_parent_in_report_tree(model, iter, data_passer)) {
-        /* If the selected account is NOT already in the reports list, and if it
-           is an account that is eligible to be in the reports list, set
-           the add button's sensitivity. */
-        gtk_widget_set_sensitive(data_passer->btn_add, TRUE);
-    } else {
-        /* If the selected account is already in the reports list, clear the add button's sensitivity. */
-        gtk_widget_set_sensitive(data_passer->btn_add, FALSE);
+    if (already_in_reports_list == NULL) {
+        GtkTreePath *currently_selected_path = gtk_tree_model_get_path(model, &iter);
+        if (gtk_tree_path_is_descendant(currently_selected_path, data_passer->fixed_asset_root)) {
+            gtk_widget_set_sensitive(data_passer->btn_add, TRUE);
+            gtk_tree_path_free(currently_selected_path);
+            return;
+        }
+
+        if (is_p_l_account(name, iter, data_passer) &&
+            account_parent_in_report_tree(model, iter, data_passer)) {
+            /* If the selected account is NOT already in the reports list, and if it
+               is an account that is eligible to be in the reports list, set
+               the add button's sensitivity. */
+            gtk_widget_set_sensitive(data_passer->btn_add, TRUE);
+            return;
+        }
     }
+    /* If the selected account is already in the reports list, clear the add button's sensitivity. */
+    gtk_widget_set_sensitive(data_passer->btn_add, FALSE);
 }
 
 /**
@@ -122,8 +139,8 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
 
     * If the selection is a fixed asset, add it to the reports tree and exit.
     * Get to which fixed asset the selection belongs.
-    * Determine if the selection is an expense or income. 
-    * Add the selection to the corresponding account in the reports tree, under expense or income as appropriate. 
+    * Determine if the selection is an expense or income.
+    * Add the selection to the corresponding account in the reports tree, under expense or income as appropriate.
 */
 void add_account_to_reports(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
@@ -153,6 +170,14 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
 
         data_passer->accounts_in_reports_store = g_slist_append(data_passer->accounts_in_reports_store, guid);
 
+        GtkTreeIter child_iter_income;
+        gtk_tree_store_append(data_passer->reports_store, &child_iter_income, &iter_child);
+        gtk_tree_store_set(data_passer->reports_store, &child_iter_income, DESCRIPTION_REPORT, REVENUE, -1);
+
+        GtkTreeIter child_iter_expenses;
+        gtk_tree_store_append(data_passer->reports_store, &child_iter_expenses, &iter_child);
+        gtk_tree_store_set(data_passer->reports_store, &child_iter_expenses, DESCRIPTION_REPORT, EXPENSES, -1);
+
         return;
     }
 
@@ -174,9 +199,8 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
                 gchararray revenue_or_expenses;
                 gtk_tree_model_get(reports_model, &income_expense_parent, DESCRIPTION_REPORT, &revenue_or_expenses, -1);
 
-                if (((strstr(revenue_or_expenses, REVENUE) != NULL) && is_income_account) || 
-                ((strstr(revenue_or_expenses, EXPENSES) != NULL) && !is_income_account))
-                 {
+                if (((strstr(revenue_or_expenses, REVENUE) != NULL) && is_income_account) ||
+                    ((strstr(revenue_or_expenses, EXPENSES) != NULL) && !is_income_account)) {
                     break;
                 }
             } while (gtk_tree_model_iter_next(reports_model, &income_expense_parent));
