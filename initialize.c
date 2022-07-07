@@ -77,7 +77,7 @@ static int retrieve_property_description(void *user_data, int argc, char **argv,
     Property *property = (Property *)user_data;
 
     property->description = g_strdup(argv[0]);
-    g_print("%s\n", property->description);
+    //g_print("%s\n", property->description);
     return 0;
 }
 
@@ -90,10 +90,10 @@ void add_property_descriptions(gpointer data, gpointer user_data) {
     char *zErrMsg = 0;
 
     gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, property->guid);
-    g_print("%s\n", sql);
+    //g_print("%s\n", sql);
 
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, property, &zErrMsg);
-    g_print("%s\n", property->description);
+    //g_print("%s\n", property->description);
     if (rc != SQLITE_OK) {
         g_print("SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);

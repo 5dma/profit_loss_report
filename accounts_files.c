@@ -16,7 +16,7 @@ void save_top_level_iters(Data_passer *data_passer) {
     */
     do {
         gtk_tree_model_get(GTK_TREE_MODEL(data_passer->accounts_store), &iter, 0, &guid, -1);
-        g_print("Current guid: %s\n", guid);
+        //g_print("Current guid: %s\n", guid);
         /* Is this a fixed asset iter? */
         if (g_strcmp0(guid, "09f67b1fbae223eca818ba617edf1b3c") == 0) {
             data_passer->fixed_asset_root = gtk_tree_model_get_path(GTK_TREE_MODEL(data_passer->accounts_store), &iter);

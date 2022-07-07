@@ -5,7 +5,7 @@
 gint compare_guids(gpointer pa, gpointer pb) {
     const gchar *account_1 = (gchar *)pa;
     const gchar *account_2 = (gchar *)pb;
-    g_print("pa: %s, pb: %s\n", account_1, account_2);
+    //g_print("pa: %s, pb: %s\n", account_1, account_2);
     return g_strcmp0(account_1, account_2);
 }
 
@@ -117,6 +117,14 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
     }
 }
 
+/**
+ * Adds a currently selected account to the reports tree. The logic is as follows:
+
+    * If the selection is a fixed asset, add it to the reports tree and exit.
+    * Get to which fixed asset the selection belongs.
+    * Determine if the selection is an expense or income. 
+    * Add the selection to the corresponding account in the reports tree, under expense or income as appropriate. 
+*/
 void add_account_to_reports(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
@@ -126,11 +134,6 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
     GtkTreeModel *accounts_model = gtk_tree_view_get_model(GTK_TREE_VIEW(data_passer->tree_view_accounts));
     GtkTreeIter iter_selection;
     gtk_tree_selection_get_selected(tree_view_accounts_selection, &accounts_model, &iter_selection);
-
-    /* Get to which fixed asset the selection belongs */
-    /* Get if it an expense or income. */
-    /* Add selected account to the reports model. */
-    /* Add to the list of accounts in the reports tree. */
 
     GtkTreeIter iter_parent;
     gtk_tree_model_iter_parent(accounts_model, &iter_parent, &iter_selection);
@@ -183,15 +186,8 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
             gtk_tree_model_get(accounts_model, &iter_selection, DESCRIPTION_ACCOUNT, &description, -1);
 
             GtkTreeIter new_income_expense_entry;
-            g_print("Before append!\n");
             gtk_tree_store_append(data_passer->reports_store, &new_income_expense_entry, &income_expense_parent);
-            g_print("After append!\n");
-            gtk_tree_store_set(data_passer->reports_store, &new_income_expense_entry, GUID_REPORT, "BARF", DESCRIPTION_REPORT, "GAG", -1);
-            g_print("After SET!\n");
+            gtk_tree_store_set(data_passer->reports_store, &new_income_expense_entry, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
         }
     }
-
-    /* Place the selected account in the store. */
-
-    g_print("Button clicked!\n");
 }
