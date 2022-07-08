@@ -33,12 +33,12 @@ typedef struct {
     /* Do we need the following two members? */
     GtkWidget *tree_view_accounts;
     GtkWidget *tree_view_reports;
-    GSList *accounts_in_reports_store;
     GtkWidget *btn_add;
     GtkWidget *btn_delete;
     GtkTreePath *fixed_asset_root;
     GtkTreePath *income_root;
     GtkTreePath *expenses_root;
+    gboolean is_guid_in_reports_tree;
 } Data_passer;
 
 typedef struct {
@@ -53,7 +53,6 @@ typedef struct {
 typedef struct {
     GtkTreeStore *reports_store;
     GtkTreeIter parent;
-    GSList **accounts_in_reports_store;
 } Iter_passer_reports;
 
 Data_passer *setup();
@@ -68,6 +67,7 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
 
 void delete_account_from_reports(GtkButton *button, gpointer user_data);
 void reports_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
+void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_iter, char *guid, Data_passer *data_passer);
 
 enum account_type { INCOME,
                     EXPENSE };

@@ -105,9 +105,12 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
     gtk_tree_model_get(model, &iter, 1, &name, -1);
 
     /* Check if the currently selected account is already in the reports list. */
-    GSList *already_in_reports_list = g_slist_find_custom(data_passer->accounts_in_reports_store, guid, (GCompareFunc)compare_guids);
+    data_passer->is_guid_in_reports_tree = FALSE;
+    GtkTreeIter reports_root_iter;
+    gboolean found_root = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(data_passer->reports_store), &reports_root_iter);
+   is_guid_in_reports_tree(data_passer->reports_store,reports_root_iter, guid, data_passer);
 
-    if (already_in_reports_list == NULL) {
+    if (data_passer->is_guid_in_reports_tree == FALSE) {
         GtkTreePath *currently_selected_path = gtk_tree_model_get_path(model, &iter);
         if (gtk_tree_path_is_descendant(currently_selected_path, data_passer->fixed_asset_root)) {
             gtk_widget_set_sensitive(data_passer->btn_add, TRUE);
@@ -161,8 +164,6 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
         gtk_tree_store_append(data_passer->reports_store, &iter_child, NULL);
         gtk_tree_store_set(data_passer->reports_store, &iter_child, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
         GSList *accounts_in_reports_store;
-
-        data_passer->accounts_in_reports_store = g_slist_append(data_passer->accounts_in_reports_store, guid);
 
         GtkTreeIter child_iter_income;
         gtk_tree_store_append(data_passer->reports_store, &child_iter_income, &iter_child);
