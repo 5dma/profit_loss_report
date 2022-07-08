@@ -91,12 +91,6 @@ gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter
     return FALSE;
 }
 
-void btn_report_clicked(GtkButton *button, gpointer user_data) {
-    Data_passer *data_passer = (Data_passer *)user_data;
-    /* Go make the report. */
-    make_pl_report(data_passer);
-}
-
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
     GtkTreeSelection *tree_view_accounts_selection = gtk_tree_view_get_selection(tree_view_accounts);

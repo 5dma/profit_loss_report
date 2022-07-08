@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+
 #include "headers.h"
 
 void on_drag_begin(gpointer user_data) {
@@ -59,9 +60,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     data_passer->tree_view_accounts = tree_view_accounts;
     data_passer->tree_view_reports = tree_view_reports;
 
-
-
-        for (int i = 0; i < g_slist_length(data_passer->accounts_in_reports_store); i++) {
+    for (int i = 0; i < g_slist_length(data_passer->accounts_in_reports_store); i++) {
         g_print("%s\n", (char *)g_slist_nth_data(data_passer->accounts_in_reports_store, i));
     }
 
@@ -69,7 +68,6 @@ GtkWidget *make_window(Data_passer *data_passer) {
     read_reports_tree(data_passer);
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_accounts), GTK_TREE_MODEL(data_passer->accounts_store));
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_reports), GTK_TREE_MODEL(data_passer->reports_store));
-
 
     GtkWidget *scrolled_window_tree_view_accounts = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window_tree_view_accounts), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -81,23 +79,22 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_container_add(GTK_CONTAINER(scrolled_window_tree_view_reports), tree_view_reports);
     gtk_widget_set_size_request(scrolled_window_tree_view_reports, 300, 400);
 
+    g_signal_connect(G_OBJECT(tree_view_accounts), "cursor-changed", G_CALLBACK(account_tree_cursor_changed), data_passer);
+    g_signal_connect(G_OBJECT(tree_view_reports), "cursor-changed", G_CALLBACK(reports_tree_cursor_changed), data_passer);
 
+    /*
+        GtkTargetEntry target_entries[] = {
+          {"text/plain", 0, STRING}};
+       gtk_drag_source_set(tree_view_accounts, GDK_BUTTON1_MASK, target_entries, 1, GDK_ACTION_COPY);
+      g_signal_connect(G_OBJECT(tree_view_accounts), "drag_begin", G_CALLBACK(on_drag_begin), NULL);
+      g_signal_connect(G_OBJECT(tree_view_accounts), "drag_data_get", G_CALLBACK(on_drag_data_get), NULL);
+      g_signal_connect(G_OBJECT(tree_view_accounts), "drag_end", G_CALLBACK(on_drag_end), NULL);
 
-    g_signal_connect(G_OBJECT(tree_view_accounts),"cursor-changed",G_CALLBACK(account_tree_cursor_changed), data_passer);
-       g_signal_connect(G_OBJECT(tree_view_reports),"cursor-changed",G_CALLBACK(reports_tree_cursor_changed), data_passer);
-  /*
-      GtkTargetEntry target_entries[] = {
-        {"text/plain", 0, STRING}};
-     gtk_drag_source_set(tree_view_accounts, GDK_BUTTON1_MASK, target_entries, 1, GDK_ACTION_COPY);
-    g_signal_connect(G_OBJECT(tree_view_accounts), "drag_begin", G_CALLBACK(on_drag_begin), NULL);
-    g_signal_connect(G_OBJECT(tree_view_accounts), "drag_data_get", G_CALLBACK(on_drag_data_get), NULL);
-    g_signal_connect(G_OBJECT(tree_view_accounts), "drag_end", G_CALLBACK(on_drag_end), NULL);
-
-    gtk_drag_dest_set(tree_view_reports, GTK_DEST_DEFAULT_DROP, target_entries, 1, GDK_ACTION_PRIVATE);
-    g_signal_connect(G_OBJECT(tree_view_reports), "drag_data_received", G_CALLBACK(on_drag_data_received), NULL);
-    g_signal_connect(G_OBJECT(tree_view_reports), "drag_drop", G_CALLBACK(on_drag_drop), NULL);
-    g_signal_connect(G_OBJECT(tree_view_reports), "drag_motion", G_CALLBACK(on_drag_motion), NULL);
-    g_signal_connect(G_OBJECT(tree_view_reports), "drag_leave", G_CALLBACK(on_drag_leave), NULL); */
+      gtk_drag_dest_set(tree_view_reports, GTK_DEST_DEFAULT_DROP, target_entries, 1, GDK_ACTION_PRIVATE);
+      g_signal_connect(G_OBJECT(tree_view_reports), "drag_data_received", G_CALLBACK(on_drag_data_received), NULL);
+      g_signal_connect(G_OBJECT(tree_view_reports), "drag_drop", G_CALLBACK(on_drag_drop), NULL);
+      g_signal_connect(G_OBJECT(tree_view_reports), "drag_motion", G_CALLBACK(on_drag_motion), NULL);
+      g_signal_connect(G_OBJECT(tree_view_reports), "drag_leave", G_CALLBACK(on_drag_leave), NULL); */
 
     GtkWidget *btn_save = gtk_button_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON);
     GtkWidget *btn_revert = gtk_button_new_from_icon_name("document-revert", GTK_ICON_SIZE_BUTTON);
@@ -106,12 +103,12 @@ GtkWidget *make_window(Data_passer *data_passer) {
     GtkWidget *btn_go = gtk_button_new_from_icon_name("system-run", GTK_ICON_SIZE_BUTTON);
     GtkWidget *btn_exit = gtk_button_new_from_icon_name("application-exit", GTK_ICON_SIZE_BUTTON);
 
-
     gtk_widget_set_sensitive(btn_add, FALSE);
     gtk_widget_set_sensitive(btn_delete, FALSE);
 
     g_signal_connect(btn_add, "clicked", G_CALLBACK(add_account_to_reports), data_passer);
     g_signal_connect(btn_delete, "clicked", G_CALLBACK(delete_account_from_reports), data_passer);
+    g_signal_connect(btn_go, "clicked", G_CALLBACK(make_pl_report), data_passer);
 
     data_passer->btn_add = btn_add;
     data_passer->btn_delete = btn_delete;

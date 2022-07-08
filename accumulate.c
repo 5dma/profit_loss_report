@@ -31,7 +31,7 @@ void make_subtotals(gpointer data, gpointer user_data) {
         g_print("SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     } else {
-  //      g_print("Table created successfully\n");
+        //      g_print("Table created successfully\n");
     }
 
     if (data_passer->subtotaling_revenues) {
@@ -59,23 +59,32 @@ void make_property_report(gpointer data, gpointer user_data) {
     data_passer->subtotaling_revenues = FALSE;
     g_slist_foreach(property->expense_accounts, make_subtotals, data_passer);
 
-   fprintf(data_passer->output_file, EXPENSE_TOTAL, data_passer->total_expenses);
+    fprintf(data_passer->output_file, EXPENSE_TOTAL, data_passer->total_expenses);
 
     fprintf(data_passer->output_file, NET_INCOME, data_passer->total_revenues - data_passer->total_expenses);
 
     fputs("</table>\n", data_passer->output_file);
 }
 
-void make_pl_report(gpointer user_data) {
+void make_pl_report(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
     gchar *report_start = "<!DOCTYPE HTML>\n<html lang=\"en\">\n<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>P &amp; L Rental Properties</title>\n<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC\" crossorigin=\"anonymous\">\n<style>\ntd:nth-child(2) {text-align: right;}\n.single_underline {text-decoration: underline;}\n.double_underline {border-bottom:double black;}\n.left_indent {padding-left: 10px}\nh3 {margin-top: 50px;}\n</style>\n</head>\n<body class=\"p-4\">\n";
 
     gchar *report_end = "</body>\n</html>";
 
+    data_passer->output_file = fopen("/tmp/property_pl.html", "w");
+
+    if (data_passer->output_file == NULL) {
+        g_print("Cannot create the report, exiting\n");
+        return;
+    }
+
     fputs(report_start, data_passer->output_file);
 
     g_slist_foreach(data_passer->properties, make_property_report, data_passer);
 
     fputs(report_end, data_passer->output_file);
+
+    fclose(data_passer->output_file);
 }

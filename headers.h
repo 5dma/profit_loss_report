@@ -58,7 +58,7 @@ typedef struct {
 
 Data_passer *setup();
 
-void make_pl_report(gpointer user_data);
+void make_pl_report(GtkButton *button, gpointer user_data);
 void generate_property_report(Property *property, Data_passer *data_passer);
 void cleanup(Data_passer *data_passer);
 void read_accounts_tree(Data_passer *data_passer);

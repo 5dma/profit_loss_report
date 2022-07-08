@@ -90,7 +90,6 @@ void add_property_descriptions(gpointer data, gpointer user_data) {
     char *zErrMsg = 0;
 
     gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, property->guid);
-    //g_print("%s\n", sql);
 
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, property, &zErrMsg);
     //g_print("%s\n", property->description);
@@ -98,7 +97,7 @@ void add_property_descriptions(gpointer data, gpointer user_data) {
         g_print("SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     } else {
-        //      g_print("Table created successfully\n");
+        
     }
 }
 
@@ -119,12 +118,7 @@ Data_passer *setup(GApplication *app) {
         return (NULL);
     }
 
-    data_passer->output_file = fopen("/tmp/property_pl.html", "w");
-
-    if (data_passer->output_file == NULL) {
-        g_print("Cannot create the report, exiting\n");
-        return (NULL);
-    }
+  
 
     /* Memory is freed at end of this function */
     gchar *input_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
@@ -183,6 +177,10 @@ Data_passer *setup(GApplication *app) {
     g_free(input_file);
 
     g_slist_foreach(data_passer->properties, add_property_descriptions, data_passer);
+
+    gpointer barf = g_slist_nth_data (data_passer->properties,1);
+
+    Property *gag = (Property *)barf;
 
     return data_passer;
 }
