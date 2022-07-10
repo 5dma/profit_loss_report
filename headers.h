@@ -69,6 +69,8 @@ void delete_account_from_reports(GtkButton *button, gpointer user_data);
 void reports_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
 void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_iter, char *guid, Data_passer *data_passer);
 
+void revert_report_tree(GtkButton *button, gpointer user_data);
+
 enum account_type { INCOME,
                     EXPENSE };
 

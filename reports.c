@@ -41,6 +41,18 @@ void read_reports_tree(Data_passer *data_passer) {
     g_slist_foreach(data_passer->properties, add_property_to_store, data_passer);
 }
 
+
+void revert_report_tree(GtkButton *button, gpointer user_data) {
+        Data_passer *data_passer = (Data_passer *)user_data;
+
+        GtkTreeStore *reports_store = data_passer->reports_store;
+        gtk_tree_store_clear (reports_store);
+
+
+    g_slist_foreach(data_passer->properties, add_property_to_store, data_passer);
+    g_print("Reverted\n");
+}
+
 /**
  * Performs a depth-first-search for a GUID inside the reports store. The logic is as follows.
  *

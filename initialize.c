@@ -178,9 +178,6 @@ Data_passer *setup(GApplication *app) {
 
     g_slist_foreach(data_passer->properties, add_property_descriptions, data_passer);
 
-    gpointer barf = g_slist_nth_data (data_passer->properties,1);
-
-    Property *gag = (Property *)barf;
 
     return data_passer;
 }
