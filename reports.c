@@ -1,4 +1,5 @@
 #include <json-glib/json-glib.h>
+
 #include "headers.h"
 
 void add_income_to_report_store(gpointer data, gpointer user_data) {
@@ -8,7 +9,6 @@ void add_income_to_report_store(gpointer data, gpointer user_data) {
     gtk_tree_store_append(iter_passer_reports->reports_store, &child, &(iter_passer_reports->parent));
     // g_print("%s\n", account_summary->description);
     gtk_tree_store_set(iter_passer_reports->reports_store, &child, GUID_REPORT, account_summary->guid, DESCRIPTION_REPORT, account_summary->description, -1);
-    
 }
 
 void add_property_to_store(gpointer data, gpointer user_data) {
@@ -36,15 +36,12 @@ void add_property_to_store(gpointer data, gpointer user_data) {
     g_slist_foreach(property->expense_accounts, add_income_to_report_store, iter_passer_reports);
 }
 
-
 void revert_report_tree(GtkButton *button, gpointer user_data) {
-      /*   Data_passer *data_passer = (Data_passer *)user_data;
+    Data_passer *data_passer = (Data_passer *)user_data;
 
-        GtkTreeStore *reports_store = data_passer->reports_store;
-        gtk_tree_store_clear (reports_store);
+    gtk_tree_store_clear (data_passer->reports_store);
 
-
-    g_slist_foreach(data_passer->properties, add_property_to_store, data_passer); */
+    read_properties_into_reports_store(data_passer);
     g_print("Reverted\n");
 }
 
@@ -84,18 +81,16 @@ void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_it
     }
 
     GtkTreeIter sibling_iter;
-    gboolean current_iter_has_sibling = gtk_tree_model_iter_next (GTK_TREE_MODEL(reports_store), &current_iter);
+    gboolean current_iter_has_sibling = gtk_tree_model_iter_next(GTK_TREE_MODEL(reports_store), &current_iter);
     if (current_iter_has_sibling == TRUE) {
         is_guid_in_reports_tree(reports_store, current_iter, guid, data_passer);
     }
 
-  return;
-
+    return;
 }
 
 void read_properties_into_reports_store(Data_passer *data_passer) {
-
- /* Memory is freed at end of this function */
+    /* Memory is freed at end of this function */
     gchar *input_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
     gboolean input_file_exists = g_file_test(input_file, G_FILE_TEST_EXISTS);
     if (input_file_exists) {
@@ -137,7 +132,6 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
             GtkTreeIter property_iter;
             gchararray description;
             for (int i = 0; i < len_properties; i++) {
-
                 JsonObject *property_object = json_array_get_object_element(property_array, i);
                 gtk_tree_store_append(reports_store, &property_iter, NULL);
                 gchararray guid = g_strdup(json_object_get_string_member(property_object, "guid"));
@@ -147,7 +141,6 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
 
                 add_accounts(data_passer, property_object, &property_iter, INCOME);
                 add_accounts(data_passer, property_object, &property_iter, EXPENSE);
-
             }
         }
         g_object_unref(parser);
@@ -155,5 +148,4 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
         g_print("Input file does not exist.\n");
     }
     g_free(input_file);
-
 }
