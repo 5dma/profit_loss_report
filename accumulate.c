@@ -82,8 +82,6 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 
     fputs(report_start, data_passer->output_file);
 
-    g_slist_foreach(data_passer->properties, make_property_report, data_passer);
-
     fputs(report_end, data_passer->output_file);
 
     fclose(data_passer->output_file);

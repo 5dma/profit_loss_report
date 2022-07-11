@@ -1,4 +1,5 @@
 #include <glib-2.0/glib.h>
+#include <json-glib/json-glib.h>
 #include <gtk/gtk.h>
 #include <sqlite3.h>
 #include <stdio.h>
@@ -22,7 +23,6 @@ typedef struct {
     sqlite3 *db;
     gchar *start_date;
     gchar *end_date;
-    GSList *properties;
     FILE *output_file;
     gdouble total_revenues;
     gdouble total_expenses;
@@ -65,9 +65,15 @@ void read_reports_tree(Data_passer *data_passer);
 void add_account_to_reports(GtkButton *button, gpointer user_data);
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
 
+void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTreeIter *property_iter, gint account_type);
+
 void delete_account_from_reports(GtkButton *button, gpointer user_data);
 void reports_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
 void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_iter, char *guid, Data_passer *data_passer);
+void read_properties_into_reports_store(Data_passer *data_passer);
+
+void get_account_description(gchar *guid, gchar *description, gpointer user_data);
+void get_parent_account_description(gchar *guid, gchar *description, gpointer user_data);
 
 void revert_report_tree(GtkButton *button, gpointer user_data);
 

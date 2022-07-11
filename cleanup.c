@@ -24,8 +24,8 @@ void cleanup(Data_passer *data_passer) {
     g_free(data_passer->start_date);
     g_free(data_passer->end_date);
 
-    g_slist_foreach(data_passer->properties, free_property_list, NULL);
+   /*  g_slist_foreach(data_passer->properties, free_property_list, NULL);
     g_slist_free(data_passer->properties);
-
+ */
     g_free(data_passer);
 }

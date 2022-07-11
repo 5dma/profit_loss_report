@@ -28,85 +28,88 @@ static int add_account_descriptions(void *user_data, int argc, char **argv, char
     return 0;
 }
 
-void add_accounts(sqlite3 *db, Property *property, JsonObject *property_object, gint account_type) {
+void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTreeIter *property_iter, gint account_type) {
+    GtkTreeStore *reports_store = data_passer->reports_store;
     JsonArray *account_array;
-
+    GtkTreeIter revenue_expense_iter;
+    gtk_tree_store_append(reports_store, &revenue_expense_iter, property_iter);
     if (account_type == INCOME) {
+        gtk_tree_store_set(reports_store, &revenue_expense_iter, GUID_REPORT, "(blank)", DESCRIPTION_REPORT, "Revenue", -1);
         account_array = (JsonArray *)json_object_get_array_member(property_object, "income_accounts");
     } else {
+        gtk_tree_store_set(reports_store, &revenue_expense_iter, GUID_REPORT, "(blank)", DESCRIPTION_REPORT, "Expenses", -1);
         account_array = (JsonArray *)json_object_get_array_member(property_object, "expense_accounts");
     }
 
-    GSList *accounts = NULL;
-
     if (account_array != NULL) {
         guint len_accounts = json_array_get_length(account_array);
-
+        gchararray guid;
+        gchar parent_description[1000];
+        GtkTreeIter account_iter;
         for (int i = 0; i < len_accounts; i++) {
-            Account_summary *account_summary = g_new(Account_summary, 1);
-            account_summary->guid = strdup(json_array_get_string_element(account_array, i));
-            account_summary->description = NULL;
-            account_summary->subtotal = 0;
-
-            int rc;
-            char sql[1000];
-            char *zErrMsg = 0;
-
-            gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT, account_summary->guid);
-
-            rc = sqlite3_exec(db, sql, add_account_descriptions, account_summary, &zErrMsg);
-
-            if (rc != SQLITE_OK) {
-                g_print("SQL error: %s\n", zErrMsg);
-                sqlite3_free(zErrMsg);
-            } else {
-                //      g_print("Table created successfully\n");
-            }
-
-            accounts = g_slist_append(accounts, account_summary);
+            guid = strdup(json_array_get_string_element(account_array, i));
+            get_parent_account_description(guid, parent_description, data_passer);
+            gtk_tree_store_append(reports_store, &account_iter, &revenue_expense_iter);
+            gtk_tree_store_set(reports_store, &account_iter, GUID_REPORT, guid, DESCRIPTION_REPORT, parent_description, -1);
         }
-    }
-    if (account_type == INCOME) {
-        property->income_accounts = accounts;
-    } else {
-        property->expense_accounts = accounts;
     }
 }
 
 static int retrieve_property_description(void *user_data, int argc, char **argv, char **azColName) {
-    Property *property = (Property *)user_data;
+    gchar *description = (gchar *)user_data;
 
-    property->description = g_strdup(argv[0]);
-    //g_print("%s\n", property->description);
+    gsize mylength = g_strlcpy(description, argv[0], 1000);
+    
+
+    g_print("%s\n", description);
     return 0;
 }
 
-void add_property_descriptions(gpointer data, gpointer user_data) {
-    Property *property = (Property *)data;
+void get_account_description(gchar *guid, gchar *description, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
     int rc;
     char sql[1000];
     char *zErrMsg = 0;
 
-    gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, property->guid);
-
-    rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, property, &zErrMsg);
-    //g_print("%s\n", property->description);
+    gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, guid);
+    rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, description, &zErrMsg);
+    g_print("%s\n", description);
     if (rc != SQLITE_OK) {
         g_print("SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     } else {
-        
     }
+    return;
 }
+
+void get_parent_account_description(gchar *guid, gchar *description, gpointer user_data) {
+    Data_passer *data_passer = (Data_passer *)user_data;
+
+    int rc;
+    char sql[1000];
+    char *zErrMsg = 0;
+
+    gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT, guid);
+    rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, description, &zErrMsg);
+    g_print("%s\n", description);
+    if (rc != SQLITE_OK) {
+        g_print("SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    } else {
+    }
+    return;
+}
+
 
 Data_passer *setup(GApplication *app) {
     Data_passer *data_passer = g_new(Data_passer, 1);
-    data_passer->properties = NULL;
     data_passer->app = app;
     data_passer->accounts_store = NULL;
     data_passer->is_guid_in_reports_tree = FALSE;
+
+    data_passer->reports_store = gtk_tree_store_new(COLUMNS_REPORT, G_TYPE_STRING, G_TYPE_STRING);
+
     int rc;
     char *sql;
     char *zErrMsg = 0;
@@ -118,66 +121,7 @@ Data_passer *setup(GApplication *app) {
         return (NULL);
     }
 
-  
-
-    /* Memory is freed at end of this function */
-    gchar *input_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
-    gboolean input_file_exists = g_file_test(input_file, G_FILE_TEST_EXISTS);
-    if (input_file_exists) {
-        GError *error = NULL;
-        JsonParser *parser;
-        JsonNode *root;
-
-        /* Reference count decremented at end of this function. */
-        parser = json_parser_new();
-        json_parser_load_from_file(parser, input_file, &error);
-        if (error) {
-            g_print("Unable to parse `%s': %s\n", input_file, error->message);
-            g_error_free(error);
-        } else {
-            JsonNode *root = json_parser_get_root(parser);
-            JsonObject *root_obj = json_node_get_object(root);
-
-            /* Pretty sure no need to free following string as it is a const. */
-            const gchar *start_date_string = json_object_get_string_member(root_obj, "start_date");
-            if (start_date_string != NULL) {
-                data_passer->start_date = g_strdup(start_date_string);
-            } else {
-                data_passer->start_date = NULL;
-            }
-
-            /* Pretty sure no need to free following string as it is a const. */
-            const gchar *end_date_string = json_object_get_string_member(root_obj, "end_date");
-            if (end_date_string != NULL) {
-                data_passer->end_date = g_strdup(end_date_string);
-            } else {
-                data_passer->end_date = NULL;
-            }
-
-            JsonArray *property_array = (JsonArray *)json_object_get_array_member(root_obj, "properties");
-
-            guint len_properties = json_array_get_length(property_array);
-
-            for (int i = 0; i < len_properties; i++) {
-                JsonObject *property_object = json_array_get_object_element(property_array, i);
-                Property *property = g_new(Property, 1);
-                property->guid = g_strdup(json_object_get_string_member(property_object, "guid"));
-                property->description = NULL;
-
-                add_accounts(data_passer->db, property, property_object, INCOME);
-                add_accounts(data_passer->db, property, property_object, EXPENSE);
-
-                data_passer->properties = g_slist_append(data_passer->properties, property);
-            }
-        }
-        g_object_unref(parser);
-    } else {
-        g_print("Input file does not exist.\n");
-    }
-    g_free(input_file);
-
-    g_slist_foreach(data_passer->properties, add_property_descriptions, data_passer);
-
+    read_properties_into_reports_store(data_passer);
 
     return data_passer;
 }

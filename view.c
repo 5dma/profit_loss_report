@@ -61,7 +61,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     data_passer->tree_view_reports = tree_view_reports;
 
     read_accounts_tree(data_passer);
-    read_reports_tree(data_passer);
+  //  read_reports_tree(data_passer);
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_accounts), GTK_TREE_MODEL(data_passer->accounts_store));
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_reports), GTK_TREE_MODEL(data_passer->reports_store));
 

@@ -1,3 +1,4 @@
+#include <json-glib/json-glib.h>
 #include "headers.h"
 
 void add_income_to_report_store(gpointer data, gpointer user_data) {
@@ -35,21 +36,15 @@ void add_property_to_store(gpointer data, gpointer user_data) {
     g_slist_foreach(property->expense_accounts, add_income_to_report_store, iter_passer_reports);
 }
 
-void read_reports_tree(Data_passer *data_passer) {
-    data_passer->reports_store = gtk_tree_store_new(COLUMNS_REPORT, G_TYPE_STRING, G_TYPE_STRING);
-
-    g_slist_foreach(data_passer->properties, add_property_to_store, data_passer);
-}
-
 
 void revert_report_tree(GtkButton *button, gpointer user_data) {
-        Data_passer *data_passer = (Data_passer *)user_data;
+      /*   Data_passer *data_passer = (Data_passer *)user_data;
 
         GtkTreeStore *reports_store = data_passer->reports_store;
         gtk_tree_store_clear (reports_store);
 
 
-    g_slist_foreach(data_passer->properties, add_property_to_store, data_passer);
+    g_slist_foreach(data_passer->properties, add_property_to_store, data_passer); */
     g_print("Reverted\n");
 }
 
@@ -95,5 +90,70 @@ void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_it
     }
 
   return;
+
+}
+
+void read_properties_into_reports_store(Data_passer *data_passer) {
+
+ /* Memory is freed at end of this function */
+    gchar *input_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
+    gboolean input_file_exists = g_file_test(input_file, G_FILE_TEST_EXISTS);
+    if (input_file_exists) {
+        GError *error = NULL;
+        JsonParser *parser;
+        JsonNode *root;
+
+        /* Reference count decremented at end of this function. */
+        parser = json_parser_new();
+        json_parser_load_from_file(parser, input_file, &error);
+        if (error) {
+            g_print("Unable to parse `%s': %s\n", input_file, error->message);
+            g_error_free(error);
+        } else {
+            JsonNode *root = json_parser_get_root(parser);
+            JsonObject *root_obj = json_node_get_object(root);
+
+            /* Pretty sure no need to free following string as it is a const. */
+            const gchar *start_date_string = json_object_get_string_member(root_obj, "start_date");
+            if (start_date_string != NULL) {
+                data_passer->start_date = g_strdup(start_date_string);
+            } else {
+                data_passer->start_date = NULL;
+            }
+
+            /* Pretty sure no need to free following string as it is a const. */
+            const gchar *end_date_string = json_object_get_string_member(root_obj, "end_date");
+            if (end_date_string != NULL) {
+                data_passer->end_date = g_strdup(end_date_string);
+            } else {
+                data_passer->end_date = NULL;
+            }
+
+            JsonArray *property_array = (JsonArray *)json_object_get_array_member(root_obj, "properties");
+
+            guint len_properties = json_array_get_length(property_array);
+
+            GtkTreeStore *reports_store = data_passer->reports_store;
+            GtkTreeIter property_iter;
+            gchararray description;
+            for (int i = 0; i < len_properties; i++) {
+
+                JsonObject *property_object = json_array_get_object_element(property_array, i);
+                gtk_tree_store_append(reports_store, &property_iter, NULL);
+                gchararray guid = g_strdup(json_object_get_string_member(property_object, "guid"));
+                gchar description[1000];
+                get_account_description(guid, description, data_passer);
+                gtk_tree_store_set(reports_store, &property_iter, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
+
+                add_accounts(data_passer, property_object, &property_iter, INCOME);
+                add_accounts(data_passer, property_object, &property_iter, EXPENSE);
+
+            }
+        }
+        g_object_unref(parser);
+    } else {
+        g_print("Input file does not exist.\n");
+    }
+    g_free(input_file);
 
 }
