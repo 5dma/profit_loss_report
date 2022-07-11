@@ -3,29 +3,27 @@
 #include "headers.h"
 
 static int total_up_income(void *user_data, int argc, char **argv, char **azColName) {
-    Account_summary *account_summary = (Account_summary *)user_data;
+    gfloat *subtotal = (gfloat *)user_data;
     if (g_strcmp0(argv[0], "0") == 0) {
-        account_summary->subtotal = 0;
+        *subtotal = 0;
     } else {
         gchar *end_ptr;
-        account_summary->subtotal = g_ascii_strtod(argv[1], &end_ptr);
+        *subtotal = g_ascii_strtod(argv[1], &end_ptr);
     }
     return 0;
 }
 
-void make_subtotals(gpointer data, gpointer user_data) {
-    Account_summary *income_account = (Account_summary *)data;
-    Data_passer *data_passer = (Data_passer *)user_data;
-
-    gfloat total;
-
+void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
+    gfloat subtotal;
+    gchar description[1000];
     int rc;
     char sql[1000];
     char *zErrMsg = 0;
+    gchar guid[100];
+    gtk_tree_model_get(GTK_TREE_MODEL(data_passer->reports_store), &income_expense_iter, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
+    gint num_bytes = g_snprintf(sql, 1000, SUM_OF_ACCOUNT_ACTIVITY, guid, guid, data_passer->start_date);
 
-    gint num_bytes = g_snprintf(sql, 1000, SUM_OF_ACCOUNT_ACTIVITY, income_account->guid, income_account->guid, data_passer->start_date);
-
-    rc = sqlite3_exec(data_passer->db, sql, total_up_income, income_account, &zErrMsg);
+    rc = sqlite3_exec(data_passer->db, sql, total_up_income, &subtotal, &zErrMsg);
 
     if (rc != SQLITE_OK) {
         g_print("SQL error: %s\n", zErrMsg);
@@ -35,31 +33,62 @@ void make_subtotals(gpointer data, gpointer user_data) {
     }
 
     if (data_passer->subtotaling_revenues) {
-        data_passer->total_revenues += income_account->subtotal;
+        data_passer->total_revenues += subtotal;
     } else {
-        data_passer->total_expenses += income_account->subtotal;
+        data_passer->total_expenses += subtotal;
     }
 
-    fprintf(data_passer->output_file, ACCOUNT_REPORT, income_account->description, income_account->subtotal);
+    fprintf(data_passer->output_file, ACCOUNT_REPORT, description, subtotal);
 }
 
-void make_property_report(gpointer data, gpointer user_data) {
-    Property *property = (Property *)data;
-    Data_passer *data_passer = (Data_passer *)user_data;
-    fprintf(data_passer->output_file, PROPERTY_HEADER, property->description);
-    data_passer->total_revenues = 0;
-    data_passer->total_expenses = 0;
-    fputs(INCOME_HEADER, data_passer->output_file);
+void make_property_report(Data_passer *data_passer) {
+    GtkTreeIter report_store_top_iter;
 
-    data_passer->subtotaling_revenues = TRUE;
-    g_slist_foreach(property->income_accounts, make_subtotals, data_passer);
-    fprintf(data_passer->output_file, INCOME_TOTAL, data_passer->total_revenues);
+    GtkTreeModel *tree_model =  GTK_TREE_MODEL(data_passer->reports_store);
+    gboolean found_top_iter = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(data_passer->reports_store), &report_store_top_iter);
 
-    fputs(EXPENSE_HEADER, data_passer->output_file);
+    if (!found_top_iter) {
+        g_print("No properties in report tree, no report generated\n");
+        return;
+    }
+    gchararray description;
+    do {
+        gtk_tree_model_get(tree_model, &report_store_top_iter, DESCRIPTION_REPORT, description, -1);
+        fprintf(data_passer->output_file, PROPERTY_HEADER, description);
+        data_passer->total_revenues = 0;
+        data_passer->total_expenses = 0;
+        fputs(INCOME_HEADER, data_passer->output_file);
+        data_passer->subtotaling_revenues = TRUE;
+
+        /* print the revenue entries for the current property. */
+
+        GtkTreeIter income_expense_iter;
+        gboolean found_revenue_header = gtk_tree_model_iter_nth_child(tree_model, &income_expense_iter, &report_store_top_iter, INCOME);
+        if (found_revenue_header) {
+            gboolean found_revenue_entries = gtk_tree_model_iter_has_child(tree_model, &income_expense_iter);
+            if (found_revenue_entries) {
+                do {
+                    make_subtotals(income_expense_iter, data_passer);
+                } while (gtk_tree_model_iter_next(tree_model, &income_expense_iter));
+            }
+        }
+        fprintf(data_passer->output_file, INCOME_TOTAL, data_passer->total_revenues);
+        fputs(EXPENSE_HEADER, data_passer->output_file);
+        gboolean found_expenses_header = gtk_tree_model_iter_nth_child(tree_model, &income_expense_iter, &report_store_top_iter, EXPENSE);
+        if (found_expenses_header) {
+            gboolean found_expense_entries = gtk_tree_model_iter_has_child(tree_model, &income_expense_iter);
+            if (found_expense_entries) {
+                do {
+                    make_subtotals(income_expense_iter, data_passer);
+                } while (gtk_tree_model_iter_next(tree_model, &income_expense_iter));
+            }
+        }
+        fprintf(data_passer->output_file, EXPENSE_TOTAL, data_passer->total_expenses);
+
+    } while (gtk_tree_model_iter_next(tree_model, &report_store_top_iter));
+
+
     data_passer->subtotaling_revenues = FALSE;
-    g_slist_foreach(property->expense_accounts, make_subtotals, data_passer);
-
-    fprintf(data_passer->output_file, EXPENSE_TOTAL, data_passer->total_expenses);
 
     fprintf(data_passer->output_file, NET_INCOME, data_passer->total_revenues - data_passer->total_expenses);
 
@@ -81,6 +110,8 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
     }
 
     fputs(report_start, data_passer->output_file);
+
+    make_property_report(data_passer);
 
     fputs(report_end, data_passer->output_file);
 
