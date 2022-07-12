@@ -76,6 +76,7 @@ void get_account_description(gchar *guid, gchar *description, gpointer user_data
 void get_parent_account_description(gchar *guid, gchar *description, gpointer user_data);
 
 void revert_report_tree(GtkButton *button, gpointer user_data);
+void save_report_tree(GtkButton *button, gpointer user_data);
 
 enum account_type { INCOME,
                     EXPENSE };

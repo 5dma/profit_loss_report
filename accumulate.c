@@ -45,7 +45,7 @@ void make_property_report(Data_passer *data_passer) {
     GtkTreeIter report_store_top_iter;
 
     GtkTreeModel *tree_model = GTK_TREE_MODEL(data_passer->reports_store);
-    gboolean found_top_iter = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(data_passer->reports_store), &report_store_top_iter);
+    gboolean found_top_iter = gtk_tree_model_get_iter_first(tree_model, &report_store_top_iter);
 
     if (!found_top_iter) {
         g_print("No properties in report tree, no report generated\n");

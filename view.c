@@ -102,6 +102,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_widget_set_sensitive(btn_add, FALSE);
     gtk_widget_set_sensitive(btn_delete, FALSE);
 
+    g_signal_connect(btn_save, "clicked", G_CALLBACK(save_report_tree), data_passer);
     g_signal_connect(btn_add, "clicked", G_CALLBACK(add_account_to_reports), data_passer);
     g_signal_connect(btn_delete, "clicked", G_CALLBACK(delete_account_from_reports), data_passer);
     g_signal_connect(btn_go, "clicked", G_CALLBACK(make_pl_report), data_passer);

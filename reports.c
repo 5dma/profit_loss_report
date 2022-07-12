@@ -39,10 +39,141 @@ void add_property_to_store(gpointer data, gpointer user_data) {
 void revert_report_tree(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
-    gtk_tree_store_clear (data_passer->reports_store);
+    gtk_tree_store_clear(data_passer->reports_store);
 
     read_properties_into_reports_store(data_passer);
     g_print("Reverted\n");
+}
+
+void save_report_tree(GtkButton *button, gpointer user_data) {
+    Data_passer *data_passer = (Data_passer *)user_data;
+    GtkTreeStore *reports_store = data_passer->reports_store;
+    GtkTreeModel *tree_model = GTK_TREE_MODEL(data_passer->reports_store);
+    GtkTreeIter report_store_top_iter;
+    gboolean found_top_iter = gtk_tree_model_get_iter_first(tree_model, &report_store_top_iter);
+
+    if (!found_top_iter) {
+        g_print("No properties in report tree, no save performed\n");
+        return;
+    }
+
+    JsonBuilder *builder = json_builder_new();
+    json_builder_begin_object(builder);
+
+    json_builder_set_member_name(builder, "start_date");
+    if (data_passer->start_date == NULL) {
+        json_builder_add_null_value(builder);
+    } else {
+        json_builder_add_string_value(builder, data_passer->start_date);
+    }
+
+    json_builder_set_member_name(builder, "end_date");
+    if (data_passer->end_date == NULL) {
+        json_builder_add_null_value(builder);
+    } else {
+        json_builder_add_string_value(builder, data_passer->end_date);
+    }
+
+    json_builder_set_member_name(builder, "properties");
+
+    json_builder_begin_array(builder);
+
+    gchararray guid;
+    gchararray description;
+    JsonNode *barf;
+    gchar *code = (gchar *)g_malloc0(100);
+    GtkTreeIter income_expense_iter;
+    GtkTreeIter line_item_iter;
+    do {
+        gtk_tree_model_get(tree_model, &report_store_top_iter, GUID_REPORT, &guid, DESCRIPTION_REPORT, &description, -1);
+        json_builder_begin_object(builder);
+        json_builder_set_member_name(builder, "code");
+
+        gchar *first_space = g_strstr_len(description, -1, " ");
+        gint num_chars_to_copy = first_space - description;
+
+        memset(code, '\0', 100);
+        for (gint i = 0; i < num_chars_to_copy; i++) {
+            code[i] = description[i];
+        }
+
+        barf = json_node_new(JSON_NODE_VALUE);
+        json_node_set_string(barf, code);
+        json_builder_add_value(builder, barf);
+
+        json_builder_set_member_name(builder, "guid");
+        barf = json_node_new(JSON_NODE_VALUE);
+        json_node_set_string(barf, guid);
+        json_builder_add_value(builder, barf);
+
+        json_builder_set_member_name(builder, "income_accounts");
+
+        /* Get iter for "Revenue" for current property. */
+        gboolean found_revenue_header = gtk_tree_model_iter_nth_child(tree_model, &income_expense_iter, &report_store_top_iter, INCOME);
+        if (found_revenue_header) {
+            /* Check if the "Revenue" iter has individual revenue line items. */
+            gboolean found_revenue_entries = gtk_tree_model_iter_has_child(tree_model, &income_expense_iter);
+            if (found_revenue_entries) {
+                json_builder_begin_array(builder);
+                /* For each revenue line item, print its subtotal over the date range and accumulate. */
+                gtk_tree_model_iter_children(tree_model, &line_item_iter, &income_expense_iter);
+                do {
+                    gtk_tree_model_get(GTK_TREE_MODEL(data_passer->reports_store), &line_item_iter, GUID_REPORT, &guid, -1);
+                    barf = json_node_new(JSON_NODE_VALUE);
+                    json_node_set_string(barf, guid);
+                    json_builder_add_value(builder, barf);
+                } while (gtk_tree_model_iter_next(tree_model, &line_item_iter));
+                json_builder_end_array(builder);
+            } else {
+                json_builder_add_null_value(builder);
+            }
+        }
+
+        json_builder_set_member_name(builder, "expense_accounts");
+
+        /* Get iter for "Revenue" for current property. */
+        gboolean found_expense_header = gtk_tree_model_iter_nth_child(tree_model, &income_expense_iter, &report_store_top_iter, EXPENSE);
+        if (found_expense_header) {
+            /* Check if the "Revenue" iter has individual revenue line items. */
+            gboolean found_revenue_entries = gtk_tree_model_iter_has_child(tree_model, &income_expense_iter);
+            if (found_revenue_entries) {
+                json_builder_begin_array(builder);
+                /* For each revenue line item, print its subtotal over the date range and accumulate. */
+                gtk_tree_model_iter_children(tree_model, &line_item_iter, &income_expense_iter);
+                do {
+                    gtk_tree_model_get(GTK_TREE_MODEL(data_passer->reports_store), &line_item_iter, GUID_REPORT, &guid, -1);
+                    barf = json_node_new(JSON_NODE_VALUE);
+                    json_node_set_string(barf, guid);
+                    json_builder_add_value(builder, barf);
+                } while (gtk_tree_model_iter_next(tree_model, &line_item_iter));
+                json_builder_end_array(builder);
+
+            } else {
+                json_builder_add_null_value(builder);
+            }
+        }
+
+        json_builder_end_object(builder);
+    } while (gtk_tree_model_iter_next(tree_model, &report_store_top_iter));
+    json_builder_end_array(builder);
+
+    json_builder_end_object(builder);
+
+    JsonGenerator *generator = json_generator_new();
+    json_generator_set_pretty(generator, TRUE);
+    JsonNode *root = json_builder_get_root(builder);
+    json_generator_set_root(generator, root);
+    gchar *str = json_generator_to_data(generator, NULL);
+    GError *gerror = NULL;
+    gchar *output_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
+
+    gboolean wrote_json_file = json_generator_to_file(generator, output_file, &gerror);
+    g_free(code);
+    json_node_free(root);
+    g_object_unref(generator);
+    g_object_unref(builder);
+    g_free(output_file);
+
 }
 
 /**
