@@ -60,7 +60,6 @@ Data_passer *setup();
 void make_pl_report(GtkButton *button, gpointer user_data);
 void cleanup(Data_passer *data_passer);
 void read_accounts_tree(Data_passer *data_passer);
-void read_reports_tree(Data_passer *data_passer);
 void add_account_to_reports(GtkButton *button, gpointer user_data);
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
 
@@ -100,12 +99,6 @@ static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8;
 * Array of account names that can be included in a P&L report. NEED TO MAKE THIS DYNAMIC.
 */
 static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325","349","351","353","9820"};
-
-typedef struct {
-    gchar *guid;
-    gchar *name;
-    gchar *description;
-} Account;
 
 void on_app_activate(GApplication *app, gpointer data);
 GtkWidget *make_window(Data_passer *data_passer);
