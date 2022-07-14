@@ -1,6 +1,6 @@
 #include <glib-2.0/glib.h>
-#include <json-glib/json-glib.h>
 #include <gtk/gtk.h>
+#include <json-glib/json-glib.h>
 #include <sqlite3.h>
 #include <stdio.h>
 #ifndef __HEADER
@@ -9,50 +9,44 @@
 /**
  * @file headers.h
  * @brief Contains data structures and function prototypes.
-*/
-
+ */
 
 /**
- * \struct Data_passer
  * Structure for passing data to functions and callbacks.
-*/ 
+ * \struct Data_passer
+ */
 typedef struct {
-    sqlite3 *db;
-    gchar *start_date;
-    gchar *end_date;
-    FILE *output_file;
-    gdouble total_revenues;
-    gdouble total_expenses;
-    gboolean subtotaling_revenues;
-    GApplication *app;
-    GtkTreeStore *accounts_store;
-    GtkTreeStore *reports_store;
-    /* Do we need the following two members? */
-    GtkWidget *tree_view_accounts;
-    GtkWidget *tree_view_reports;
-    GtkWidget *btn_add;
-    GtkWidget *btn_delete;
-    GtkTreePath *fixed_asset_root;
-    GtkTreePath *income_root;
-    GtkTreePath *expenses_root;
-    gboolean is_guid_in_reports_tree;
+    sqlite3 *db;                      /**< Pointer to sqlite database handle. */
+    gchar *start_date;                /**< Start of date range for reporting purposes. */
+    gchar *end_date;                  /**< End of date range for reporting purposes. */
+    FILE *output_file;                /**< Handle for output file. */
+    gdouble total_revenues;           /**< Accumulates total revenue for a property. */
+    gdouble total_expenses;           /**< Accumulates total expenses for a property. */
+    gboolean subtotaling_revenues;    /**< Indicates if we are subtotaling revenues or expenses for a property. */
+    GApplication *app;                /**< Pointer to the GTK application. */
+    GtkTreeStore *accounts_store;     /**< Pointer to tree store for GnuCash accounts. */
+    GtkTreeStore *reports_store;      /**< Pointer to tree store for accounts included in the P&L report. */
+    GtkWidget *tree_view_accounts;    /**< Pointer to tree view showing GnuCash accounts. */
+    GtkWidget *tree_view_reports;     /**< Pointer to tree view showing accounts included in the P&L report. */
+    GtkWidget *btn_add;               /**< Pointer to the add button. */
+    GtkWidget *btn_delete;            /**< Pointer to the delete button. */
+    GtkTreePath *fixed_asset_root;    /**< Path in the GnuCash tree that holds the parent of all fixed assets. */
+    GtkTreePath *income_root;         /**< Path in the GnuCash tree that holds the parent of all income accounts. */
+    GtkTreePath *expenses_root;       /**< Path in the GnuCash tree that holds the parent of all expense accounts. */
+    gboolean is_guid_in_reports_tree; /**< Indicates if a selected guid is already in the reports tree. */
 } Data_passer;
 
 /**
- * \struct Iter_passer
  * Structure for passing an iter to functions and callbacks.
- * 
- * @see build_tree()
- * @see read_accounts_tree()
- * @see has_children()
-*/ 
+ * \struct Iter_passer
+ */
 typedef struct {
-    sqlite3 *db;
-    GtkTreeStore *accounts_store;
-    int number_of_children;
-    GtkTreeIter parent;
-    GtkTreeIter child;
-    gboolean at_root_level;
+    sqlite3 *db;                  /**< Pointer to sqlite database handle. */
+    GtkTreeStore *accounts_store; /**< Pointer to GnuCash accounts store. */
+    int number_of_children;       /**< Number of children associated with `parent`. */
+    GtkTreeIter parent;           /**< Pointer to a given parent account in the GnuCash accounts store. */
+    GtkTreeIter child;            /**< Pointer to a child account of `parent`. */
+    gboolean at_root_level;       /**< `TRUE` if the parent is at the root level of the GnuCash store, `FALSE` otherwise. */
 } Iter_passer;
 
 Data_passer *setup();
@@ -76,44 +70,59 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
 void revert_report_tree(GtkButton *button, gpointer user_data);
 void save_report_tree(GtkButton *button, gpointer user_data);
 
-enum account_type { INCOME,
-                    EXPENSE };
+/**
+ * Flag used when computing subtotals for income or expenses.
+ * @see make_subtotals()
+ */
+enum account_type { INCOME, /**< Indicates subtotals are for an income account. */
+                    EXPENSE /**< Indicates subtotals are for an expense account. */
+};
 
+/**
+ * Counter for columns in the GnuCash accounts store.
+ */
 enum account_store_fields {
-    GUID_ACCOUNT,
-    NAME_ACCOUNT,
-    DESCRIPTION_ACCOUNT,
-    COLUMNS_ACCOUNT
+    GUID_ACCOUNT, /**< Column 0 holds the the GnuCash guid. */
+    NAME_ACCOUNT, /**< Column 1 holds the the GnuCash account's name. */
+    DESCRIPTION_ACCOUNT, /**< Column 2 holds the the GnuCash account's description. */
+    COLUMNS_ACCOUNT /**< Number of columns in the GnuCash accounts store. */
 };
 
+/**
+ * Counter for columns in the P&L report's store.
+ */
 enum report_store_fields {
-    GUID_REPORT,
-    DESCRIPTION_REPORT,
-    COLUMNS_REPORT
+    GUID_REPORT, /**< Column 0 holds the the GnuCash guid. */
+    DESCRIPTION_REPORT, /**< Column 1 holds the the GnuCash account's description. */
+    COLUMNS_REPORT /**< Number of columns in the P&L report's store. */
 };
 
-static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8;
+
+static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8; /**< Need to get rid of this, along with PL_ACCOUNTS_ARRAY. */
 
 /**
  * \struct PL_ACCOUNTS_ARRAY
-* Array of account names that can be included in a P&L report. NEED TO MAKE THIS DYNAMIC.
-*/
-static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325","349","351","353","9820"};
+ */
+static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325", "349", "351", "353", "9820"}; /**< Array of account names that can be included in a P&L report. NEED TO MAKE THIS DYNAMIC. */
 
 void on_app_activate(GApplication *app, gpointer data);
 GtkWidget *make_window(Data_passer *data_passer);
 
-static gchar *REVENUE = "Revenue";
-static gchar *EXPENSES = "Expenses";
+static gchar *REVENUE = "Revenue"; /**< String constant for adding a `Revenue` heading in the P&L report's store. */
+static gchar *EXPENSES = "Expenses"; /**< String constant for adding an `Expenses` heading in the P&L report's store. */
 
-static gchar *SELECT_DESCRIPTION_FROM_ACCOUNT = "SELECT description FROM accounts WHERE guid = \"%s\";";
-static gchar *SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT = "SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\";";
-static gchar *SUM_OF_ACCOUNT_ACTIVITY = "SELECT COUNT(*), ABS(SUM(value_num/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date > \"%s\";";
-static gchar *ACCOUNT_REPORT = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%-#4.2f</td>\n</tr>\n";
-static gchar *PROPERTY_HEADER = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n";
-static gchar *INCOME_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";
-static gchar *INCOME_TOTAL = "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";
-static gchar *EXPENSE_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n";
-static gchar *EXPENSE_TOTAL = "<tr>\n<td>Total expenses</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";
-static gchar *NET_INCOME = "<tr class=\"table-success\">\n<td>Net income</td>\n<td><span class=\"double_underline\">%-#4.2f</span></td>\n</tr>\n";
+static gchar *SELECT_DESCRIPTION_FROM_ACCOUNT = "SELECT description FROM accounts WHERE guid = \"%s\";"; /**< SQL statement that retrieves a description for a given guid. See get_account_description().  */
+
+static gchar *SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT = "SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\";"; /**< SQL statement that, for a given guid, retrieves the parent guid's description. See get_parent_account_description(). */
+
+static gchar *SUM_OF_ACCOUNT_ACTIVITY = "SELECT COUNT(*), ABS(SUM(value_num/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date > \"%s\";"; /**< SQL statement that, for a given guid, retrieves the number of transactions and the subtotal of those transactions. See make_subtotals(). */
+
+
+static gchar *ACCOUNT_REPORT = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%-#4.2f</td>\n</tr>\n"; /**< HTML template for printing an account's subtotal. See make_subtotals(). */
+static gchar *PROPERTY_HEADER = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n"; /**< HTML template for printing a fixed asset's header. See make_property_report(). */
+static gchar *INCOME_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n"; /**< HTML template for printing the income header in a fixed asset's report. See make_property_report(). */
+static gchar *INCOME_TOTAL = "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n"; /**< HTML template for printing the total income in a fixed asset's report. See make_property_report(). */
+static gchar *EXPENSE_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n"; /**< HTML template for printing the expense header in a fixed asset's report. See make_property_report(). */
+static gchar *EXPENSE_TOTAL = "<tr>\n<td>Total expenses</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n"; /**< HTML template for printing the total expenses in a fixed asset's report. See make_property_report(). */
+static gchar *NET_INCOME = "<tr class=\"table-success\">\n<td>Net income</td>\n<td><span class=\"double_underline\">%-#4.2f</span></td>\n</tr>\n"; /**< HTML template for printing the net income (INCOME_TOTAL − EXPENSE TOTAL) in a fixed asset's report. See make_property_report(). */
 #endif
