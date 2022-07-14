@@ -10,18 +10,7 @@
  * @file headers.h
  * @brief Contains data structures and function prototypes.
 */
-typedef struct {
-    gchar *guid;
-    gchar *description;
-    GSList *income_accounts;
-    GSList *expense_accounts;
-} Property;
 
-typedef struct {
-    gchar *guid;
-    gchar *description;
-    gdouble subtotal;
-} Account_summary;
 
 /**
  * \struct Data_passer
@@ -66,15 +55,9 @@ typedef struct {
     gboolean at_root_level;
 } Iter_passer;
 
-typedef struct {
-    GtkTreeStore *reports_store;
-    GtkTreeIter parent;
-} Iter_passer_reports;
-
 Data_passer *setup();
 
 void make_pl_report(GtkButton *button, gpointer user_data);
-void generate_property_report(Property *property, Data_passer *data_passer);
 void cleanup(Data_passer *data_passer);
 void read_accounts_tree(Data_passer *data_passer);
 void read_reports_tree(Data_passer *data_passer);
@@ -123,10 +106,6 @@ typedef struct {
     gchar *name;
     gchar *description;
 } Account;
-
-typedef enum {
-    STRING,
-} target_info;
 
 void on_app_activate(GApplication *app, gpointer data);
 GtkWidget *make_window(Data_passer *data_passer);
