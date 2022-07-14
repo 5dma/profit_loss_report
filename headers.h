@@ -6,6 +6,10 @@
 #ifndef __HEADER
 #define __HEADER
 
+/**
+ * @file headers.h
+ * @brief Contains data structures and function prototypes.
+*/
 typedef struct {
     gchar *guid;
     gchar *description;
@@ -19,6 +23,10 @@ typedef struct {
     gdouble subtotal;
 } Account_summary;
 
+/**
+ * \struct Data_passer
+ * Structure for passing data to functions and callbacks.
+*/ 
 typedef struct {
     sqlite3 *db;
     gchar *start_date;
@@ -41,6 +49,14 @@ typedef struct {
     gboolean is_guid_in_reports_tree;
 } Data_passer;
 
+/**
+ * \struct Iter_passer
+ * Structure for passing an iter to functions and callbacks.
+ * 
+ * @see build_tree()
+ * @see read_accounts_tree()
+ * @see has_children()
+*/ 
 typedef struct {
     sqlite3 *db;
     GtkTreeStore *accounts_store;

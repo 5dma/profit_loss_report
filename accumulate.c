@@ -1,7 +1,12 @@
 #include <stdio.h>
-
 #include "headers.h"
 
+
+/**
+ * @file accumulate.c
+ * @brief Contains functions for generating the P&L report.
+ *
+*/
 static int total_up_income(void *user_data, int argc, char **argv, char **azColName) {
     gfloat *subtotal = (gfloat *)user_data;
     if (g_strcmp0(argv[0], "0") == 0) {

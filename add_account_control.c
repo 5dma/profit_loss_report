@@ -4,13 +4,12 @@
 
 /**
  * Uses `g_strcmp0` to compare two guids.
- */
+
 gint compare_guids(gpointer pa, gpointer pb) {
     const gchar *account_1 = (gchar *)pa;
     const gchar *account_2 = (gchar *)pb;
-    // g_print("pa: %s, pb: %s\n", account_1, account_2);
     return g_strcmp0(account_1, account_2);
-}
+} */
 
 /**
  * Returns true if the selected account's name is one of the account codes (242, 323, 349, etc.)

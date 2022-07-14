@@ -1,40 +1,11 @@
 #include <json-glib/json-glib.h>
-
 #include "headers.h"
 
-void add_income_to_report_store(gpointer data, gpointer user_data) {
-    Account_summary *account_summary = (Account_summary *)data;
-    Iter_passer_reports *iter_passer_reports = (Iter_passer_reports *)user_data;
-    GtkTreeIter child;
-    gtk_tree_store_append(iter_passer_reports->reports_store, &child, &(iter_passer_reports->parent));
-    // g_print("%s\n", account_summary->description);
-    gtk_tree_store_set(iter_passer_reports->reports_store, &child, GUID_REPORT, account_summary->guid, DESCRIPTION_REPORT, account_summary->description, -1);
-}
 
-void add_property_to_store(gpointer data, gpointer user_data) {
-    Property *property = (Property *)data;
-    Data_passer *data_passer = (Data_passer *)user_data;
-
-    GtkTreeIter parent_iter;
-    gtk_tree_store_append(data_passer->reports_store, &parent_iter, NULL);
-    gtk_tree_store_set(data_passer->reports_store, &parent_iter, GUID_REPORT, property->guid, DESCRIPTION_REPORT, property->description, -1);
-
-    GtkTreeIter child_iter_income;
-    gtk_tree_store_append(data_passer->reports_store, &child_iter_income, &parent_iter);
-    gtk_tree_store_set(data_passer->reports_store, &child_iter_income, DESCRIPTION_REPORT, REVENUE, -1);
-
-    Iter_passer_reports *iter_passer_reports = g_new(Iter_passer_reports, 1);
-    iter_passer_reports->reports_store = data_passer->reports_store;
-    iter_passer_reports->parent = child_iter_income;
-    g_slist_foreach(property->income_accounts, add_income_to_report_store, iter_passer_reports);
-
-    GtkTreeIter child_iter_expenses;
-    gtk_tree_store_append(data_passer->reports_store, &child_iter_expenses, &parent_iter);
-    gtk_tree_store_set(data_passer->reports_store, &child_iter_expenses, DESCRIPTION_REPORT, EXPENSES, -1);
-
-    iter_passer_reports->parent = child_iter_expenses;
-    g_slist_foreach(property->expense_accounts, add_income_to_report_store, iter_passer_reports);
-}
+/**
+ * @file reports.c
+ * @brief Contains functions pertaining to the tree view containg accounts in the P&L report.
+ */
 
 void revert_report_tree(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
@@ -173,7 +144,6 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
     g_object_unref(generator);
     g_object_unref(builder);
     g_free(output_file);
-
 }
 
 /**
@@ -192,6 +162,10 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
  *    -# Get the sibling iter.
  *    -# Recurse with  store, sibling iter, guid we are looking for, and the data passer
  * -# Return.
+ * @param reports_store Tree store holding the accounts included in the P&L report.
+ * @param current_iter GtkTreeIter pointing to a position in the tree store.
+ * @param guid The target `guid` we are seeking.
+ * @param data_passer Pointer to a Data_passer struct.
  */
 void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_iter, char *guid, Data_passer *data_passer) {
     if (data_passer->is_guid_in_reports_tree == TRUE) {
@@ -220,7 +194,14 @@ void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_it
     return;
 }
 
+/**
+ * Reads the JSON file that contains accounts in the P&L report, and places those accounts into the reports tree store. The JSON file must be at `~/.profit_loss/accounts.json`.
+ * 
+ * This function fails if the JSON file does not exist, or if the file cannot be parsed as a JSON object.
+ * @param data_passer Pointer to a Data_passer struct.
+ */
 void read_properties_into_reports_store(Data_passer *data_passer) {
+
     /* Memory is freed at end of this function */
     gchar *input_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
     gboolean input_file_exists = g_file_test(input_file, G_FILE_TEST_EXISTS);
@@ -262,6 +243,11 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
             GtkTreeStore *reports_store = data_passer->reports_store;
             GtkTreeIter property_iter;
             gchararray description;
+
+            /*
+                Loop through the `properties` object in the JSON file. For each object, 
+                add it to the store, and then add the associated income and expense accounts to the store.
+            */
             for (int i = 0; i < len_properties; i++) {
                 JsonObject *property_object = json_array_get_object_element(property_array, i);
                 gtk_tree_store_append(reports_store, &property_iter, NULL);
