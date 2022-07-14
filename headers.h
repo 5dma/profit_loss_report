@@ -111,6 +111,11 @@ enum report_store_fields {
 };
 
 static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8;
+
+/**
+ * \struct PL_ACCOUNTS_ARRAY
+* Array of account names that can be included in a P&L report. NEED TO MAKE THIS DYNAMIC.
+*/
 static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325","349","351","353","9820"};
 
 typedef struct {

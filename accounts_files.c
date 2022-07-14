@@ -47,11 +47,10 @@ void save_top_level_iters(Data_passer *data_passer) {
 /**
  * Sqlite callback that returns the number of children associated with a passed parent iter. The number of children is placed in `iter_passer->number_of_children`.
  * 
- * @param user_data Pointer to the passed parent iter.
+ * @param user_data Pointer to a Iter_passer struct.
  * @param argc Number of columns in sqlite result.
  * @param argv Array of pointers to the results of a query.
  * @param azColName Array of pointers to strings corresponding to result column names.
- * @param data_passer Pointer to a Iter_passer struct.
  * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html )
 */
 static int has_children(void *user_data, int argc, char **argv, char **azColName) {

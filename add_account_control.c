@@ -3,26 +3,21 @@
 #include "headers.h"
 
 /**
- * Uses `g_strcmp0` to compare two guids.
-
-gint compare_guids(gpointer pa, gpointer pb) {
-    const gchar *account_1 = (gchar *)pa;
-    const gchar *account_2 = (gchar *)pb;
-    return g_strcmp0(account_1, account_2);
-} */
+ * @file add_account_control.c
+ * @brief Contains functions for adding an account to the reports tree.
+ *
+*/
 
 /**
- * Returns true if the selected account's name is one of the account codes (242, 323, 349, etc.)
+ * Determins if a passed account name is 242, 323, 349, or any of the accounts in the PL_ACCOUNTS_ARRAY.
+ * @param name
+ * @param iter
+ * @param data_passer Pointer to a Data_passer struct.
+ * @return `TRUE` if the selected account's name is one of the account codes (242, 323, 349, etc.) and therefore can be included in the P&L report, `FALSE` otherwise.
  */
 gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer) {
     GtkTreePath *tree_path = gtk_tree_model_get_path(GTK_TREE_MODEL(data_passer->accounts_store), &iter);
     gboolean is_pl_account = FALSE;
-
-    /*    if ((gtk_tree_path_compare(data_passer->fixed_asset_root, tree_path) == 0) ||
-           (gtk_tree_path_compare(data_passer->income_root, tree_path) == 0) ||
-           (gtk_tree_path_compare(data_passer->expenses_root, tree_path) == 0)) {
-           return is_p_l_account;
-       } */
 
     for (gint i = 0; i < LENGTH_PL_ACCOUNTS_ARRAY; i++) {
         if (g_strcmp0(name, PL_ACCOUNTS_ARRAY[i]) == 0) {
@@ -35,9 +30,15 @@ gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer)
 }
 
 /**
- * Finds the iter of a fixed asset in the reports tree corresponding to an iter in the accounts tree. If a match is found, returns TRUE, otherwise returns FALSE.
- */
+ * Gets the fixed asset associated with the name of a passed GnuCash account. For example, if the passed GnuCash account has name `323`, this function returns the iter in the reports tree pointing to `323 Main Street.`.
+ * @param model Pointer to the report model.
+ * @param account_iter Pointer to the GnuCash account.
+ * @param corresponding_report_iter Pointer to the corresponding fixed asset in the report tree.
+ * @param data_passer Pointer to a Data_passer struct.
+ * @return `TRUE` if a matching fixed asset was found in the report tree, `FALSE` otherwise.
+*/
 gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_iter, GtkTreeIter *corresponding_report_iter, Data_passer *data_passer) {
+
     gchararray name;
     gtk_tree_model_get(model, &account_iter, 1, &name, -1);
 
@@ -58,12 +59,19 @@ gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_it
     return FALSE;
 }
 
+/**
+ * Determins if a passed GnuCash account is already in the reports tree.
+ * @param accounts_model Pointer to the report model.
+ * @param accounts_iter Pointer to the GnuCash account.
+ * @param data_passer Pointer to a Data_passer struct.
+ * @return `TRUE` the passed GnuCash account is already in the reports tree, `FALSE` otherwise.
+*/
 gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter accounts_iter, Data_passer *data_passer) {
+
     /* Check if under income or expense.
         Get name (323, 242, 349, etc.), which indicates the fixed asset
          Check if fixed asset is in top level of reports tree
      */
-
     GtkTreePath *accounts_path_selection = gtk_tree_model_get_path(accounts_model, &accounts_iter);
     gboolean is_income_account = gtk_tree_path_is_descendant(accounts_path_selection, data_passer->income_root);
     gboolean is_expense_account = gtk_tree_path_is_descendant(accounts_path_selection, data_passer->expenses_root);
@@ -90,6 +98,21 @@ gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter
     return FALSE;
 }
 
+/**
+ * Gtk callback fired when the selection in the GnuCash accounts tree view changes. This callback sets the add button's sensitivity to `TRUE` if the selected account can be added to the report, and sets the sensitivity to `FALSE` if the selected account cannot be added.
+ * 
+ * The conditions for enabling a selected account to be added to the reports tree:
+ * 
+ * - The selected account does not yet exist in the reports tree, AND
+ * - The selected account is a child of the Fixed Assets root (meaning it is one of the top-level property fixed assets), OR
+ * - The selected account is eligible to be in the P&L report.
+ *  
+ * @param tree_view_accounts Pointer to the accounts tree view.
+ * @param data_passer Pointer to a Data_passer struct.
+ * @see is_guid_in_reports_tree()
+ * @see is_p_l_account()
+ * @see account_parent_in_report_tree()
+*/
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
     GtkTreeSelection *tree_view_accounts_selection = gtk_tree_view_get_selection(tree_view_accounts);
@@ -131,13 +154,17 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
 }
 
 /**
- * Adds a currently selected account to the reports tree. The logic is as follows:
+ * Gtk callback that adds a currently selected account to the reports tree. The callback is fired when the user clicks on the add button.
+ * 
+ * The logic is as follows:
 
-    * If the selection is a fixed asset, add it to the reports tree and exit.
-    * Get to which fixed asset the selection belongs.
-    * Determine if the selection is an expense or income.
-    * Add the selection to the corresponding account in the reports tree, under expense or income as appropriate.
-*/
+    -# If the selection is a fixed asset, add it to the reports tree and exit.
+    -# Get to which fixed asset the selection belongs.
+    -# Determine if the selection is an expense or income.
+    -# Add the selection to the corresponding account in the reports tree, under expense or income as appropriate.
+ * @param button Pointer to the clicked add button.
+ * @param data_passer Pointer to a Data_passer struct.
+ */
 void add_account_to_reports(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
