@@ -2,10 +2,18 @@
 
 #include "headers.h"
 
+/**
+ * @file cleanup.c
+ * @brief Contains functions that free memory before ending the application.
+ *
+*/
 
 
-
-
+/**
+ * Gtk callback fired when clicking the exit button or destroying the main window.
+ * @param data_passer Pointer to a Data_passer struct.
+ * @return `TRUE` if the selected account's name is one of the account codes (242, 323, 349, etc.) and therefore can be included in the P&L report, `FALSE` otherwise.
+ */
 void cleanup(Data_passer *data_passer) {
     fclose(data_passer->output_file);
     sqlite3_close(data_passer->db);

@@ -51,7 +51,7 @@ void save_top_level_iters(Data_passer *data_passer) {
  * @param argc Number of columns in sqlite result.
  * @param argv Array of pointers to the results of a query.
  * @param azColName Array of pointers to strings corresponding to result column names.
- * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html )
+ * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html)
 */
 static int has_children(void *user_data, int argc, char **argv, char **azColName) {
     Iter_passer *iter_passer = (Iter_passer *)user_data;
@@ -67,7 +67,7 @@ static int has_children(void *user_data, int argc, char **argv, char **azColName
  * @param argv Array of pointers to the results of a query.
  * @param azColName Array of pointers to strings corresponding to result column names.
  * @return 0 if the recursion is successful.
- * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html )
+ * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html)
 */
 static int build_tree(void *user_data, int argc, char **argv, char **azColName) {
     Iter_passer *iter_passer = (Iter_passer *)user_data;

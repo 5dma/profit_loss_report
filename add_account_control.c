@@ -108,7 +108,7 @@ gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter
  * - The selected account is eligible to be in the P&L report.
  *  
  * @param tree_view_accounts Pointer to the accounts tree view.
- * @param data_passer Pointer to a Data_passer struct.
+ * @param user_data Pointer to a Data_passer struct.
  * @see is_guid_in_reports_tree()
  * @see is_p_l_account()
  * @see account_parent_in_report_tree()
@@ -163,7 +163,7 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
     -# Determine if the selection is an expense or income.
     -# Add the selection to the corresponding account in the reports tree, under expense or income as appropriate.
  * @param button Pointer to the clicked add button.
- * @param data_passer Pointer to a Data_passer struct.
+ * @param user_data Pointer to a Data_passer struct.
  */
 void add_account_to_reports(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;

@@ -2,19 +2,28 @@
 #include <json-glib/json-glib.h>
 #include <sqlite3.h>
 #include <stdio.h>
-
 #include "headers.h"
 
 /**
- * @file app_activate.c
+ * @file initialize.c
  * @brief Contains function that starts the application.
  */
 
+/**
+ * Adds accounts to the report tree, under the passed property and under expenses or income.
+ * 
+ * @param data_passer Pointer to a Data_passer struct.
+ * @param property_object Pointer to the current property for which we are adding income or expense accounts.
+ * @param property_iter Pointer to the property's iter in the reports tree store.
+ * @param account_type `INCOME` if adding income accounts, `EXPENSE` if adding expense accounts.
+ */
 void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTreeIter *property_iter, gint account_type) {
     GtkTreeStore *reports_store = data_passer->reports_store;
     JsonArray *account_array;
     GtkTreeIter revenue_expense_iter;
     gtk_tree_store_append(reports_store, &revenue_expense_iter, property_iter);
+
+    /* Add a literal `Revenue` or `Expenses` record in the reports tree under the current property. */
     if (account_type == INCOME) {
         gtk_tree_store_set(reports_store, &revenue_expense_iter, GUID_REPORT, "(blank)", DESCRIPTION_REPORT, "Revenue", -1);
         account_array = (JsonArray *)json_object_get_array_member(property_object, "income_accounts");
@@ -23,6 +32,7 @@ void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTree
         account_array = (JsonArray *)json_object_get_array_member(property_object, "expense_accounts");
     }
 
+    /* If the JSON file included income or expense accounts to add, add them under the `Revenue` or `Expenses` record we just created. */
     if (account_array != NULL) {
         guint len_accounts = json_array_get_length(account_array);
         gchararray guid;
@@ -37,6 +47,17 @@ void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTree
     }
 }
 
+/**
+ * Sqlite callback that retrieves a property's description. The function places the description in the passed `user_data` pointer.
+ * 
+ * @param user_data Pointer to `gchar`.
+ * @param argc Number of columns in sqlite result.
+ * @param argv Array of pointers to the results of a query.
+ * @param azColName Array of pointers to strings corresponding to result column names.
+ * @return 0.
+ * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html)
+ * @see get_account_description()
+*/
 static int retrieve_property_description(void *user_data, int argc, char **argv, char **azColName) {
     gchar *description = (gchar *)user_data;
 
@@ -46,6 +67,13 @@ static int retrieve_property_description(void *user_data, int argc, char **argv,
     return 0;
 }
 
+/**
+ * Issues an sqlite command to retrieve an account's description corresponding to a passed guid.
+ * 
+ * @param guid guid for which we are looking up a description.
+ * @param description Retrieved description.
+ * @param user_data  Pointer to a Data_passer struct.
+*/
 void get_account_description(gchar *guid, gchar *description, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
@@ -61,9 +89,15 @@ void get_account_description(gchar *guid, gchar *description, gpointer user_data
         sqlite3_free(zErrMsg);
     } else {
     }
-    return;
 }
 
+/**
+ * Issues an sqlite command to retrieve, for a passed guid, the parent account's description.
+ * 
+ * @param guid guid for which we are looking up its parent node's description.
+ * @param description Retrieved description.
+ * @param user_data  Pointer to a Data_passer struct.
+*/
 void get_parent_account_description(gchar *guid, gchar *description, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 

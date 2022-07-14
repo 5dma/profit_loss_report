@@ -7,6 +7,12 @@
  * @brief Contains functions pertaining to the tree view containg accounts in the P&L report.
  */
 
+/**
+ * Gtk callback fired when user clicks the revert button. This function clears out the current reports tree and populates it anew from the JSON file.
+ * 
+ * @param button Pointer to the clicked revert button.
+ * @param user_data Pointer to a Data_passer struct.
+ */
 void revert_report_tree(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
@@ -16,6 +22,12 @@ void revert_report_tree(GtkButton *button, gpointer user_data) {
     g_print("Reverted\n");
 }
 
+/**
+ * Gtk callback fired when user clicks the save button. This function saves the current contes of the reports tree to a JSON file. For an illustration of the JSON object, see `~/.profit_loss/accounts.json`.
+ * 
+ * @param button Pointer to the clicked revert button.
+ * @param user_data Pointer to a Data_passer struct.
+ */
 void save_report_tree(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
     GtkTreeStore *reports_store = data_passer->reports_store;

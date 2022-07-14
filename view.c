@@ -1,8 +1,12 @@
 #include <gtk/gtk.h>
-
 #include "headers.h"
 
-void on_drag_begin(gpointer user_data) {
+/**
+ * @file view.c
+ * @brief Contains functions for setting up the application's view.
+ */
+
+/* void on_drag_begin(gpointer user_data) {
     g_print("Started a drag!\n");
 }
 
@@ -24,7 +28,12 @@ void on_drag_leave(gpointer user_data) {
 }
 void on_drag_data_get(gpointer user_data) {
     g_print("on_drag_data_get!\n");
-}
+} */
+
+/**
+ * Creates Gtk widgets in the main window.
+ * @param data_passer Pointer to a Data_passer struct.
+*/
 GtkWidget *make_window(Data_passer *data_passer) {
     GApplication *app = data_passer->app;
 
@@ -53,15 +62,11 @@ GtkWidget *make_window(Data_passer *data_passer) {
     column = gtk_tree_view_column_new_with_attributes("Description", renderer, "text", DESCRIPTION_ACCOUNT, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_accounts), column);
 
-    /*  renderer = gtk_cell_renderer_text_new();
-     column = gtk_tree_view_column_new_with_attributes("Description", renderer, "text", DESCRIPTION_ACCOUNT, NULL);
-     gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_reports), column); */
-
     data_passer->tree_view_accounts = tree_view_accounts;
     data_passer->tree_view_reports = tree_view_reports;
 
     read_accounts_tree(data_passer);
-  //  read_reports_tree(data_passer);
+    
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_accounts), GTK_TREE_MODEL(data_passer->accounts_store));
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_reports), GTK_TREE_MODEL(data_passer->reports_store));
 
