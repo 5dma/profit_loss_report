@@ -44,8 +44,8 @@ typedef struct {
     sqlite3 *db;                  /**< Pointer to sqlite database handle. */
     GtkTreeStore *accounts_store; /**< Pointer to GnuCash accounts store. */
     int number_of_children;       /**< Number of children associated with `parent`. */
-    GtkTreeIter parent;           /**< Pointer to a given parent account in the GnuCash accounts store. */
-    GtkTreeIter child;            /**< Pointer to a child account of `parent`. */
+    GtkTreeIter parent;           /**< Iter to a given parent account in the GnuCash accounts store. */
+    GtkTreeIter child;            /**< Iter to a child account of `parent`. */
     gboolean at_root_level;       /**< `TRUE` if the parent is at the root level of the GnuCash store, `FALSE` otherwise. */
 } Iter_passer;
 
@@ -102,8 +102,12 @@ static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8; /**< Need to get rid of this, al
 
 /**
  * \struct PL_ACCOUNTS_ARRAY
- */
-static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325", "349", "351", "353", "9820"}; /**< Array of account names that can be included in a P&L report. NEED TO MAKE THIS DYNAMIC. */
+* Array of account names that can be included in a P&L report. NEED TO MAKE THIS DYNAMIC.
+*/
+static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325","349","351","353","9820"};
+typedef enum {
+    STRING,
+} target_info;
 
 void on_app_activate(GApplication *app, gpointer data);
 GtkWidget *make_window(Data_passer *data_passer);
