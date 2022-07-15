@@ -52,7 +52,7 @@ typedef struct {
 Data_passer *setup();
 
 void make_pl_report(GtkButton *button, gpointer user_data);
-void cleanup(Data_passer *data_passer);
+void cleanup(GtkButton *btn_exit, Data_passer *data_passer);
 void read_accounts_tree(Data_passer *data_passer);
 void add_account_to_reports(GtkButton *button, gpointer user_data);
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
