@@ -82,6 +82,8 @@ void make_property_report(Data_passer *data_passer) {
     }
 
     gchararray description;
+        GtkTreeIter income_expense_iter;
+        GtkTreeIter line_item_iter;
     do {
         data_passer->total_revenues = 0;
         data_passer->total_expenses = 0;
@@ -93,8 +95,7 @@ void make_property_report(Data_passer *data_passer) {
 
         /* print the revenue entries for the current property. */
 
-        GtkTreeIter income_expense_iter;
-        GtkTreeIter line_item_iter;
+
         /* Get iter for "Revenue" for current property. */
         gboolean found_revenue_header = gtk_tree_model_iter_nth_child(tree_model, &income_expense_iter, &report_store_top_iter, INCOME);
         if (found_revenue_header) {
