@@ -57,7 +57,7 @@ void save_top_level_iters(Data_passer *data_passer) {
 static int has_children(void *user_data, int argc, char **argv, char **azColName) {
     Iter_passer *iter_passer = (Iter_passer *)user_data;
     iter_passer->number_of_children = atoi(argv[0]);
-    return (0);
+    return 0;
 }
 
 /**
@@ -93,7 +93,11 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
     char *zErrMsg = 0;
 
     rc = sqlite3_exec(iter_passer->db, sql, has_children, iter_passer, &zErrMsg);
-
+    if (rc != SQLITE_OK) {
+        g_print("SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return -1;
+    }
     /*
         If the current parent indeed has children, recurse into this function using each
         child as a parent. 
@@ -122,6 +126,9 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
         } else {
             //          g_print("Everything is good\n");
         }
+        /* Free memory allocated to iter_passer_child. */
+        gtk_tree_iter_free(&(iter_passer_child->parent));
+        gtk_tree_iter_free(&(iter_passer_child->child));
         g_free(iter_passer_child);
     }
     return 0;
@@ -159,6 +166,8 @@ void read_accounts_tree(Data_passer *data_passer) {
     }
 
     save_top_level_iters(data_passer);
-
+    /* Free memory allocated to iter_passer. */
+    gtk_tree_iter_free(&(iter_passer->parent));
+    gtk_tree_iter_free(&(iter_passer->child));
     g_free(iter_passer);
 }

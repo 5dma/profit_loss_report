@@ -4,9 +4,7 @@
 
 
 
-
-
-void cleanup(Data_passer *data_passer) {
+void cleanup(GtkButton *btn_exit, Data_passer *data_passer) {
     fclose(data_passer->output_file);
     sqlite3_close(data_passer->db);
 

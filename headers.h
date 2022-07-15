@@ -9,75 +9,50 @@
 /**
  * @file headers.h
  * @brief Contains data structures and function prototypes.
-*/
-typedef struct {
-    gchar *guid;
-    gchar *description;
-    GSList *income_accounts;
-    GSList *expense_accounts;
-} Property;
-
-typedef struct {
-    gchar *guid;
-    gchar *description;
-    gdouble subtotal;
-} Account_summary;
+ */
 
 /**
- * \struct Data_passer
  * Structure for passing data to functions and callbacks.
 */ 
 typedef struct {
-    sqlite3 *db;
-    gchar *start_date;
-    gchar *end_date;
-    FILE *output_file;
-    gdouble total_revenues;
-    gdouble total_expenses;
-    gboolean subtotaling_revenues;
-    GApplication *app;
-    GtkTreeStore *accounts_store;
-    GtkTreeStore *reports_store;
-    /* Do we need the following two members? */
-    GtkWidget *tree_view_accounts;
-    GtkWidget *tree_view_reports;
-    GtkWidget *btn_add;
-    GtkWidget *btn_delete;
-    GtkTreePath *fixed_asset_root;
-    GtkTreePath *income_root;
-    GtkTreePath *expenses_root;
-    gboolean is_guid_in_reports_tree;
+    sqlite3 *db;                      /**< Pointer to sqlite database handle. */
+    gchar *start_date;                /**< Start of date range for reporting purposes. */
+    gchar *end_date;                  /**< End of date range for reporting purposes. */
+    FILE *output_file;                /**< Handle for output file. */
+    gdouble total_revenues;           /**< Accumulates total revenue for a property. */
+    gdouble total_expenses;           /**< Accumulates total expenses for a property. */
+    gboolean subtotaling_revenues;    /**< Indicates if we are subtotaling revenues or expenses for a property. */
+    GApplication *app;                /**< Pointer to the GTK application. */
+    GtkTreeStore *accounts_store;     /**< Pointer to tree store for GnuCash accounts. */
+    GtkTreeStore *reports_store;      /**< Pointer to tree store for accounts included in the P&L report. */
+    GtkWidget *tree_view_accounts;    /**< Pointer to tree view showing GnuCash accounts. */
+    GtkWidget *tree_view_reports;     /**< Pointer to tree view showing accounts included in the P&L report. */
+    GtkWidget *btn_add;               /**< Pointer to the add button. */
+    GtkWidget *btn_delete;            /**< Pointer to the delete button. */
+    GtkTreePath *fixed_asset_root;    /**< Path in the GnuCash tree that holds the parent of all fixed assets. */
+    GtkTreePath *income_root;         /**< Path in the GnuCash tree that holds the parent of all income accounts. */
+    GtkTreePath *expenses_root;       /**< Path in the GnuCash tree that holds the parent of all expense accounts. */
+    gboolean is_guid_in_reports_tree; /**< Indicates if a selected guid is already in the reports tree. */
 } Data_passer;
 
 /**
- * \struct Iter_passer
  * Structure for passing an iter to functions and callbacks.
- * 
- * @see build_tree()
- * @see read_accounts_tree()
- * @see has_children()
-*/ 
+ * \struct Iter_passer
+ */
 typedef struct {
-    sqlite3 *db;
-    GtkTreeStore *accounts_store;
-    int number_of_children;
-    GtkTreeIter parent;
-    GtkTreeIter child;
-    gboolean at_root_level;
+    sqlite3 *db;                  /**< Pointer to sqlite database handle. */
+    GtkTreeStore *accounts_store; /**< Pointer to GnuCash accounts store. */
+    int number_of_children;       /**< Number of children associated with `parent`. */
+    GtkTreeIter parent;           /**< Iter to a given parent account in the GnuCash accounts store. */
+    GtkTreeIter child;            /**< Iter to a child account of `parent`. */
+    gboolean at_root_level;       /**< `TRUE` if the parent is at the root level of the GnuCash store, `FALSE` otherwise. */
 } Iter_passer;
-
-typedef struct {
-    GtkTreeStore *reports_store;
-    GtkTreeIter parent;
-} Iter_passer_reports;
 
 Data_passer *setup();
 
 void make_pl_report(GtkButton *button, gpointer user_data);
-void generate_property_report(Property *property, Data_passer *data_passer);
-void cleanup(Data_passer *data_passer);
+void cleanup(GtkButton *btn_exit, Data_passer *data_passer);
 void read_accounts_tree(Data_passer *data_passer);
-void read_reports_tree(Data_passer *data_passer);
 void add_account_to_reports(GtkButton *button, gpointer user_data);
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
 
@@ -94,31 +69,41 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
 void revert_report_tree(GtkButton *button, gpointer user_data);
 void save_report_tree(GtkButton *button, gpointer user_data);
 
-enum account_type { INCOME,
-                    EXPENSE };
+/**
+ * Flag used when computing subtotals for income or expenses.
+ * @see make_subtotals()
+ */
+enum account_type { INCOME, /**< Indicates subtotals are for an income account. */
+                    EXPENSE /**< Indicates subtotals are for an expense account. */
+};
 
+/**
+ * Counter for columns in the GnuCash accounts store.
+ */
 enum account_store_fields {
-    GUID_ACCOUNT,
-    NAME_ACCOUNT,
-    DESCRIPTION_ACCOUNT,
-    COLUMNS_ACCOUNT
+    GUID_ACCOUNT, /**< Column 0 holds the the GnuCash guid. */
+    NAME_ACCOUNT, /**< Column 1 holds the the GnuCash account's name. */
+    DESCRIPTION_ACCOUNT, /**< Column 2 holds the the GnuCash account's description. */
+    COLUMNS_ACCOUNT /**< Number of columns in the GnuCash accounts store. */
 };
 
+/**
+ * Counter for columns in the P&L report's store.
+ */
 enum report_store_fields {
-    GUID_REPORT,
-    DESCRIPTION_REPORT,
-    COLUMNS_REPORT
+    GUID_REPORT, /**< Column 0 holds the the GnuCash guid. */
+    DESCRIPTION_REPORT, /**< Column 1 holds the the GnuCash account's description. */
+    COLUMNS_REPORT /**< Number of columns in the P&L report's store. */
 };
 
-static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8;
+
+static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8; /**< Need to get rid of this, along with PL_ACCOUNTS_ARRAY. */
+
+/**
+ * \struct PL_ACCOUNTS_ARRAY
+* Array of account names that can be included in a P&L report. NEED TO MAKE THIS DYNAMIC.
+*/
 static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325","349","351","353","9820"};
-
-typedef struct {
-    gchar *guid;
-    gchar *name;
-    gchar *description;
-} Account;
-
 typedef enum {
     STRING,
 } target_info;

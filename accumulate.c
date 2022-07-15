@@ -6,7 +6,17 @@
  * @file accumulate.c
  * @brief Contains functions for generating the P&L report.
  *
-*/
+ */
+
+/**
+ * Sqlite callback that returns the totals charged to a given account. The result is placed in a passed pointer.
+ *
+ * @param user_data Pointer to a `gfloat`. This pointer points to the account total.
+ * @param argc Number of columns in sqlite result.
+ * @param argv Array of pointers to the results of a query.
+ * @param azColName Array of pointers to strings corresponding to result column names.
+ * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html)
+ */
 static int total_up_income(void *user_data, int argc, char **argv, char **azColName) {
     gfloat *subtotal = (gfloat *)user_data;
     if (g_strcmp0(argv[0], "0") == 0) {
@@ -18,6 +28,11 @@ static int total_up_income(void *user_data, int argc, char **argv, char **azColN
     return 0;
 }
 
+/**
+ * Totals the amounts charged to a given account.
+ * @param income_expense_iter GtkTreeIter pointing to an expense or income account in the report tree.
+ * @param data_passer Pointer to a Data_passer struct.
+ */
 void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
     gfloat subtotal;
     gchararray description;
@@ -25,7 +40,11 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
     int rc;
     char sql[1000];
     char *zErrMsg = 0;
+
+    /* Retrieve the guid and description for the passed GtkTreeIter. */
     gtk_tree_model_get(GTK_TREE_MODEL(data_passer->reports_store), &income_expense_iter, GUID_REPORT, &guid, DESCRIPTION_REPORT, &description, -1);
+
+    /* Make a database call to accumulate the amounts charged to the account. */
     gint num_bytes = g_snprintf(sql, 1000, SUM_OF_ACCOUNT_ACTIVITY, guid, guid, data_passer->start_date);
 
     rc = sqlite3_exec(data_passer->db, sql, total_up_income, &subtotal, &zErrMsg);
@@ -37,15 +56,21 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
         //      g_print("Table created successfully\n");
     }
 
+    /* Add the subtotal to the total revenue or total expense for the current property. */
     if (data_passer->subtotaling_revenues) {
         data_passer->total_revenues += subtotal;
     } else {
         data_passer->total_expenses += subtotal;
     }
-
+    /* Print the subtotal for the current account. */
     fprintf(data_passer->output_file, ACCOUNT_REPORT, description, subtotal);
 }
 
+/**
+ * Outputs a P&L report for each asset in the reports tree.
+ *
+ * @param data_passer Pointer to a Data_passer struct.
+ */
 void make_property_report(Data_passer *data_passer) {
     GtkTreeIter report_store_top_iter;
 
@@ -57,7 +82,10 @@ void make_property_report(Data_passer *data_passer) {
         return;
     }
 
+    /* Memory for the following variables is freed below. */
     gchararray description;
+    GtkTreeIter income_expense_iter;
+    GtkTreeIter line_item_iter;
     do {
         data_passer->total_revenues = 0;
         data_passer->total_expenses = 0;
@@ -69,9 +97,6 @@ void make_property_report(Data_passer *data_passer) {
 
         /* print the revenue entries for the current property. */
 
-        GtkTreeIter income_expense_iter;
-        GtkTreeIter line_item_iter;
-        /* Get iter for "Revenue" for current property. */
         gboolean found_revenue_header = gtk_tree_model_iter_nth_child(tree_model, &income_expense_iter, &report_store_top_iter, INCOME);
         if (found_revenue_header) {
             /* Check if the "Revenue" iter has individual revenue line items. */
@@ -103,8 +128,16 @@ void make_property_report(Data_passer *data_passer) {
         fputs("</table>\n", data_passer->output_file);
     } while (gtk_tree_model_iter_next(tree_model, &report_store_top_iter));
 
+    g_free(description);
+    gtk_tree_iter_free(&income_expense_iter);
+    gtk_tree_iter_free(&line_item_iter);
 }
 
+/**
+ * Callback fired when user clicks on the generate button.
+ * @param button Pointer to the generate button.
+ * @param user_data Pointer to a Data_passer struct.
+ */
 void make_pl_report(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
