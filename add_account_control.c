@@ -6,7 +6,7 @@
  * @file add_account_control.c
  * @brief Contains functions for adding an account to the reports tree.
  *
-*/
+ */
 
 /**
  * Determins if a passed account name is 242, 323, 349, or any of the accounts in the PL_ACCOUNTS_ARRAY.
@@ -36,10 +36,11 @@ gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer)
  * @param corresponding_report_iter Pointer to the corresponding fixed asset in the report tree.
  * @param data_passer Pointer to a Data_passer struct.
  * @return `TRUE` if a matching fixed asset was found in the report tree, `FALSE` otherwise.
-*/
+ */
 gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_iter, GtkTreeIter *corresponding_report_iter, Data_passer *data_passer) {
-
-    gchararray name;
+    gboolean return_value = FALSE;
+    gchar *name; /* Memory freed below */
+    gchar *report_account_description; /*Memory freed below */
     gtk_tree_model_get(model, &account_iter, 1, &name, -1);
 
     GtkTreeIter report_tree_iter;
@@ -48,15 +49,17 @@ gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_it
     gtk_tree_model_get_iter_first(report_model, &report_tree_iter);
 
     do {
-        gchararray report_account_description;
         gtk_tree_model_get(report_model, &report_tree_iter, DESCRIPTION_REPORT, &report_account_description, -1);
 
         if (strstr(report_account_description, name) != NULL) {
             *corresponding_report_iter = report_tree_iter;
-            return TRUE;
+            return_value = TRUE;
+            break;
         }
     } while (gtk_tree_model_iter_next(report_model, &report_tree_iter));
-    return FALSE;
+    g_free(name);
+    g_free(report_account_description);
+    return return_value;
 }
 
 /**
@@ -65,9 +68,8 @@ gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_it
  * @param accounts_iter Pointer to the GnuCash account.
  * @param data_passer Pointer to a Data_passer struct.
  * @return `TRUE` the passed GnuCash account is already in the reports tree, `FALSE` otherwise.
-*/
+ */
 gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter accounts_iter, Data_passer *data_passer) {
-
     /* Check if under income or expense.
         Get name (323, 242, 349, etc.), which indicates the fixed asset
          Check if fixed asset is in top level of reports tree
@@ -100,19 +102,19 @@ gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter
 
 /**
  * Gtk callback fired when the selection in the GnuCash accounts tree view changes. This callback sets the add button's sensitivity to `TRUE` if the selected account can be added to the report, and sets the sensitivity to `FALSE` if the selected account cannot be added.
- * 
+ *
  * The conditions for enabling a selected account to be added to the reports tree:
- * 
+ *
  * - The selected account does not yet exist in the reports tree, AND
  * - The selected account is a child of the Fixed Assets root (meaning it is one of the top-level property fixed assets), OR
  * - The selected account is eligible to be in the P&L report.
- *  
+ *
  * @param tree_view_accounts Pointer to the accounts tree view.
  * @param user_data Pointer to a Data_passer struct.
  * @see is_guid_in_reports_tree()
  * @see is_p_l_account()
  * @see account_parent_in_report_tree()
-*/
+ */
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
     GtkTreeSelection *tree_view_accounts_selection = gtk_tree_view_get_selection(tree_view_accounts);
@@ -129,8 +131,8 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
     /* Check if the currently selected account is already in the reports list. */
     data_passer->is_guid_in_reports_tree = FALSE;
     GtkTreeIter reports_root_iter;
-    gboolean found_root = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(data_passer->reports_store), &reports_root_iter);
-   is_guid_in_reports_tree(data_passer->reports_store,reports_root_iter, guid, data_passer);
+    gboolean found_root = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(data_passer->reports_store), &reports_root_iter);
+    is_guid_in_reports_tree(data_passer->reports_store, reports_root_iter, guid, data_passer);
 
     if (data_passer->is_guid_in_reports_tree == FALSE) {
         GtkTreePath *currently_selected_path = gtk_tree_model_get_path(model, &iter);
@@ -155,7 +157,7 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
 
 /**
  * Gtk callback that adds a currently selected account to the reports tree. The callback is fired when the user clicks on the add button.
- * 
+ *
  * The logic is as follows:
 
     -# If the selection is a fixed asset, add it to the reports tree and exit.
