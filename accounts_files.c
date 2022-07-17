@@ -92,6 +92,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
     /* Get the child accounts associated with the passed parent. */
     char sql[1000];
     gint num_bytes = g_snprintf(sql, 1000, "SELECT COUNT(*) FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
+
     int rc;
     char *zErrMsg = 0;
 
@@ -109,7 +110,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
         char child_sql[1000];
         gint num_bytes = g_snprintf(child_sql, 1000, "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
 
-        /* Memory freed below */
+        /* Memory below, but NOT FREED CORRECTLY */
         Iter_passer *iter_passer_child = g_new(Iter_passer, 1);
         iter_passer_child->db = iter_passer->db;
         iter_passer_child->accounts_store = iter_passer->accounts_store;
@@ -131,8 +132,8 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
         }
         /* Free memory allocated to iter_passer_child. */
         gtk_tree_iter_free(&(iter_passer_child->parent));
-        gtk_tree_iter_free(&(iter_passer_child->child));
-        g_free(iter_passer_child);
+        /* The following g_free() generates a seg fault. Why? */
+      //  g_free(iter_passer_child);
     }
     return 0;
 }

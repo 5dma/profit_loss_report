@@ -16,6 +16,7 @@
  * @param argv Array of pointers to the results of a query.
  * @param azColName Array of pointers to strings corresponding to result column names.
  * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html)
+ */ 
 static int total_up_income(void *user_data, int argc, char **argv, char **azColName) {
     gfloat *subtotal = (gfloat *)user_data;
     if (g_strcmp0(argv[0], "0") == 0) {

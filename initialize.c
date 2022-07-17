@@ -60,10 +60,7 @@ void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTree
 */
 static int retrieve_property_description(void *user_data, int argc, char **argv, char **azColName) {
     gchar *description = (gchar *)user_data;
-
     gsize mylength = g_strlcpy(description, argv[0], 1000);
-
-    g_print("%s\n", description);
     return 0;
 }
 
@@ -83,7 +80,6 @@ void get_account_description(gchar *guid, gchar *description, gpointer user_data
 
     gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, guid);
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, description, &zErrMsg);
-    g_print("%s\n", description);
     if (rc != SQLITE_OK) {
         g_print("SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
@@ -107,7 +103,6 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
 
     gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT, guid);
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, description, &zErrMsg);
-    g_print("%s\n", description);
     if (rc != SQLITE_OK) {
         g_print("SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
