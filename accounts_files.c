@@ -16,7 +16,7 @@
 void save_top_level_iters(Data_passer *data_passer) {
     GtkTreeIter iter;
     gtk_tree_model_get_iter_first(GTK_TREE_MODEL(data_passer->accounts_store), &iter);
-    gchararray guid; /* Memory freed below. */
+ 
 
     /*
     09f67b1fbae223eca818ba617edf1b3c - Fixed Assets
@@ -24,6 +24,8 @@ void save_top_level_iters(Data_passer *data_passer) {
     bde70db24873e7950e43316a246a8131 - Income
     */
     do {
+
+        gchar *guid; /* Memory freed below. */
         gtk_tree_model_get(GTK_TREE_MODEL(data_passer->accounts_store), &iter, 0, &guid, -1);
 
         /* Is this a fixed asset iter? */
@@ -43,9 +45,10 @@ void save_top_level_iters(Data_passer *data_passer) {
             /* data_passer->income_root freed in cleanup(). */
             data_passer->income_root = gtk_tree_model_get_path(GTK_TREE_MODEL(data_passer->accounts_store), &iter);
         }
+        g_free(guid);
 
     } while (gtk_tree_model_iter_next(GTK_TREE_MODEL(data_passer->accounts_store), &iter) != FALSE);
-    g_free(guid);
+
 }
 
 /**
