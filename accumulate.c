@@ -62,8 +62,6 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
         data_passer->total_expenses += subtotal;
     }
     /* Print the subtotal for the current account. */
-    g_free(guid);
-    g_free(description);
     fprintf(data_passer->output_file, ACCOUNT_REPORT, description, subtotal);
     g_free(description);
     g_free(guid);

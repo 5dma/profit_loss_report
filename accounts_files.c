@@ -134,7 +134,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
             //          g_print("Everything is good\n");
         }
         /* Free memory allocated to iter_passer_child. */
-        gtk_tree_iter_free(&(iter_passer_child->parent));
+       // gtk_tree_iter_free(&(iter_passer_child->parent));
         /* The following g_free() generates a seg fault. Why? */
       //  g_free(iter_passer_child);
     }
@@ -174,7 +174,7 @@ void read_accounts_tree(Data_passer *data_passer) {
 
     save_top_level_iters(data_passer);
     /* Free memory allocated to iter_passer. */
-    gtk_tree_iter_free(&(iter_passer->parent));
-    gtk_tree_iter_free(&(iter_passer->child));
+  //  gtk_tree_iter_free(&(iter_passer->parent));
+  //  gtk_tree_iter_free(&(iter_passer->child));
     g_free(iter_passer);
 }
