@@ -39,7 +39,7 @@ gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer)
 */
 gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_iter, GtkTreeIter *corresponding_report_iter, Data_passer *data_passer) {
 
-    gchararray name;
+    gchar *name;
     gtk_tree_model_get(model, &account_iter, 1, &name, -1);
 
     GtkTreeIter report_tree_iter;
@@ -48,14 +48,16 @@ gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_it
     gtk_tree_model_get_iter_first(report_model, &report_tree_iter);
 
     do {
-        gchararray report_account_description;
+        gchar *report_account_description;
         gtk_tree_model_get(report_model, &report_tree_iter, DESCRIPTION_REPORT, &report_account_description, -1);
 
         if (strstr(report_account_description, name) != NULL) {
             *corresponding_report_iter = report_tree_iter;
             return TRUE;
         }
+        g_free(report_account_description);
     } while (gtk_tree_model_iter_next(report_model, &report_tree_iter));
+    g_free(name);
     return FALSE;
 }
 
@@ -78,7 +80,7 @@ gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter
 
     if (is_income_account || is_expense_account) {
         /* Get the name */
-        gchararray name;
+        gchar *name;
         gtk_tree_model_get(accounts_model, &accounts_iter, NAME_ACCOUNT, &name, -1);
 
         /* See if the name is in one of the top-level report accounts. */
@@ -94,6 +96,7 @@ gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter
                 return TRUE;
             }
         } while (gtk_tree_model_iter_next(report_model, &report_tree_iter));
+        g_free(name);
     }
     return FALSE;
 }
