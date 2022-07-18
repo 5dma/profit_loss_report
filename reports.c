@@ -63,17 +63,18 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
 
 
     JsonNode *barf;
-    gchar *code = (gchar *)g_malloc0(100);
+    gchar code[100];
     GtkTreeIter income_expense_iter;
     GtkTreeIter line_item_iter;
     do {
 
-        gchar *guid;
-        gchar *description;
+        gchar *guid; /* Memory freed below */
+        gchar *description; /* Memory freed below */
         gtk_tree_model_get(tree_model, &report_store_top_iter, GUID_REPORT, &guid, DESCRIPTION_REPORT, &description, -1);
         json_builder_begin_object(builder);
         json_builder_set_member_name(builder, "code");
 
+        /* Retrieve the number portion of the address, which we assume is the characters before the first space. */
         gchar *first_space = g_strstr_len(description, -1, " ");
         gint num_chars_to_copy = first_space - description;
 
@@ -150,7 +151,6 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
     json_generator_set_pretty(generator, TRUE);
     JsonNode *root = json_builder_get_root(builder);
     json_generator_set_root(generator, root);
-    gchar *str = json_generator_to_data(generator, NULL);
     GError *gerror = NULL;
     gchar *output_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
 
@@ -188,7 +188,7 @@ void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_it
         return;
     }
 
-    gchar *candidate_guid;
+    gchar *candidate_guid; /* Memory freed below */
     gtk_tree_model_get(GTK_TREE_MODEL(reports_store), &current_iter, GUID_REPORT, &candidate_guid, -1);
 
     if (g_strcmp0(candidate_guid, guid) == 0) {
@@ -239,7 +239,7 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
             JsonNode *root = json_parser_get_root(parser);
             JsonObject *root_obj = json_node_get_object(root);
 
-            /* Pretty sure no need to free following string as it is a const. */
+            /* Pretty sure no need to free following string as it is part of the root_obj instance. */
             const gchar *start_date_string = json_object_get_string_member(root_obj, "start_date");
             if (start_date_string != NULL) {
                 data_passer->start_date = g_strdup(start_date_string);
@@ -247,7 +247,7 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
                 data_passer->start_date = NULL;
             }
 
-            /* Pretty sure no need to free following string as it is a const. */
+            /* Pretty sure no need to free following string as it is part of the root_obj instance. */
             const gchar *end_date_string = json_object_get_string_member(root_obj, "end_date");
             if (end_date_string != NULL) {
                 data_passer->end_date = g_strdup(end_date_string);
@@ -270,6 +270,7 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
             for (int i = 0; i < len_properties; i++) {
                 JsonObject *property_object = json_array_get_object_element(property_array, i);
                 gtk_tree_store_append(reports_store, &property_iter, NULL);
+                /* Memory freed below */
                 gchar *guid = g_strdup(json_object_get_string_member(property_object, "guid"));
                 gchar description[1000];
                 get_account_description(guid, description, data_passer);
