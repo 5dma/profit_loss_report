@@ -6,7 +6,7 @@
  * @file add_account_control.c
  * @brief Contains functions for adding an account to the reports tree.
  *
-*/
+ */
 
 /**
  * Determins if a passed account name is 242, 323, 349, or any of the accounts in the PL_ACCOUNTS_ARRAY.
@@ -36,9 +36,8 @@ gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer)
  * @param corresponding_report_iter Pointer to the corresponding fixed asset in the report tree.
  * @param data_passer Pointer to a Data_passer struct.
  * @return `TRUE` if a matching fixed asset was found in the report tree, `FALSE` otherwise.
-*/
+ */
 gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_iter, GtkTreeIter *corresponding_report_iter, Data_passer *data_passer) {
-
     gchar *name;
     gtk_tree_model_get(model, &account_iter, 1, &name, -1);
 
@@ -67,9 +66,8 @@ gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_it
  * @param accounts_iter Pointer to the GnuCash account.
  * @param data_passer Pointer to a Data_passer struct.
  * @return `TRUE` the passed GnuCash account is already in the reports tree, `FALSE` otherwise.
-*/
+ */
 gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter accounts_iter, Data_passer *data_passer) {
-
     /* Check if under income or expense.
         Get name (323, 242, 349, etc.), which indicates the fixed asset
          Check if fixed asset is in top level of reports tree
@@ -90,11 +88,12 @@ gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter
         gtk_tree_model_get_iter_first(report_model, &report_tree_iter);
 
         do {
-            gchararray report_account_description;
+            gchar *report_account_description;
             gtk_tree_model_get(report_model, &report_tree_iter, DESCRIPTION_REPORT, &report_account_description, -1);
             if (strstr(report_account_description, name) != NULL) {
                 return TRUE;
             }
+            g_free(report_account_description);
         } while (gtk_tree_model_iter_next(report_model, &report_tree_iter));
         g_free(name);
     }
@@ -103,19 +102,19 @@ gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter
 
 /**
  * Gtk callback fired when the selection in the GnuCash accounts tree view changes. This callback sets the add button's sensitivity to `TRUE` if the selected account can be added to the report, and sets the sensitivity to `FALSE` if the selected account cannot be added.
- * 
+ *
  * The conditions for enabling a selected account to be added to the reports tree:
- * 
+ *
  * - The selected account does not yet exist in the reports tree, AND
  * - The selected account is a child of the Fixed Assets root (meaning it is one of the top-level property fixed assets), OR
  * - The selected account is eligible to be in the P&L report.
- *  
+ *
  * @param tree_view_accounts Pointer to the accounts tree view.
  * @param user_data Pointer to a Data_passer struct.
  * @see is_guid_in_reports_tree()
  * @see is_p_l_account()
  * @see account_parent_in_report_tree()
-*/
+ */
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
     GtkTreeSelection *tree_view_accounts_selection = gtk_tree_view_get_selection(tree_view_accounts);
@@ -124,22 +123,25 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
     GtkTreeModel *model = gtk_tree_view_get_model(tree_view_accounts);
     GtkTreeIter iter;
     gboolean omg = gtk_tree_selection_get_selected(tree_view_accounts_selection, &model, &iter);
-    gchararray guid;
+    gchar *guid;
     gtk_tree_model_get(model, &iter, 0, &guid, -1);
-    gchararray name;
+    gchar *name;
     gtk_tree_model_get(model, &iter, 1, &name, -1);
 
     /* Check if the currently selected account is already in the reports list. */
     data_passer->is_guid_in_reports_tree = FALSE;
     GtkTreeIter reports_root_iter;
-    gboolean found_root = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(data_passer->reports_store), &reports_root_iter);
-   is_guid_in_reports_tree(data_passer->reports_store,reports_root_iter, guid, data_passer);
+    gboolean found_root = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(data_passer->reports_store), &reports_root_iter);
+    is_guid_in_reports_tree(data_passer->reports_store, reports_root_iter, guid, data_passer);
 
     if (data_passer->is_guid_in_reports_tree == FALSE) {
         GtkTreePath *currently_selected_path = gtk_tree_model_get_path(model, &iter);
         if (gtk_tree_path_is_descendant(currently_selected_path, data_passer->fixed_asset_root)) {
             gtk_widget_set_sensitive(data_passer->btn_add, TRUE);
             gtk_tree_path_free(currently_selected_path);
+            /* We free the memory in three difference places in this function, need to find a way to free it once. */
+            g_free(guid);
+            g_free(name);
             return;
         }
 
@@ -149,16 +151,20 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
                is an account that is eligible to be in the reports list, set
                the add button's sensitivity. */
             gtk_widget_set_sensitive(data_passer->btn_add, TRUE);
+            g_free(guid);
+            g_free(name);
             return;
         }
     }
     /* If the selected account is already in the reports list, clear the add button's sensitivity. */
     gtk_widget_set_sensitive(data_passer->btn_add, FALSE);
+    g_free(guid);
+    g_free(name);
 }
 
 /**
  * Gtk callback that adds a currently selected account to the reports tree. The callback is fired when the user clicks on the add button.
- * 
+ *
  * The logic is as follows:
 
     -# If the selection is a fixed asset, add it to the reports tree and exit.
@@ -185,9 +191,9 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
     /* If a fixed asset, add to reports model and exit. */
     if (gtk_tree_path_compare(data_passer->fixed_asset_root, parent_tree_path) == 0) {
         GtkTreeIter iter_child;
-        gchararray guid;
+        gchar *guid;
         gtk_tree_model_get(accounts_model, &iter_selection, GUID_ACCOUNT, &guid, -1);
-        gchararray description;
+        gchar *description;
         gtk_tree_model_get(accounts_model, &iter_selection, DESCRIPTION_ACCOUNT, &description, -1);
 
         gtk_tree_store_append(data_passer->reports_store, &iter_child, NULL);
@@ -202,6 +208,8 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
         gtk_tree_store_append(data_passer->reports_store, &child_iter_expenses, &iter_child);
         gtk_tree_store_set(data_passer->reports_store, &child_iter_expenses, DESCRIPTION_REPORT, EXPENSES, -1);
 
+        g_free(guid);
+        g_free(description);
         return;
     }
 
@@ -220,22 +228,25 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
 
         if (found_income_expense_parent) {
             do {
-                gchararray revenue_or_expenses;
+                gchar *revenue_or_expenses;
                 gtk_tree_model_get(reports_model, &income_expense_parent, DESCRIPTION_REPORT, &revenue_or_expenses, -1);
 
                 if (((strstr(revenue_or_expenses, REVENUE) != NULL) && is_income_account) ||
                     ((strstr(revenue_or_expenses, EXPENSES) != NULL) && !is_income_account)) {
                     break;
                 }
+                g_free(revenue_or_expenses);
             } while (gtk_tree_model_iter_next(reports_model, &income_expense_parent));
-            gchararray guid;
+            gchar *guid;
             gtk_tree_model_get(accounts_model, &iter_selection, GUID_ACCOUNT, &guid, -1);
-            gchararray description;
+            gchar *description;
             gtk_tree_model_get(accounts_model, &iter_selection, DESCRIPTION_ACCOUNT, &description, -1);
 
             GtkTreeIter new_income_expense_entry;
             gtk_tree_store_append(data_passer->reports_store, &new_income_expense_entry, &income_expense_parent);
             gtk_tree_store_set(data_passer->reports_store, &new_income_expense_entry, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
+            g_free(guid);
+            g_free(description);
         }
     }
 }
