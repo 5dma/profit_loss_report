@@ -22,8 +22,7 @@ static int total_up_income(void *user_data, int argc, char **argv, char **azColN
     if (g_strcmp0(argv[0], "0") == 0) {
         *subtotal = 0;
     } else {
-        gchar *end_ptr;
-        *subtotal = g_ascii_strtod(argv[1], &end_ptr);
+        *subtotal = g_ascii_strtod(argv[1], NULL);
     }
     return 0;
 }
@@ -87,7 +86,7 @@ void make_property_report(Data_passer *data_passer) {
     GtkTreeIter income_expense_iter;
     GtkTreeIter line_item_iter;
     do {
-        gchar *description;
+        gchar *description; /* Memory freed in while statement */
         data_passer->total_revenues = 0;
         data_passer->total_expenses = 0;
         gtk_tree_model_get(tree_model, &report_store_top_iter, DESCRIPTION_REPORT, &description, -1);
@@ -143,9 +142,9 @@ void make_property_report(Data_passer *data_passer) {
 void make_pl_report(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
-    gchar *report_start = "<!DOCTYPE HTML>\n<html lang=\"en\">\n<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>P &amp; L Rental Properties</title>\n<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC\" crossorigin=\"anonymous\">\n<style>\ntd:nth-child(2) {text-align: right;}\n.single_underline {text-decoration: underline;}\n.double_underline {border-bottom:double black;}\n.left_indent {padding-left: 10px}\nh3 {margin-top: 50px;}\n</style>\n</head>\n<body class=\"p-4\">\n";
+    const gchar *report_start = "<!DOCTYPE HTML>\n<html lang=\"en\">\n<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>P &amp; L Rental Properties</title>\n<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC\" crossorigin=\"anonymous\">\n<style>\ntd:nth-child(2) {text-align: right;}\n.single_underline {text-decoration: underline;}\n.double_underline {border-bottom:double black;}\n.left_indent {padding-left: 10px}\nh3 {margin-top: 50px;}\n</style>\n</head>\n<body class=\"p-4\">\n";
 
-    gchar *report_end = "</body>\n</html>";
+    const gchar *report_end = "</body>\n</html>";
 
     data_passer->output_file = fopen("/tmp/property_pl.html", "w");
 

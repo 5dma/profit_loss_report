@@ -16,7 +16,6 @@
 void save_top_level_iters(Data_passer *data_passer) {
     GtkTreeIter iter;
     gtk_tree_model_get_iter_first(GTK_TREE_MODEL(data_passer->accounts_store), &iter);
-    gchar *guid; /* Memory freed below. */
 
     /*
     09f67b1fbae223eca818ba617edf1b3c - Fixed Assets
