@@ -34,6 +34,7 @@ typedef struct {
     GtkTreePath *income_root;         /**< Path in the GnuCash tree that holds the parent of all income accounts. */
     GtkTreePath *expenses_root;       /**< Path in the GnuCash tree that holds the parent of all expense accounts. */
     gboolean is_guid_in_reports_tree; /**< Indicates if a selected guid is already in the reports tree. */
+    GList *iters_to_be_freed;        /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
 } Data_passer;
 
 /**
@@ -47,6 +48,7 @@ typedef struct {
     GtkTreeIter parent;           /**< Iter to a given parent account in the GnuCash accounts store. */
     GtkTreeIter child;            /**< Iter to a child account of `parent`. */
     gboolean at_root_level;       /**< `TRUE` if the parent is at the root level of the GnuCash store, `FALSE` otherwise. */
+    GList *iters_to_be_freed;    /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
 } Iter_passer;
 
 Data_passer *setup();

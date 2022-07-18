@@ -10,6 +10,7 @@
 
 /**
  * Gtk callback fired when clicking the exit button or destroying the main window.
+ * @param btn_exit Pointer to the clicked exit button.
  * @param data_passer Pointer to a Data_passer struct.
  * @return `TRUE` if the selected account's name is one of the account codes (242, 323, 349, etc.) and therefore can be included in the P&L report, `FALSE` otherwise.
  */
