@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "headers.h"
 
+#include "headers.h"
 
 /**
  * @file accumulate.c
@@ -65,6 +65,8 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
     g_free(guid);
     g_free(description);
     fprintf(data_passer->output_file, ACCOUNT_REPORT, description, subtotal);
+    g_free(description);
+    g_free(guid);
 }
 
 /**
@@ -84,10 +86,10 @@ void make_property_report(Data_passer *data_passer) {
     }
 
     /* Memory for the following variables is freed below. */
-    gchararray description;
     GtkTreeIter income_expense_iter;
     GtkTreeIter line_item_iter;
     do {
+        gchar *description;
         data_passer->total_revenues = 0;
         data_passer->total_expenses = 0;
         gtk_tree_model_get(tree_model, &report_store_top_iter, DESCRIPTION_REPORT, &description, -1);
@@ -97,7 +99,6 @@ void make_property_report(Data_passer *data_passer) {
         data_passer->subtotaling_revenues = TRUE;
 
         /* print the revenue entries for the current property. */
-
 
         /* Get iter for "Revenue" for current property. */
         gboolean found_revenue_header = gtk_tree_model_iter_nth_child(tree_model, &income_expense_iter, &report_store_top_iter, INCOME);
@@ -129,9 +130,9 @@ void make_property_report(Data_passer *data_passer) {
         fprintf(data_passer->output_file, EXPENSE_TOTAL, data_passer->total_expenses);
         fprintf(data_passer->output_file, NET_INCOME, data_passer->total_revenues - data_passer->total_expenses);
         fputs("</table>\n", data_passer->output_file);
+        g_free (description);
     } while (gtk_tree_model_iter_next(tree_model, &report_store_top_iter));
 
-    g_free(description);
     gtk_tree_iter_free(&income_expense_iter);
     gtk_tree_iter_free(&line_item_iter);
 }

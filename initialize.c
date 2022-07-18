@@ -35,14 +35,14 @@ void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTree
     /* If the JSON file included income or expense accounts to add, add them under the `Revenue` or `Expenses` record we just created. */
     if (account_array != NULL) {
         guint len_accounts = json_array_get_length(account_array);
-        gchararray guid;
         gchar parent_description[1000];
         GtkTreeIter account_iter;
         for (int i = 0; i < len_accounts; i++) {
-            guid = strdup(json_array_get_string_element(account_array, i));
+            gchar *guid = strdup(json_array_get_string_element(account_array, i));
             get_parent_account_description(guid, parent_description, data_passer);
             gtk_tree_store_append(reports_store, &account_iter, &revenue_expense_iter);
             gtk_tree_store_set(reports_store, &account_iter, GUID_REPORT, guid, DESCRIPTION_REPORT, parent_description, -1);
+            g_free(guid);
         }
     }
 }

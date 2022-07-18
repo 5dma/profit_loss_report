@@ -61,13 +61,15 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
 
     json_builder_begin_array(builder);
 
-    gchararray guid;
-    gchararray description;
+
     JsonNode *barf;
     gchar *code = (gchar *)g_malloc0(100);
     GtkTreeIter income_expense_iter;
     GtkTreeIter line_item_iter;
     do {
+
+        gchar *guid;
+        gchar *description;
         gtk_tree_model_get(tree_model, &report_store_top_iter, GUID_REPORT, &guid, DESCRIPTION_REPORT, &description, -1);
         json_builder_begin_object(builder);
         json_builder_set_member_name(builder, "code");
@@ -137,6 +139,8 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
         }
 
         json_builder_end_object(builder);
+        g_free(guid);
+        g_free(description);
     } while (gtk_tree_model_iter_next(tree_model, &report_store_top_iter));
     json_builder_end_array(builder);
 
@@ -184,13 +188,16 @@ void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_it
         return;
     }
 
-    gchararray candidate_guid;
+    gchar *candidate_guid;
     gtk_tree_model_get(GTK_TREE_MODEL(reports_store), &current_iter, GUID_REPORT, &candidate_guid, -1);
 
     if (g_strcmp0(candidate_guid, guid) == 0) {
         data_passer->is_guid_in_reports_tree = TRUE;
+        g_free(candidate_guid);
         return;
     }
+    g_free(candidate_guid);
+
     GtkTreeIter child_iter;
     gboolean current_iter_has_children = gtk_tree_model_iter_children(GTK_TREE_MODEL(reports_store), &child_iter, &current_iter);
     if (current_iter_has_children == TRUE) {
@@ -254,7 +261,7 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
 
             GtkTreeStore *reports_store = data_passer->reports_store;
             GtkTreeIter property_iter;
-            gchararray description;
+
 
             /*
                 Loop through the `properties` object in the JSON file. For each object, 
@@ -263,13 +270,14 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
             for (int i = 0; i < len_properties; i++) {
                 JsonObject *property_object = json_array_get_object_element(property_array, i);
                 gtk_tree_store_append(reports_store, &property_iter, NULL);
-                gchararray guid = g_strdup(json_object_get_string_member(property_object, "guid"));
+                gchar *guid = g_strdup(json_object_get_string_member(property_object, "guid"));
                 gchar description[1000];
                 get_account_description(guid, description, data_passer);
                 gtk_tree_store_set(reports_store, &property_iter, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
 
                 add_accounts(data_passer, property_object, &property_iter, INCOME);
                 add_accounts(data_passer, property_object, &property_iter, EXPENSE);
+                g_free(guid);
             }
         }
         g_object_unref(parser);
