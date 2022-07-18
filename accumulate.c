@@ -83,10 +83,11 @@ void make_property_report(Data_passer *data_passer) {
         return;
     }
 
-    gchararray description;
+
     GtkTreeIter income_expense_iter;
     GtkTreeIter line_item_iter;
     do {
+        gchar *description;
         data_passer->total_revenues = 0;
         data_passer->total_expenses = 0;
         gtk_tree_model_get(tree_model, &report_store_top_iter, DESCRIPTION_REPORT, &description, -1);
@@ -127,6 +128,7 @@ void make_property_report(Data_passer *data_passer) {
         fprintf(data_passer->output_file, EXPENSE_TOTAL, data_passer->total_expenses);
         fprintf(data_passer->output_file, NET_INCOME, data_passer->total_revenues - data_passer->total_expenses);
         fputs("</table>\n", data_passer->output_file);
+        g_free (description);
     } while (gtk_tree_model_iter_next(tree_model, &report_store_top_iter));
 }
 
