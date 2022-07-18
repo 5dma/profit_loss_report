@@ -128,9 +128,9 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
     GtkTreeModel *model = gtk_tree_view_get_model(tree_view_accounts);
     GtkTreeIter iter;
     gboolean omg = gtk_tree_selection_get_selected(tree_view_accounts_selection, &model, &iter);
-    gchar *guid;
+    gchar *guid; /* Memory freed in three places, need to make this easier. */
     gtk_tree_model_get(model, &iter, 0, &guid, -1);
-    gchar *name;
+    gchar *name; /* Memory freed in three places, need to make this easier. */
     gtk_tree_model_get(model, &iter, 1, &name, -1);
 
     /* Check if the currently selected account is already in the reports list. */
@@ -196,9 +196,9 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
     /* If a fixed asset, add to reports model and exit. */
     if (gtk_tree_path_compare(data_passer->fixed_asset_root, parent_tree_path) == 0) {
         GtkTreeIter iter_child;
-        gchar *guid;
+        gchar *guid; /* Memory freed below */
         gtk_tree_model_get(accounts_model, &iter_selection, GUID_ACCOUNT, &guid, -1);
-        gchar *description;
+        gchar *description; /* Memory freed below */
         gtk_tree_model_get(accounts_model, &iter_selection, DESCRIPTION_ACCOUNT, &description, -1);
 
         gtk_tree_store_append(data_passer->reports_store, &iter_child, NULL);
@@ -233,7 +233,7 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
 
         if (found_income_expense_parent) {
             do {
-                gchar *revenue_or_expenses;
+                gchar *revenue_or_expenses; /* Memory freed below */
                 gtk_tree_model_get(reports_model, &income_expense_parent, DESCRIPTION_REPORT, &revenue_or_expenses, -1);
 
                 if (((strstr(revenue_or_expenses, REVENUE) != NULL) && is_income_account) ||
@@ -242,9 +242,9 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
                 }
                 g_free(revenue_or_expenses);
             } while (gtk_tree_model_iter_next(reports_model, &income_expense_parent));
-            gchar *guid;
+            gchar *guid; /* Memory freed below */
             gtk_tree_model_get(accounts_model, &iter_selection, GUID_ACCOUNT, &guid, -1);
-            gchar *description;
+            gchar *description;  /* Memory freed below */
             gtk_tree_model_get(accounts_model, &iter_selection, DESCRIPTION_ACCOUNT, &description, -1);
 
             GtkTreeIter new_income_expense_entry;
