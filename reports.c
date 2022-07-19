@@ -40,6 +40,7 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
         return;
     }
 
+    /* Memory freed below */
     JsonBuilder *builder = json_builder_new();
     json_builder_begin_object(builder);
 
@@ -91,7 +92,7 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
         barf = json_node_new(JSON_NODE_VALUE);
         json_node_set_string(barf, guid);
         json_builder_add_value(builder, barf);
-
+        g_object_unref(barf);
         json_builder_set_member_name(builder, "income_accounts");
 
         /* Get iter for "Revenue" for current property. */
