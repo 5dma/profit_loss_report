@@ -253,7 +253,7 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
             gchar *guid; /* Memory freed below */
             gtk_tree_model_get(accounts_model, &iter_selection, GUID_ACCOUNT, &guid, -1);
             gchar *description; /* Memory freed below */
-            gtk_tree_model_get(accounts_model, &iter_selection, DESCRIPTION_ACCOUNT, &description, -1);
+            gtk_tree_model_get(accounts_model, &iter_parent, DESCRIPTION_ACCOUNT, &description, -1);
 
             GtkTreeIter new_income_expense_entry;
             gtk_tree_store_append(data_passer->reports_store, &new_income_expense_entry, &income_expense_parent);
