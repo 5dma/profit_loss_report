@@ -43,7 +43,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     data_passer->window = window;
     
     /* Upon destroying the application, free memory in data passer. */
-    g_signal_connect(window, "destroy", G_CALLBACK(cleanup), data_passer);
+    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(cleanup), data_passer);
 
     GtkWidget *lbl_accounts = gtk_label_new("Accounts");
     GtkWidget *lbl_reports = gtk_label_new("Reports");

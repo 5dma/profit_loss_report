@@ -8,16 +8,19 @@
  *
  */
 
-
-
 /**
  * Gtk callback fired when clicking the exit button or destroying the main window. The following members of `data_passer` are freed in other functions:
  * - output_file - Freed in save_report_tree().
  * @param btn_exit Pointer to the clicked exit button.
- * @param data_passer Pointer to a Data_passer struct.
+ * @param user_data Pointer to a Data_passer struct.
  * @return `TRUE` if the selected account's name is one of the account codes (242, 323, 349, etc.) and therefore can be included in the P&L report, `FALSE` otherwise.
  */
-void cleanup(GtkWidget *window, Data_passer *data_passer) {
+void cleanup(GtkWidget *window, gpointer user_data) {
+    
+    Data_passer *data_passer = (Data_passer *)user_data;
+ //   gulong handler = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(data_passer->tree_view_reports), "cursor-changed"));
+ //   g_signal_handler_disconnect(G_OBJECT(data_passer->tree_view_reports), handler);
+
     sqlite3_close(data_passer->db);
 
     g_free(data_passer->start_date);
