@@ -162,7 +162,7 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
 }
 
 /**
- * Performs a depth-first-search for a GUID inside the reports store. The logic is as follows.
+ * Performs a recursive depth-first-search for a GUID inside the reports store. The logic is as follows.
  *
  * -# Receive the store, root iter, guid we are looking for, and the data passer.
  * -# If a match was found (`data_passer->is_guid_in_reports_tree == TRUE`), return.
