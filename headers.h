@@ -34,7 +34,8 @@ typedef struct {
     GtkTreePath *income_root;         /**< Path in the GnuCash tree that holds the parent of all income accounts. */
     GtkTreePath *expenses_root;       /**< Path in the GnuCash tree that holds the parent of all expense accounts. */
     gboolean is_guid_in_reports_tree; /**< Indicates if a selected guid is already in the reports tree. */
-    GList *iters_to_be_freed;        /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
+    GList *iters_to_be_freed;         /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
+    GtkWidget *window;                /**< Pointer to the main application window. */
 } Data_passer;
 
 /**
@@ -54,7 +55,7 @@ typedef struct {
 Data_passer *setup();
 
 void make_pl_report(GtkButton *button, gpointer user_data);
-void cleanup(GtkButton *btn_exit, Data_passer *data_passer);
+void cleanup(GtkWidget *window, Data_passer *data_passer);
 void read_accounts_tree(Data_passer *data_passer);
 void add_account_to_reports(GtkButton *button, gpointer user_data);
 void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_data);
@@ -72,6 +73,7 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
 void revert_report_tree(GtkButton *button, gpointer user_data);
 void save_report_tree(GtkButton *button, gpointer user_data);
 
+void closeup(GtkWidget *button_close, gpointer data);
 /**
  * Flag used when computing subtotals for income or expenses.
  * @see make_subtotals()

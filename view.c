@@ -40,6 +40,10 @@ GtkWidget *make_window(Data_passer *data_passer) {
     GtkWidget *window = gtk_application_window_new(GTK_APPLICATION(app));
     gtk_window_set_title(GTK_WINDOW(window), "Property P&L");
     gtk_window_set_default_size(GTK_WINDOW(window), 500, 500);
+    data_passer->window = window;
+    
+    /* Upon destroying the application, free memory in data passer. */
+    g_signal_connect(window, "destroy", G_CALLBACK(cleanup), data_passer);
 
     GtkWidget *lbl_accounts = gtk_label_new("Accounts");
     GtkWidget *lbl_reports = gtk_label_new("Reports");
@@ -112,7 +116,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     g_signal_connect(btn_delete, "clicked", G_CALLBACK(delete_account_from_reports), data_passer);
     g_signal_connect(btn_go, "clicked", G_CALLBACK(make_pl_report), data_passer);
     g_signal_connect(btn_revert, "clicked", G_CALLBACK(revert_report_tree), data_passer);
-    g_signal_connect(btn_exit, "clicked", G_CALLBACK(cleanup), data_passer);
+    g_signal_connect(btn_exit, "clicked", G_CALLBACK(closeup), data_passer);
     
 
     data_passer->btn_add = btn_add;
@@ -144,7 +148,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
 
     gtk_container_add(GTK_CONTAINER(window), grid);
+
+
     return window;
-    /* Upon destroying the application, free memory in data passer. */
-    g_signal_connect(window, "destroy", G_CALLBACK(cleanup), data_passer);
 }

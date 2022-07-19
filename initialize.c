@@ -117,6 +117,8 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
  * @return Pointer to the data passer.
  */
 Data_passer *setup(GApplication *app) {
+
+    /* Memory freed in cleanup(). */
     Data_passer *data_passer = g_new(Data_passer, 1);
 
     data_passer->db = NULL;

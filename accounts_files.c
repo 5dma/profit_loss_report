@@ -124,7 +124,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
         char child_sql[1000];
         gint num_bytes = g_snprintf(child_sql, 1000, "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
 
-        /* Memory below, but NOT FREED CORRECTLY */
+        /* Memory freed in read_accounts_tree */
         Iter_passer *iter_passer_child = g_new(Iter_passer, 1);
         iter_passer_child->db = iter_passer->db;
         iter_passer_child->accounts_store = iter_passer->accounts_store;
@@ -135,6 +135,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
             iter_passer_child->parent = iter_passer->child;
         }
         iter_passer_child->at_root_level = FALSE;
+        /* Add the current Iter_passer to the list of Iter_passers that will eventually be freed. */
         iter_passer_child->iters_to_be_freed = iter_passer->iters_to_be_freed;
         iter_passer_child->iters_to_be_freed = g_list_append(iter_passer_child->iters_to_be_freed, iter_passer_child);
 
@@ -171,7 +172,7 @@ void read_accounts_tree(Data_passer *data_passer) {
     /* The following tree store is freed in cleanup(). */
     data_passer->accounts_store = gtk_tree_store_new(COLUMNS_ACCOUNT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
-    /* Memory freed below */
+    /* Memory freed as part of g_list_free_full(), below.  */
     Iter_passer *iter_passer = g_new(Iter_passer, 1);
     iter_passer->db = data_passer->db;
     iter_passer->number_of_children = 0;
