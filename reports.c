@@ -92,7 +92,6 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
         barf = json_node_new(JSON_NODE_VALUE);
         json_node_set_string(barf, guid);
         json_builder_add_value(builder, barf);
-        g_object_unref(barf);
         json_builder_set_member_name(builder, "income_accounts");
 
         /* Get iter for "Revenue" for current property. */
@@ -156,7 +155,6 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
     gchar *output_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
 
     gboolean wrote_json_file = json_generator_to_file(generator, output_file, &gerror);
-    g_free(code);
     json_node_free(root);
     g_object_unref(generator);
     g_object_unref(builder);
