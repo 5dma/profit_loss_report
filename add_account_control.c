@@ -126,12 +126,11 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
 
     gtk_tree_selection_set_mode(tree_view_accounts_selection, GTK_SELECTION_SINGLE);
     GtkTreeModel *model = gtk_tree_view_get_model(tree_view_accounts);
-    GtkTreeIter iter;
+    GtkTreeIter iter; /* Attempts to free this memory resulted in seg fault */
     gboolean omg = gtk_tree_selection_get_selected(tree_view_accounts_selection, &model, &iter);
     gchar *guid; /* Memory freed in three places, need to make this easier. */
-    gtk_tree_model_get(model, &iter, 0, &guid, -1);
     gchar *name; /* Memory freed in three places, need to make this easier. */
-    gtk_tree_model_get(model, &iter, 1, &name, -1);
+    gtk_tree_model_get(model, &iter, GUID_ACCOUNT, &guid, NAME_ACCOUNT, &name, -1);
 
     /* Check if the currently selected account is already in the reports list. */
     data_passer->is_guid_in_reports_tree = FALSE;
@@ -156,6 +155,7 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
                is an account that is eligible to be in the reports list, set
                the add button's sensitivity. */
             gtk_widget_set_sensitive(data_passer->btn_add, TRUE);
+
             g_free(guid);
             g_free(name);
             return;
