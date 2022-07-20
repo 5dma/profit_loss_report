@@ -110,6 +110,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     GtkWidget *btn_delete = gtk_button_new_from_icon_name("list-remove", GTK_ICON_SIZE_BUTTON);
     GtkWidget *btn_go = gtk_button_new_from_icon_name("system-run", GTK_ICON_SIZE_BUTTON);
     GtkWidget *btn_exit = gtk_button_new_from_icon_name("application-exit", GTK_ICON_SIZE_BUTTON);
+    GtkWidget *btn_settings = gtk_button_new_from_icon_name("gnome-settings", GTK_ICON_SIZE_BUTTON);
 
     gtk_widget_set_sensitive(btn_add, FALSE);
     gtk_widget_set_sensitive(btn_delete, FALSE);
@@ -119,6 +120,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     g_signal_connect(btn_delete, "clicked", G_CALLBACK(delete_account_from_reports), data_passer);
     g_signal_connect(btn_go, "clicked", G_CALLBACK(make_pl_report), data_passer);
     g_signal_connect(btn_revert, "clicked", G_CALLBACK(revert_report_tree), data_passer);
+  //  g_signal_connect(btn_settings, "clicked", G_CALLBACK(closeup), data_passer);
     g_signal_connect(btn_exit, "clicked", G_CALLBACK(closeup), data_passer);
 
     data_passer->btn_add = btn_add;
@@ -133,16 +135,17 @@ GtkWidget *make_window(Data_passer *data_passer) {
 
     GtkWidget *grid = gtk_grid_new();
     gtk_grid_attach(GTK_GRID(grid), lbl_accounts, 0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), lbl_reports, 1, 0, 4, 1);
+    gtk_grid_attach(GTK_GRID(grid), lbl_reports, 1, 0, 7, 1);
     gtk_grid_attach(GTK_GRID(grid), scrolled_window_tree_view_accounts, 0, 1, 1, 2);
-    gtk_grid_attach(GTK_GRID(grid), scrolled_window_tree_view_reports, 1, 1, 6, 1);
+    gtk_grid_attach(GTK_GRID(grid), scrolled_window_tree_view_reports, 1, 1, 7, 1);
     gtk_grid_attach(GTK_GRID(grid), btn_save, 1, 2, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), btn_revert, 2, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), btn_add, 3, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), btn_delete, 4, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), btn_go, 5, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), btn_exit, 6, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), data_passer->status_bar, 0, 3, 7, 1);
+    gtk_grid_attach(GTK_GRID(grid), btn_settings, 3, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), btn_add, 4, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), btn_delete, 5, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), btn_go, 6, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), btn_exit, 7, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), data_passer->status_bar, 0, 3, 8, 1);
 
     gtk_grid_set_row_spacing(GTK_GRID(grid), 20);
     gtk_grid_set_column_spacing(GTK_GRID(grid), 20);

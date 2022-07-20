@@ -162,7 +162,7 @@ Data_passer *setup(GApplication *app) {
     int rc;
     char *sql;
     char *zErrMsg = 0;
-    rc = sqlite3_open_v2("/home/abba/Finances/Bookkeeping/rentals.sqlite.gnucash", &(data_passer->db), SQLITE_OPEN_READONLY, NULL);
+    rc = sqlite3_open_v2("/home/abba/Finances/Bookkeeping/rentals.gnucash.moretest.sqlite.gnucash", &(data_passer->db), SQLITE_OPEN_READONLY, NULL);
     if (rc != SQLITE_OK) {
         char error_message[1000];
 
