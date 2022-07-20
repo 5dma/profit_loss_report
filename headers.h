@@ -54,7 +54,7 @@ typedef struct {
     GtkTreeIter *child;           /**< Iter to a child account of `parent`. */
     gboolean at_root_level;       /**< `TRUE` if the parent is at the root level of the GnuCash store, `FALSE` otherwise. */
     GList *iters_to_be_freed;     /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
-    Data_passer *data_passer; /**< Pointer to the Data_passer */
+    Data_passer *data_passer;     /**< Pointer to the Data_passer */
 } Iter_passer;
 
 Data_passer *setup();
@@ -111,11 +111,11 @@ enum report_store_fields {
  * Descriptors of an error condition's severity level.
  */
 enum error_condition {
-    NO_DATABASE_CONNECTION,  /**< Could not connect to the sqlite database. */
-    SQLITE_SELECT_FAILURE,   /**< Could not perform an sqlite SELECT. */
-    JSON_PROCESSING_FAILURE, /**< Could not perform an operation on a JSON object. */
+    NO_DATABASE_CONNECTION,    /**< Could not connect to the sqlite database. */
+    SQLITE_SELECT_FAILURE,     /**< Could not perform an sqlite SELECT. */
+    JSON_PROCESSING_FAILURE,   /**< Could not perform an operation on a JSON object. */
     REPORT_GENERATION_FAILURE, /**< Could not generate the HTML report. */
-    NONE                     /**< No error condition. */
+    NONE                       /**< No error condition. */
 };
 
 static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8; /**< Need to get rid of this, along with PL_ACCOUNTS_ARRAY. */
