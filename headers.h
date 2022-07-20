@@ -37,6 +37,10 @@ typedef struct {
     GList *iters_to_be_freed;         /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
     GtkWidget *window;                /**< Pointer to the main application window. */
     gulong handler;                   /**< ID of the handler associated with the cursor-changed event in the tree_vew_accounts. */
+    GtkWidget *status_bar;            /**< Pointer to the status bar. */
+    guint status_bar_context_info;    /**< ID of the status bar's informational context. */
+    guint status_bar_context_error;   /**< ID of the status bar's error context. */
+    guint error_condition;             /**< Indication of an error condition. See error_condition. */
 } Data_passer;
 
 /**
@@ -47,10 +51,10 @@ typedef struct {
     sqlite3 *db;                  /**< Pointer to sqlite database handle. */
     GtkTreeStore *accounts_store; /**< Pointer to GnuCash accounts store. */
     int number_of_children;       /**< Number of children associated with `parent`. */
-    GtkTreeIter *parent;           /**< Iter to a given parent account in the GnuCash accounts store. */
-    GtkTreeIter *child;            /**< Iter to a child account of `parent`. */
+    GtkTreeIter *parent;          /**< Iter to a given parent account in the GnuCash accounts store. */
+    GtkTreeIter *child;           /**< Iter to a child account of `parent`. */
     gboolean at_root_level;       /**< `TRUE` if the parent is at the root level of the GnuCash store, `FALSE` otherwise. */
-    GList *iters_to_be_freed;    /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
+    GList *iters_to_be_freed;     /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
 } Iter_passer;
 
 Data_passer *setup();
@@ -87,29 +91,41 @@ enum account_type { INCOME, /**< Indicates subtotals are for an income account. 
  * Counter for columns in the GnuCash accounts store.
  */
 enum account_store_fields {
-    GUID_ACCOUNT, /**< Column 0 holds the the GnuCash guid. */
-    NAME_ACCOUNT, /**< Column 1 holds the the GnuCash account's name. */
+    GUID_ACCOUNT,        /**< Column 0 holds the the GnuCash guid. */
+    NAME_ACCOUNT,        /**< Column 1 holds the the GnuCash account's name. */
     DESCRIPTION_ACCOUNT, /**< Column 2 holds the the GnuCash account's description. */
-    COLUMNS_ACCOUNT /**< Number of columns in the GnuCash accounts store. */
+    COLUMNS_ACCOUNT      /**< Number of columns in the GnuCash accounts store. */
 };
 
 /**
  * Counter for columns in the P&L report's store.
  */
 enum report_store_fields {
-    GUID_REPORT, /**< Column 0 holds the the GnuCash guid. */
+    GUID_REPORT,        /**< Column 0 holds the the GnuCash guid. */
     DESCRIPTION_REPORT, /**< Column 1 holds the the GnuCash account's description. */
-    COLUMNS_REPORT /**< Number of columns in the P&L report's store. */
+    COLUMNS_REPORT      /**< Number of columns in the P&L report's store. */
 };
 
+/**
+ * \enum error_condition
+ * Descriptors of an error condition's severity level.
+ */
+enum error_condition {
+    NO_DATABASE_CONNECTION, /**< Could not connect to the sqlite database. */
+    CRITICAL, /**< Application cannot continue running. */
+    MAJOR,    /**< Application can continue running with unpredictable results. */
+    MINOR,    /**< Application can continue running with predictable results. */
+    LOW,      /**< Application can continue running, no need to inform the user. */
+    NONE     /**< No error condition. */
+};
 
 static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8; /**< Need to get rid of this, along with PL_ACCOUNTS_ARRAY. */
 
 /**
  * \struct PL_ACCOUNTS_ARRAY
-* Array of account names that can be included in a P&L report. NEED TO MAKE THIS DYNAMIC.
-*/
-static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325","349","351","353","9820"};
+ * Array of account names that can be included in a P&L report. NEED TO MAKE THIS DYNAMIC.
+ */
+static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325", "349", "351", "353", "9820"};
 typedef enum {
     STRING,
 } target_info;
@@ -117,7 +133,7 @@ typedef enum {
 void on_app_activate(GApplication *app, gpointer data);
 GtkWidget *make_window(Data_passer *data_passer);
 
-static gchar *REVENUE = "Revenue"; /**< String constant for adding a `Revenue` heading in the P&L report's store. */
+static gchar *REVENUE = "Revenue";   /**< String constant for adding a `Revenue` heading in the P&L report's store. */
 static gchar *EXPENSES = "Expenses"; /**< String constant for adding an `Expenses` heading in the P&L report's store. */
 
 static gchar *SELECT_DESCRIPTION_FROM_ACCOUNT = "SELECT description FROM accounts WHERE guid = \"%s\";"; /**< SQL statement that retrieves a description for a given guid. See get_account_description().  */
@@ -126,12 +142,11 @@ static gchar *SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT = "SELECT parent.descriptio
 
 static gchar *SUM_OF_ACCOUNT_ACTIVITY = "SELECT COUNT(*), ABS(SUM(value_num/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date > \"%s\";"; /**< SQL statement that, for a given guid, retrieves the number of transactions and the subtotal of those transactions. See make_subtotals(). */
 
-
-static gchar *ACCOUNT_REPORT = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%-#4.2f</td>\n</tr>\n"; /**< HTML template for printing an account's subtotal. See make_subtotals(). */
-static gchar *PROPERTY_HEADER = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n"; /**< HTML template for printing a fixed asset's header. See make_property_report(). */
-static gchar *INCOME_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n"; /**< HTML template for printing the income header in a fixed asset's report. See make_property_report(). */
-static gchar *INCOME_TOTAL = "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n"; /**< HTML template for printing the total income in a fixed asset's report. See make_property_report(). */
-static gchar *EXPENSE_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n"; /**< HTML template for printing the expense header in a fixed asset's report. See make_property_report(). */
-static gchar *EXPENSE_TOTAL = "<tr>\n<td>Total expenses</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n"; /**< HTML template for printing the total expenses in a fixed asset's report. See make_property_report(). */
+static gchar *ACCOUNT_REPORT = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%-#4.2f</td>\n</tr>\n";                                  /**< HTML template for printing an account's subtotal. See make_subtotals(). */
+static gchar *PROPERTY_HEADER = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n";                                     /**< HTML template for printing a fixed asset's header. See make_property_report(). */
+static gchar *INCOME_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";                                                /**< HTML template for printing the income header in a fixed asset's report. See make_property_report(). */
+static gchar *INCOME_TOTAL = "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";                                  /**< HTML template for printing the total income in a fixed asset's report. See make_property_report(). */
+static gchar *EXPENSE_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n";                                             /**< HTML template for printing the expense header in a fixed asset's report. See make_property_report(). */
+static gchar *EXPENSE_TOTAL = "<tr>\n<td>Total expenses</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";                               /**< HTML template for printing the total expenses in a fixed asset's report. See make_property_report(). */
 static gchar *NET_INCOME = "<tr class=\"table-success\">\n<td>Net income</td>\n<td><span class=\"double_underline\">%-#4.2f</span></td>\n</tr>\n"; /**< HTML template for printing the net income (INCOME_TOTAL − EXPENSE TOTAL) in a fixed asset's report. See make_property_report(). */
 #endif

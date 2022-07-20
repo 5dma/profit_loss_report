@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+
 #include "headers.h"
 
 /**
@@ -33,7 +34,7 @@ void on_drag_data_get(gpointer user_data) {
 /**
  * Creates Gtk widgets in the main window.
  * @param data_passer Pointer to a Data_passer struct.
-*/
+ */
 GtkWidget *make_window(Data_passer *data_passer) {
     GApplication *app = data_passer->app;
 
@@ -41,7 +42,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_window_set_title(GTK_WINDOW(window), "Property P&L");
     gtk_window_set_default_size(GTK_WINDOW(window), 500, 500);
     data_passer->window = window;
-    
+
     /* Upon destroying the application, free memory in data passer. */
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(cleanup), data_passer);
 
@@ -69,8 +70,11 @@ GtkWidget *make_window(Data_passer *data_passer) {
     data_passer->tree_view_accounts = tree_view_accounts;
     data_passer->tree_view_reports = tree_view_reports;
 
-    read_accounts_tree(data_passer);
-    
+    if (data_passer->error_condition != NO_DATABASE_CONNECTION) {
+        read_accounts_tree(data_passer);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context_info, "Ready");
+    }
+
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_accounts), GTK_TREE_MODEL(data_passer->accounts_store));
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_reports), GTK_TREE_MODEL(data_passer->reports_store));
 
@@ -117,7 +121,6 @@ GtkWidget *make_window(Data_passer *data_passer) {
     g_signal_connect(btn_go, "clicked", G_CALLBACK(make_pl_report), data_passer);
     g_signal_connect(btn_revert, "clicked", G_CALLBACK(revert_report_tree), data_passer);
     g_signal_connect(btn_exit, "clicked", G_CALLBACK(closeup), data_passer);
-    
 
     data_passer->btn_add = btn_add;
     data_passer->btn_delete = btn_delete;
@@ -128,8 +131,6 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_widget_set_tooltip_text(btn_delete, "Remove account from report");
     gtk_widget_set_tooltip_text(btn_go, "Run report");
     gtk_widget_set_tooltip_text(btn_exit, "Exit");
-
-    GtkWidget *status_bar = gtk_statusbar_new();
 
     GtkWidget *grid = gtk_grid_new();
     gtk_grid_attach(GTK_GRID(grid), lbl_accounts, 0, 0, 1, 1);
@@ -142,13 +143,12 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_grid_attach(GTK_GRID(grid), btn_delete, 4, 2, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), btn_go, 5, 2, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), btn_exit, 6, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), status_bar, 0, 3, 7, 1);
+    gtk_grid_attach(GTK_GRID(grid), data_passer->status_bar, 0, 3, 7, 1);
 
     gtk_grid_set_row_spacing(GTK_GRID(grid), 20);
     gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
 
     gtk_container_add(GTK_CONTAINER(window), grid);
-
 
     return window;
 }

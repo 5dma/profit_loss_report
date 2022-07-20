@@ -2,6 +2,7 @@
 #include <json-glib/json-glib.h>
 #include <sqlite3.h>
 #include <stdio.h>
+
 #include "headers.h"
 
 /**
@@ -11,7 +12,7 @@
 
 /**
  * Adds accounts to the report tree, under the passed property and under expenses or income.
- * 
+ *
  * @param data_passer Pointer to a Data_passer struct.
  * @param property_object Pointer to the current property for which we are adding income or expense accounts.
  * @param property_iter Pointer to the property's iter in the reports tree store.
@@ -49,7 +50,7 @@ void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTree
 
 /**
  * Sqlite callback that retrieves a property's description. The function places the description in the passed `user_data` pointer.
- * 
+ *
  * @param user_data Pointer to `gchar`.
  * @param argc Number of columns in sqlite result.
  * @param argv Array of pointers to the results of a query.
@@ -57,7 +58,7 @@ void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTree
  * @return 0.
  * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html)
  * @see get_account_description()
-*/
+ */
 static int retrieve_property_description(void *user_data, int argc, char **argv, char **azColName) {
     gchar *description = (gchar *)user_data;
     gsize mylength = g_strlcpy(description, argv[0], 1000);
@@ -66,11 +67,11 @@ static int retrieve_property_description(void *user_data, int argc, char **argv,
 
 /**
  * Issues an sqlite command to retrieve an account's description corresponding to a passed guid.
- * 
+ *
  * @param guid guid for which we are looking up a description.
  * @param description Retrieved description.
  * @param user_data  Pointer to a Data_passer struct.
-*/
+ */
 void get_account_description(gchar *guid, gchar *description, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
@@ -89,11 +90,11 @@ void get_account_description(gchar *guid, gchar *description, gpointer user_data
 
 /**
  * Issues an sqlite command to retrieve, for a passed guid, the parent account's description.
- * 
+ *
  * @param guid guid for which we are looking up its parent node's description.
  * @param description Retrieved description.
  * @param user_data  Pointer to a Data_passer struct.
-*/
+ */
 void get_parent_account_description(gchar *guid, gchar *description, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
@@ -117,7 +118,6 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
  * @return Pointer to the data passer.
  */
 Data_passer *setup(GApplication *app) {
-
     /* Memory freed in cleanup(). */
     Data_passer *data_passer = g_new(Data_passer, 1);
 
@@ -139,18 +139,30 @@ Data_passer *setup(GApplication *app) {
     data_passer->expenses_root = NULL;
     data_passer->is_guid_in_reports_tree = FALSE;
     data_passer->handler = 0;
+    data_passer->error_condition = NONE;
     /* The following line is here instead of in read_properties_into_reports_store(), because that function is used to load data into the tree store, not to instantiate the tree view. */
     data_passer->reports_store = gtk_tree_store_new(COLUMNS_REPORT, G_TYPE_STRING, G_TYPE_STRING);
 
-    /* Open connection to database, save handle in data_passer. */
+    /* Would be better to have the following statements in make_window(), but that requires a huge refactor. */
+    GtkWidget *status_bar = gtk_statusbar_new();
+    data_passer->status_bar = status_bar;
+    data_passer->status_bar_context_info = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "informational");
+    data_passer->status_bar_context_error = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "errors");
+
+    /* Open read-only connection to database, save handle in data_passer. */
     int rc;
     char *sql;
     char *zErrMsg = 0;
-    rc = sqlite3_open("/home/abba/Finances/Bookkeeping/rentals.sqlite.gnucash", &(data_passer->db));
+    rc = sqlite3_open_v2("/home/abba/Finances/Bookkeeping/rentals.sqlite.gnucash", &(data_passer->db), SQLITE_OPEN_READONLY, NULL);
     if (rc != SQLITE_OK) {
-        printf("Can't open database: %s\n", sqlite3_errmsg(data_passer->db));
+        char error_message[1000];
+
+        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
+
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context_info);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context_error, error_message);
+        data_passer->error_condition = NO_DATABASE_CONNECTION;
         g_free(zErrMsg);
-        return (NULL);
     }
 
     /* Go read the JSON file containing list of accounts in the P&L report. */
