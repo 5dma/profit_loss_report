@@ -36,6 +36,7 @@ typedef struct {
     gboolean is_guid_in_reports_tree; /**< Indicates if a selected guid is already in the reports tree. */
     GList *iters_to_be_freed;         /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
     GtkWidget *window;                /**< Pointer to the main application window. */
+    gulong handler;                   /**< ID of the handler associated with the cursor-changed event in the tree_vew_accounts. */
 } Data_passer;
 
 /**
@@ -46,8 +47,8 @@ typedef struct {
     sqlite3 *db;                  /**< Pointer to sqlite database handle. */
     GtkTreeStore *accounts_store; /**< Pointer to GnuCash accounts store. */
     int number_of_children;       /**< Number of children associated with `parent`. */
-    GtkTreeIter parent;           /**< Iter to a given parent account in the GnuCash accounts store. */
-    GtkTreeIter child;            /**< Iter to a child account of `parent`. */
+    GtkTreeIter *parent;           /**< Iter to a given parent account in the GnuCash accounts store. */
+    GtkTreeIter *child;            /**< Iter to a child account of `parent`. */
     gboolean at_root_level;       /**< `TRUE` if the parent is at the root level of the GnuCash store, `FALSE` otherwise. */
     GList *iters_to_be_freed;    /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
 } Iter_passer;

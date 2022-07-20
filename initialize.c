@@ -138,6 +138,7 @@ Data_passer *setup(GApplication *app) {
     data_passer->income_root = NULL;
     data_passer->expenses_root = NULL;
     data_passer->is_guid_in_reports_tree = FALSE;
+    data_passer->handler = 0;
     /* The following line is here instead of in read_properties_into_reports_store(), because that function is used to load data into the tree store, not to instantiate the tree view. */
     data_passer->reports_store = gtk_tree_store_new(COLUMNS_REPORT, G_TYPE_STRING, G_TYPE_STRING);
 

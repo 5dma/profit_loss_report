@@ -84,7 +84,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_container_add(GTK_CONTAINER(scrolled_window_tree_view_reports), tree_view_reports);
     gtk_widget_set_size_request(scrolled_window_tree_view_reports, 300, 400);
 
-    g_signal_connect(G_OBJECT(tree_view_accounts), "cursor-changed", G_CALLBACK(account_tree_cursor_changed), data_passer);
+    data_passer->handler = g_signal_connect(G_OBJECT(tree_view_accounts), "cursor-changed", G_CALLBACK(account_tree_cursor_changed), data_passer);
     g_signal_connect(G_OBJECT(tree_view_reports), "cursor-changed", G_CALLBACK(reports_tree_cursor_changed), data_passer);
 
     /*

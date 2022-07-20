@@ -18,8 +18,7 @@
 void cleanup(GtkWidget *window, gpointer user_data) {
     
     Data_passer *data_passer = (Data_passer *)user_data;
- //   gulong handler = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(data_passer->tree_view_reports), "cursor-changed"));
- //   g_signal_handler_disconnect(G_OBJECT(data_passer->tree_view_reports), handler);
+    g_signal_handler_disconnect(G_OBJECT(data_passer->tree_view_accounts), data_passer->handler);
 
     sqlite3_close(data_passer->db);
 
