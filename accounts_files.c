@@ -72,8 +72,12 @@ static int has_children(void *user_data, int argc, char **argv, char **azColName
 void iter_free(Iter_passer *iter_passer) {
     iter_passer->db = NULL;
     iter_passer->accounts_store = NULL;
-    gtk_tree_iter_free(&(iter_passer->parent));
-    gtk_tree_iter_free(&(iter_passer->child));
+    if (iter_passer->parent != NULL) {
+        gtk_tree_iter_free(iter_passer->parent);
+    }
+    if (iter_passer->child != NULL) {
+        gtk_tree_iter_free(iter_passer->child);
+    }
     iter_passer->iters_to_be_freed = NULL;
 }
 
@@ -96,11 +100,13 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
         add a row at that root level and store the guid, name, and description.
     */
     if (iter_passer->at_root_level == TRUE) {
-        gtk_tree_store_append(store, &(iter_passer->parent), NULL);
-        gtk_tree_store_set(store, &(iter_passer->parent), GUID_ACCOUNT, argv[0], NAME_ACCOUNT, argv[1], DESCRIPTION_ACCOUNT, argv[2], -1);
+        iter_passer->parent = g_new(GtkTreeIter, 1);
+        gtk_tree_store_append(store, iter_passer->parent, NULL);
+        gtk_tree_store_set(store, iter_passer->parent, GUID_ACCOUNT, argv[0], NAME_ACCOUNT, argv[1], DESCRIPTION_ACCOUNT, argv[2], -1);
     } else {
-        gtk_tree_store_append(store, &(iter_passer->child), &(iter_passer->parent));
-        gtk_tree_store_set(store, &(iter_passer->child), GUID_ACCOUNT, argv[0], NAME_ACCOUNT, argv[1], DESCRIPTION_ACCOUNT, argv[2], -1);
+        iter_passer->child = g_new(GtkTreeIter, 1);
+        gtk_tree_store_append(store, iter_passer->child, iter_passer->parent);
+        gtk_tree_store_set(store, iter_passer->child, GUID_ACCOUNT, argv[0], NAME_ACCOUNT, argv[1], DESCRIPTION_ACCOUNT, argv[2], -1);
     }
 
     /* Get the child accounts associated with the passed parent. */
@@ -129,10 +135,13 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
         iter_passer_child->db = iter_passer->db;
         iter_passer_child->accounts_store = iter_passer->accounts_store;
         iter_passer_child->number_of_children = 0;
+        iter_passer_child->parent = NULL;
+        iter_passer_child->child = NULL;
+
         if (iter_passer->at_root_level == TRUE) {
-            iter_passer_child->parent = iter_passer->parent;
+            iter_passer_child->parent = gtk_tree_iter_copy(iter_passer->parent);
         } else {
-            iter_passer_child->parent = iter_passer->child;
+            iter_passer_child->parent = gtk_tree_iter_copy(iter_passer->child);
         }
         iter_passer_child->at_root_level = FALSE;
         /* Add the current Iter_passer to the list of Iter_passers that will eventually be freed. */
@@ -153,7 +162,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
 
 /**
  * Selects the following accounts to be at the top level of the accounts tree: Fixed assets, Income, Expenses, and then recursively calls build_tree() to build the accounts tree. The logic is as follows:
- * 
+ *
  * -# Retrieve the three accounts at the top level.
  * -# For each such account:
  *    -# Call build_tree() with the parent account as `NULL` and the child account as the current account.
@@ -163,7 +172,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
  *       - Does the current account have children?
  *         - If so, loop through each child, calling build_tree() with the parent account as the current account and the child account as the current child account.
  *         - If not, return.
- * 
+ *
  * As part of this recursion, we instantiate Iter_passer structs to manage the locaton of parent and child accounts. To free these structs, we place them in a `GList` as they are created. When the tree is constructed, we free the structs' memory using iter_free().
  * @param data_passer Pointer to a Data_passer struct.
  *
@@ -178,6 +187,8 @@ void read_accounts_tree(Data_passer *data_passer) {
     iter_passer->number_of_children = 0;
     iter_passer->accounts_store = data_passer->accounts_store;
     iter_passer->at_root_level = TRUE;
+    iter_passer->parent = NULL;
+    iter_passer->child = NULL;
     iter_passer->iters_to_be_freed = NULL;
     iter_passer->iters_to_be_freed = g_list_append(iter_passer->iters_to_be_freed, iter_passer);
 
