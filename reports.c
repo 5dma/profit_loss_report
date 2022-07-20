@@ -15,11 +15,8 @@
  */
 void revert_report_tree(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
-
     gtk_tree_store_clear(data_passer->reports_store);
-
     read_properties_into_reports_store(data_passer);
-    g_print("Reverted\n");
 }
 
 /**
@@ -36,7 +33,9 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
     gboolean found_top_iter = gtk_tree_model_get_iter_first(tree_model, &report_store_top_iter);
 
     if (!found_top_iter) {
-        g_print("No properties in report tree, no save performed\n");
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "No properties in report tree, no save performed");
+        data_passer->error_condition = JSON_PROCESSING_FAILURE;
         return;
     }
 
@@ -232,7 +231,14 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
         parser = json_parser_new();
         json_parser_load_from_file(parser, input_file, &error);
         if (error) {
-            g_print("Unable to parse `%s': %s\n", input_file, error->message);
+        char error_message[1000];
+        gint num_bytes = g_snprintf(error_message, 1000, "Unable to parse `%s': %s\n", input_file, error->message);
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "No properties in report tree, no save performed");
+        data_passer->error_condition = JSON_PROCESSING_FAILURE;
+
+
+     
             g_error_free(error);
         } else {
             JsonNode *root = json_parser_get_root(parser);
@@ -282,7 +288,9 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
         }
         g_object_unref(parser);
     } else {
-        g_print("Input file does not exist.\n");
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Input file containing accounts does not exist.");
+        data_passer->error_condition = JSON_PROCESSING_FAILURE;
     }
     g_free(input_file);
 }

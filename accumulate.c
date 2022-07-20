@@ -48,11 +48,13 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
     rc = sqlite3_exec(data_passer->db, sql, total_up_income, &subtotal, &zErrMsg);
 
     if (rc != SQLITE_OK) {
-        g_print("SQL error: %s\n", zErrMsg);
+        char error_message[1000];
+        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
+        data_passer->error_condition = SQLITE_SELECT_FAILURE;
         sqlite3_free(zErrMsg);
-    } else {
-        //      g_print("Table created successfully\n");
-    }
+  }
 
     /* Add the subtotal to the total revenue or total expense for the current property. */
     if (data_passer->subtotaling_revenues) {
@@ -78,7 +80,9 @@ void make_property_report(Data_passer *data_passer) {
     gboolean found_top_iter = gtk_tree_model_get_iter_first(tree_model, &report_store_top_iter);
 
     if (!found_top_iter) {
-        g_print("No properties in report tree, no report generated\n");
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "No properties in report tree, no report generated");
+        data_passer->error_condition = SQLITE_SELECT_FAILURE;
         return;
     }
 
@@ -145,7 +149,9 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
     data_passer->output_file = fopen("/tmp/property_pl.html", "w");
 
     if (data_passer->output_file == NULL) {
-        g_print("Cannot create the report, exiting\n");
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Could not open the output file for writing.");
+        data_passer->error_condition = REPORT_GENERATION_FAILURE;
         return;
     }
 

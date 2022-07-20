@@ -118,7 +118,11 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
 
     rc = sqlite3_exec(iter_passer->db, sql, has_children, iter_passer, &zErrMsg);
     if (rc != SQLITE_OK) {
-        g_print("SQL error: %s\n", zErrMsg);
+        char error_message[1000];
+        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(iter_passer->data_passer->db));
+        gtk_statusbar_pop(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context, error_message);
+        iter_passer->data_passer->error_condition = SQLITE_SELECT_FAILURE;
         sqlite3_free(zErrMsg);
         return -1;
     }
@@ -151,10 +155,12 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
         rc = sqlite3_exec(iter_passer_child->db, child_sql, build_tree, iter_passer_child, &zErrMsg);
 
         if (rc != SQLITE_OK) {
-            g_print("SQL error: %s\n", zErrMsg);
+            char error_message[1000];
+            gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(iter_passer->data_passer->db));
+            gtk_statusbar_pop(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context);
+            gtk_statusbar_push(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context, error_message);
+            iter_passer->data_passer->error_condition = SQLITE_SELECT_FAILURE;
             sqlite3_free(zErrMsg);
-        } else {
-            //          g_print("Everything is good\n");
         }
     }
     return 0;
@@ -190,6 +196,7 @@ void read_accounts_tree(Data_passer *data_passer) {
     iter_passer->parent = NULL;
     iter_passer->child = NULL;
     iter_passer->iters_to_be_freed = NULL;
+    iter_passer->data_passer = data_passer;
     iter_passer->iters_to_be_freed = g_list_append(iter_passer->iters_to_be_freed, iter_passer);
 
     data_passer->iters_to_be_freed = iter_passer->iters_to_be_freed;
@@ -203,10 +210,12 @@ void read_accounts_tree(Data_passer *data_passer) {
     rc = sqlite3_exec(iter_passer->db, sql, build_tree, iter_passer, &zErrMsg);
 
     if (rc != SQLITE_OK) {
-        g_print("SQL error: %s\n", zErrMsg);
+        char error_message[1000];
+        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
+        data_passer->error_condition = SQLITE_SELECT_FAILURE;
         sqlite3_free(zErrMsg);
-    } else {
-        //     g_print("Everything is good\n");09f67b1fbae223eca818ba617edf1b3c
     }
 
     save_top_level_iters(data_passer);
