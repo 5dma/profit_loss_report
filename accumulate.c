@@ -82,7 +82,6 @@ void make_property_report(Data_passer *data_passer) {
         return;
     }
 
-    /* Memory for the following variables is freed below. */
     GtkTreeIter income_expense_iter;
     GtkTreeIter line_item_iter;
     do {
@@ -129,9 +128,6 @@ void make_property_report(Data_passer *data_passer) {
         fputs("</table>\n", data_passer->output_file);
         g_free (description);
     } while (gtk_tree_model_iter_next(tree_model, &report_store_top_iter));
-
-    gtk_tree_iter_free(&income_expense_iter);
-    gtk_tree_iter_free(&line_item_iter);
 }
 
 /**
