@@ -11,7 +11,7 @@
 /**
  * Gtk callback fired when clicking the exit button or destroying the main window. The following members of `data_passer` are freed in other functions:
  * - output_file - Freed in save_report_tree().
- * @param btn_exit Pointer to the clicked exit button.
+ * @param window Pointer to the application window.
  * @param user_data Pointer to a Data_passer struct.
  * @return `TRUE` if the selected account's name is one of the account codes (242, 323, 349, etc.) and therefore can be included in the P&L report, `FALSE` otherwise.
  */
