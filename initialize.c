@@ -82,7 +82,14 @@ void get_account_description(gchar *guid, gchar *description, gpointer user_data
     gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, guid);
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, description, &zErrMsg);
     if (rc != SQLITE_OK) {
-        g_print("SQL error: %s\n", zErrMsg);
+
+        char error_message[1000];
+
+        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
+
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
+        data_passer->error_condition = SQLITE_SELECT_FAILURE;
         sqlite3_free(zErrMsg);
     } else {
     }
@@ -146,8 +153,9 @@ Data_passer *setup(GApplication *app) {
     /* Would be better to have the following statements in make_window(), but that requires a huge refactor. */
     GtkWidget *status_bar = gtk_statusbar_new();
     data_passer->status_bar = status_bar;
-    data_passer->status_bar_context_info = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "informational");
-    data_passer->status_bar_context_error = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "errors");
+    data_passer->status_bar_context = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "informational");
+    gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Ready");
+
 
     /* Open read-only connection to database, save handle in data_passer. */
     int rc;
@@ -159,10 +167,10 @@ Data_passer *setup(GApplication *app) {
 
         gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
 
-        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context_info);
-        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context_error, error_message);
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = NO_DATABASE_CONNECTION;
-        g_free(zErrMsg);
+        sqlite3_free(zErrMsg);
     }
 
     /* Go read the JSON file containing list of accounts in the P&L report. */

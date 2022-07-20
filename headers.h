@@ -38,8 +38,7 @@ typedef struct {
     GtkWidget *window;                /**< Pointer to the main application window. */
     gulong handler;                   /**< ID of the handler associated with the cursor-changed event in the tree_vew_accounts. */
     GtkWidget *status_bar;            /**< Pointer to the status bar. */
-    guint status_bar_context_info;    /**< ID of the status bar's informational context. */
-    guint status_bar_context_error;   /**< ID of the status bar's error context. */
+    guint status_bar_context;         /**< ID of the status bar's context. There is only one status-bar context in this application. */
     guint error_condition;             /**< Indication of an error condition. See error_condition. */
 } Data_passer;
 
@@ -112,10 +111,7 @@ enum report_store_fields {
  */
 enum error_condition {
     NO_DATABASE_CONNECTION, /**< Could not connect to the sqlite database. */
-    CRITICAL, /**< Application cannot continue running. */
-    MAJOR,    /**< Application can continue running with unpredictable results. */
-    MINOR,    /**< Application can continue running with predictable results. */
-    LOW,      /**< Application can continue running, no need to inform the user. */
+    SQLITE_SELECT_FAILURE, /**< Could not perform an sqlite SELECT. */
     NONE     /**< No error condition. */
 };
 

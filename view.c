@@ -43,7 +43,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_window_set_default_size(GTK_WINDOW(window), 500, 500);
     data_passer->window = window;
 
-    /* Upon destroying the application, free memory in data passer. */
+    /* Upon destroying the application, call cleanup() to free memory in data passer. */
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(cleanup), data_passer);
 
     GtkWidget *lbl_accounts = gtk_label_new("Accounts");
@@ -72,7 +72,6 @@ GtkWidget *make_window(Data_passer *data_passer) {
 
     if (data_passer->error_condition != NO_DATABASE_CONNECTION) {
         read_accounts_tree(data_passer);
-        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context_info, "Ready");
     }
 
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view_accounts), GTK_TREE_MODEL(data_passer->accounts_store));
