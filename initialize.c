@@ -70,7 +70,7 @@ static int retrieve_property_description(void *user_data, int argc, char **argv,
  *
  * @param guid guid for which we are looking up a description.
  * @param description Retrieved description.
- * @param user_data  Pointer to a Data_passer struct.
+ * @param data_passer  Pointer to a Data_passer struct.
  */
 void get_account_description(const gchar *guid, gchar *description, Data_passer *data_passer) {
     int rc;
@@ -202,6 +202,8 @@ Data_passer *setup(GApplication *app) {
     data_passer->handler = 0;
     data_passer->error_condition = NONE;
     data_passer->root_obj = NULL;
+    data_passer->current_date_time = g_date_time_new_now_local();
+
     /* The following line is here instead of in read_properties_into_reports_store(), because that function is used to load data into the tree store, not to instantiate the tree view. */
     data_passer->reports_store = gtk_tree_store_new(COLUMNS_REPORT, G_TYPE_STRING, G_TYPE_STRING);
 

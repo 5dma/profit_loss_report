@@ -9,8 +9,8 @@
  */
 
 /**
- * Gtk callback fired when the delete button is clicked. This function removes the currently selected row in the reports tree view from the corresponding tree store.
- * @param button Pointer to the clicked delete button.
+ * Gtk callback fired when the settings close button is clicked. This function destroys the settings window.
+ * @param button Pointer to the clicked close button.
  * @param user_data Pointer to a Data_passer struct.
  */
 void close_settings(GtkButton *button, gpointer user_data) {
@@ -19,8 +19,8 @@ void close_settings(GtkButton *button, gpointer user_data) {
 }
 
 /**
- * Gtk callback fired when the delete button is clicked. This function removes the currently selected row in the reports tree view from the corresponding tree store.
- * @param button Pointer to the clicked delete button.
+ * Gtk callback fired when the the Choose button corresponding to the output file is clicked. This function displays a GTK file chooser. If the user selects a file, it is saved into Data_passer.
+ * @param button Pointer to the clicked choose button.
  * @param user_data Pointer to a Data_passer struct.
  */
 void get_output_filename(GtkButton *button, gpointer user_data) {
@@ -30,22 +30,22 @@ void get_output_filename(GtkButton *button, gpointer user_data) {
         "Choose", GTK_RESPONSE_OK, NULL);
     gint result = gtk_dialog_run(GTK_DIALOG(dialog));
 
-  gchar *filename;
+    gchar *filename;
     if (result == GTK_RESPONSE_OK) {
         filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
         data_passer->output_file_name = strdup(filename);
         gtk_entry_set_text(GTK_ENTRY(data_passer->settings_passer->text_output_filename), filename);
-
     }
     gtk_widget_destroy(dialog);
     g_free(filename);
 }
 
 /**
- * Gtk callback fired when the delete button is clicked. This function removes the currently selected row in the reports tree view from the corresponding tree store.
- * @param button Pointer to the clicked delete button.
+ * Gtk callback fired when the the Choose button corresponding to the SQLite file is clicked. This function displays a GTK file chooser. If the user selects a file, it is saved into Data_passer.
+ * @param button Pointer to the clicked choose button.
  * @param user_data Pointer to a Data_passer struct.
  */
+
 void get_sqlite_filename(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
     GtkWidget *dialog = gtk_file_chooser_dialog_new(
@@ -53,27 +53,22 @@ void get_sqlite_filename(GtkButton *button, gpointer user_data) {
         "Choose", GTK_RESPONSE_OK, NULL);
     gint result = gtk_dialog_run(GTK_DIALOG(dialog));
 
-  gchar *filename;
+    gchar *filename;
     if (result == GTK_RESPONSE_OK) {
         filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
         data_passer->sqlite_path = strdup(filename);
         gtk_entry_set_text(GTK_ENTRY(data_passer->settings_passer->text_sqlite_filename), filename);
-
     }
     gtk_widget_destroy(dialog);
     g_free(filename);
 }
 
 /**
- * Gtk callback fired when the delete button is clicked. This function removes the currently selected row in the reports tree view from the corresponding tree store.
+ * Gtk callback fired when the settings button is clicked. This function displays the settings window.
  * @param button Pointer to the clicked delete button.
  * @param user_data Pointer to a Data_passer struct.
  */
 void show_settings(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
-    g_print("Started settings\n");
-
     gtk_widget_show_all(data_passer->settings_dialog);
-
-    g_print("Ended settings\n");
 }
