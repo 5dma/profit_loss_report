@@ -19,6 +19,7 @@
 typedef struct {
     GtkWidget *settings_window; /**< Pointer to the settings window. */
     GtkWidget *text_output_filename; /**< Pointer to entry field holding the output file name. */
+    GtkWidget *text_sqlite_filename; /**< Pointer to entry field holding the path to the SQLite file. */
 } Settings_passer;
 
 
@@ -102,6 +103,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer);
 /* Prototypes for the settings dialog */
 void close_settings(GtkButton *button, gpointer user_data);
 void get_output_filename(GtkButton *button, gpointer user_data);
+void get_sqlite_filename(GtkButton *button, gpointer user_data);
 
 void closeup(GtkWidget *button_close, gpointer data);
 /**

@@ -39,12 +39,16 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     GtkWidget *text_sqlite_filename = gtk_entry_new();
     GtkWidget *btn_sqlite_filename = gtk_button_new_with_label("Choose...");
 
+    data_passer->settings_passer->text_sqlite_filename = text_sqlite_filename;
+
     GtkWidget *btn_settings_save = gtk_button_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON);
     GtkWidget *btn_settings_close = gtk_button_new_from_icon_name("stock-close", GTK_ICON_SIZE_BUTTON);
 
    
    // g_signal_connect(btn_settings_save, "clicked", G_CALLBACK(save_report_tree), data_passer);
   g_signal_connect(btn_output_filename, "clicked", G_CALLBACK(get_output_filename), data_passer);
+ g_signal_connect(btn_sqlite_filename, "clicked", G_CALLBACK(get_sqlite_filename), data_passer);
+ 
   g_signal_connect(btn_settings_close, "clicked", G_CALLBACK(close_settings), data_passer);
 
 
