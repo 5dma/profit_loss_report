@@ -49,7 +49,7 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
 
     if (rc != SQLITE_OK) {
         char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
+        gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = SQLITE_SELECT_FAILURE;

@@ -81,7 +81,7 @@ void get_account_description(const gchar *guid, gchar *description, Data_passer 
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, description, &zErrMsg);
     if (rc != SQLITE_OK) {
         char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
+        gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = SQLITE_SELECT_FAILURE;
@@ -107,7 +107,7 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, description, &zErrMsg);
     if (rc != SQLITE_OK) {
         char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
+        gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = SQLITE_SELECT_FAILURE;
@@ -218,7 +218,7 @@ Data_passer *setup(GApplication *app) {
         if (rc != SQLITE_OK) {
             char error_message[1000];
 
-            gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
+            gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
 
             gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
             gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);

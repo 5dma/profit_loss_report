@@ -119,7 +119,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
     rc = sqlite3_exec(iter_passer->db, sql, has_children, iter_passer, &zErrMsg);
     if (rc != SQLITE_OK) {
         char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(iter_passer->data_passer->db));
+        gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(iter_passer->data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context, error_message);
         iter_passer->data_passer->error_condition = SQLITE_SELECT_FAILURE;
@@ -156,7 +156,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
 
         if (rc != SQLITE_OK) {
             char error_message[1000];
-            gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(iter_passer->data_passer->db));
+            gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(iter_passer->data_passer->db));
             gtk_statusbar_pop(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context);
             gtk_statusbar_push(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context, error_message);
             iter_passer->data_passer->error_condition = SQLITE_SELECT_FAILURE;
@@ -211,7 +211,7 @@ void read_accounts_tree(Data_passer *data_passer) {
 
     if (rc != SQLITE_OK) {
         char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
+        gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = SQLITE_SELECT_FAILURE;
