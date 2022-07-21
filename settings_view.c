@@ -32,6 +32,9 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     GtkWidget *text_output_filename = gtk_entry_new();
     GtkWidget *btn_output_filename = gtk_button_new_with_label("Choose...");
 
+    data_passer->settings_passer->text_output_filename = text_output_filename;
+
+
     GtkWidget *label_sqlite_filename = gtk_label_new("Path to SQLite database");
     GtkWidget *text_sqlite_filename = gtk_entry_new();
     GtkWidget *btn_sqlite_filename = gtk_button_new_with_label("Choose...");
@@ -41,6 +44,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
 
    
    // g_signal_connect(btn_settings_save, "clicked", G_CALLBACK(save_report_tree), data_passer);
+  g_signal_connect(btn_output_filename, "clicked", G_CALLBACK(get_output_filename), data_passer);
   g_signal_connect(btn_settings_close, "clicked", G_CALLBACK(close_settings), data_passer);
 
 

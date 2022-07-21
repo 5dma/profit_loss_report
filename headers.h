@@ -18,6 +18,7 @@
  */
 typedef struct {
     GtkWidget *settings_window; /**< Pointer to the settings window. */
+    GtkWidget *text_output_filename; /**< Pointer to entry field holding the output file name. */
 } Settings_passer;
 
 
@@ -31,6 +32,7 @@ typedef struct {
     gchar *start_date;                /**< Start of date range for reporting purposes. */
     gchar *end_date;                  /**< End of date range for reporting purposes. */
     FILE *output_file;                /**< Handle for output file. */
+    gchar *output_file_name;          /**< Path to output file. */
     gdouble total_revenues;           /**< Accumulates total revenue for a property. */
     gdouble total_expenses;           /**< Accumulates total expenses for a property. */
     gboolean subtotaling_revenues;    /**< Indicates if we are subtotaling revenues or expenses for a property. */
@@ -99,7 +101,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer);
 
 /* Prototypes for the settings dialog */
 void close_settings(GtkButton *button, gpointer user_data);
-
+void get_output_filename(GtkButton *button, gpointer user_data);
 
 void closeup(GtkWidget *button_close, gpointer data);
 /**
