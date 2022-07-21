@@ -120,7 +120,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     g_signal_connect(btn_delete, "clicked", G_CALLBACK(delete_account_from_reports), data_passer);
     g_signal_connect(btn_go, "clicked", G_CALLBACK(make_pl_report), data_passer);
     g_signal_connect(btn_revert, "clicked", G_CALLBACK(revert_report_tree), data_passer);
-  //  g_signal_connect(btn_settings, "clicked", G_CALLBACK(closeup), data_passer);
+    g_signal_connect(btn_settings, "clicked", G_CALLBACK(show_settings), data_passer);
     g_signal_connect(btn_exit, "clicked", G_CALLBACK(closeup), data_passer);
 
     data_passer->btn_add = btn_add;
@@ -151,6 +151,8 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
 
     gtk_container_add(GTK_CONTAINER(window), grid);
+
+    data_passer->settings_dialog = make_settings_dialog(data_passer);
 
     return window;
 }

@@ -42,6 +42,7 @@ typedef struct {
     guint status_bar_context;         /**< ID of the status bar's context. There is only one status-bar context in this application. */
     guint error_condition;            /**< Indication of an error condition. See error_condition. */
     JsonObject *root_obj;             /**< Pointer to the root JSON object in the file accounts.json. */
+    GtkWidget *settings_dialog;       /**< Pointer to the settings dialog box. */
 } Data_passer;
 
 /**
@@ -79,6 +80,10 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
 
 void revert_report_tree(GtkButton *button, gpointer user_data);
 void save_report_tree(GtkButton *button, gpointer user_data);
+
+void show_settings(GtkButton *button, gpointer user_data);
+
+GtkWidget *make_settings_dialog(Data_passer *data_passer);
 
 void closeup(GtkWidget *button_close, gpointer data);
 /**
