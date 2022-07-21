@@ -207,6 +207,9 @@ Data_passer *setup(GApplication *app) {
 
     /* Would be better to have the following statements in make_window(), but that requires a huge refactor. */
 
+    Settings_passer *settings_passer = g_new(Settings_passer, 1);
+    data_passer->settings_passer = settings_passer;
+
     read_sqlite_filename_json_object(data_passer);
 
     /* Go read the JSON file containing list of accounts in the P&L report. */

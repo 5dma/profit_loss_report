@@ -25,6 +25,8 @@ void cleanup(GtkWidget *window, gpointer user_data) {
     g_free(data_passer->start_date);
     g_free(data_passer->end_date);
 
+    g_free(data_passer->settings_passer);
+
     gtk_tree_store_clear(data_passer->accounts_store);
     gtk_tree_store_clear(data_passer->reports_store);
     gtk_tree_path_free(data_passer->fixed_asset_root);
