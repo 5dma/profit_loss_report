@@ -13,6 +13,17 @@
  * @param button Pointer to the clicked delete button.
  * @param user_data Pointer to a Data_passer struct.
  */
+void close_settings(GtkButton *button, gpointer user_data) {
+    g_print("Close clicked\n");
+    Data_passer *data_passer = (Data_passer *)user_data;
+    gtk_widget_destroy(data_passer->settings_passer->settings_window);
+}
+
+/**
+ * Gtk callback fired when the delete button is clicked. This function removes the currently selected row in the reports tree view from the corresponding tree store.
+ * @param button Pointer to the clicked delete button.
+ * @param user_data Pointer to a Data_passer struct.
+ */
 void show_settings(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
     g_print("Started settings\n");
