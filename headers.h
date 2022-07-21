@@ -11,6 +11,16 @@
  * @brief Contains data structures and function prototypes.
  */
 
+
+/**
+ * Structure for passing an iter to functions and callbacks.
+ * \struct Settings_passer
+ */
+typedef struct {
+    GtkWidget *settings_window; /**< Pointer to the settings window. */
+} Settings_passer;
+
+
 /**
  * Structure for passing data to functions and callbacks.
  * \struct Data_passer
@@ -43,6 +53,7 @@ typedef struct {
     guint error_condition;            /**< Indication of an error condition. See error_condition. */
     JsonObject *root_obj;             /**< Pointer to the root JSON object in the file accounts.json. */
     GtkWidget *settings_dialog;       /**< Pointer to the settings dialog box. */
+    Settings_passer *settings_passer; /**< Pointer to a struct Settings_passer. */
 } Data_passer;
 
 /**
@@ -84,6 +95,11 @@ void save_report_tree(GtkButton *button, gpointer user_data);
 void show_settings(GtkButton *button, gpointer user_data);
 
 GtkWidget *make_settings_dialog(Data_passer *data_passer);
+
+
+/* Prototypes for the settings dialog */
+void close_settings(GtkButton *button, gpointer user_data);
+
 
 void closeup(GtkWidget *button_close, gpointer data);
 /**
