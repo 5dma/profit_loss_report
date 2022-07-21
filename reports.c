@@ -233,6 +233,14 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
                 data_passer->end_date = NULL;
             }
 
+            /* Pretty sure no need to free following string as it is part of the root_obj instance. */
+            const gchar *output_file_path = json_object_get_string_member(data_passer->root_obj, "output_file");
+            if (output_file_path != NULL) {
+                data_passer->output_file_name = g_strdup(output_file_path);
+            } else {
+                data_passer->output_file_name = NULL;
+            }
+
             JsonArray *property_array = (JsonArray *)json_object_get_array_member(data_passer->root_obj, "properties");
 
             guint len_properties = json_array_get_length(property_array);

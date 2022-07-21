@@ -165,7 +165,7 @@ void read_sqlite_filename_json_object(Data_passer *data_passer) {
 
     } else {
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
-        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Input file containing accounts does not exist.");
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Configuration file accounts.json does not exist.");
         data_passer->error_condition = JSON_PROCESSING_FAILURE;
     }
     g_free(input_file);

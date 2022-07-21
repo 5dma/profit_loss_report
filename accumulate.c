@@ -146,7 +146,7 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 
     const gchar *report_end = "</body>\n</html>";
 
-    data_passer->output_file = fopen("/tmp/property_pl.html", "w");
+    data_passer->output_file = fopen(data_passer->output_file_name, "w");
 
     if (data_passer->output_file == NULL) {
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
