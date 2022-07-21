@@ -72,9 +72,7 @@ static int retrieve_property_description(void *user_data, int argc, char **argv,
  * @param description Retrieved description.
  * @param user_data  Pointer to a Data_passer struct.
  */
-void get_account_description(gchar *guid, gchar *description, gpointer user_data) {
-    Data_passer *data_passer = (Data_passer *)user_data;
-
+void get_account_description(const gchar *guid, gchar *description, Data_passer *data_passer) {
     int rc;
     char sql[1000];
     char *zErrMsg = 0;
@@ -82,14 +80,12 @@ void get_account_description(gchar *guid, gchar *description, gpointer user_data
     gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, guid);
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, description, &zErrMsg);
     if (rc != SQLITE_OK) {
-
         char error_message[1000];
         gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = SQLITE_SELECT_FAILURE;
         sqlite3_free(zErrMsg);
-    } else {
     }
 }
 
@@ -121,9 +117,66 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
 }
 
 /**
+ * An initializing function that does the following:
+ * 
+ * - Opens the JSON file in ~/.profit_loss/accounts.json
+ * - Creates a GTK statusbar and saves the pointer in data_passer.
+ * - Saves the pointer to the root JSON object in data_passer.
+ *
+ * @param data_passer  Pointer to a Data_passer struct.
+ */
+void read_sqlite_filename_json_object(Data_passer *data_passer) {
+    gchar *input_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
+    gboolean input_file_exists = g_file_test(input_file, G_FILE_TEST_EXISTS);
+    JsonParser *parser;
+
+    GtkWidget *status_bar = gtk_statusbar_new();
+    data_passer->status_bar = status_bar;
+    data_passer->status_bar_context = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "informational");
+    gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Ready");
+    if (input_file_exists) {
+        GError *error = NULL;
+
+        JsonNode *root;
+
+        /* Reference count decremented at end of this function. */
+        parser = json_parser_new();
+        json_parser_load_from_file(parser, input_file, &error);
+
+        if (error) {
+            char error_message[1000];
+            gint num_bytes = g_snprintf(error_message, 1000, "Unable to parse `%s': %s\n", input_file, error->message);
+            gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+            gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "No properties in report tree, no save performed");
+            data_passer->error_condition = JSON_PROCESSING_FAILURE;
+            g_error_free(error);
+        } else {
+            JsonNode *root = json_parser_get_root(parser);
+            data_passer->root_obj = json_node_get_object(root);
+
+            /* Pretty sure no need to free following string as it is part of the root_obj instance. */
+            const gchar *sqlite_path = json_object_get_string_member(data_passer->root_obj, "sqlite_file");
+            if (sqlite_path != NULL) {
+                data_passer->sqlite_path = g_strdup(sqlite_path);
+            } else {
+                data_passer->sqlite_path = NULL;
+            }
+        }
+
+    } else {
+        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Input file containing accounts does not exist.");
+        data_passer->error_condition = JSON_PROCESSING_FAILURE;
+    }
+    g_free(input_file);
+    //g_object_unref(parser); /* Possible memory leak here. If I unref, I get a seg fault. */
+}
+
+/**
  * Initializes the data passer, and opens the connection to the database.
  * @param app The GTK application.
  * @return Pointer to the data passer.
+ * @see read_sqlite_filename_json_object()
  */
 Data_passer *setup(GApplication *app) {
     /* Memory freed in cleanup(). */
@@ -148,34 +201,34 @@ Data_passer *setup(GApplication *app) {
     data_passer->is_guid_in_reports_tree = FALSE;
     data_passer->handler = 0;
     data_passer->error_condition = NONE;
+    data_passer->root_obj = NULL;
     /* The following line is here instead of in read_properties_into_reports_store(), because that function is used to load data into the tree store, not to instantiate the tree view. */
     data_passer->reports_store = gtk_tree_store_new(COLUMNS_REPORT, G_TYPE_STRING, G_TYPE_STRING);
 
     /* Would be better to have the following statements in make_window(), but that requires a huge refactor. */
-    GtkWidget *status_bar = gtk_statusbar_new();
-    data_passer->status_bar = status_bar;
-    data_passer->status_bar_context = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "informational");
-    gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Ready");
 
-
-    /* Open read-only connection to database, save handle in data_passer. */
-    int rc;
-    char *sql;
-    char *zErrMsg = 0;
-    rc = sqlite3_open_v2("/home/abba/Finances/Bookkeeping/rentals.gnucash.moretest.sqlite.gnucash", &(data_passer->db), SQLITE_OPEN_READONLY, NULL);
-    if (rc != SQLITE_OK) {
-        char error_message[1000];
-
-        gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
-
-        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
-        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
-        data_passer->error_condition = NO_DATABASE_CONNECTION;
-        sqlite3_free(zErrMsg);
-    }
+    read_sqlite_filename_json_object(data_passer);
 
     /* Go read the JSON file containing list of accounts in the P&L report. */
-    read_properties_into_reports_store(data_passer);
+    if (data_passer->error_condition != JSON_PROCESSING_FAILURE) {
+        int rc;
+        char *sql;
+        char *zErrMsg = 0;
+        rc = sqlite3_open_v2(data_passer->sqlite_path, &(data_passer->db), SQLITE_OPEN_READONLY, NULL);
+        if (rc != SQLITE_OK) {
+            char error_message[1000];
+
+            gint num_bytes = g_snprintf(error_message, 1000, "sqlite error: %s", sqlite3_errmsg(data_passer->db));
+
+            gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
+            gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
+            data_passer->error_condition = NO_DATABASE_CONNECTION;
+            sqlite3_free(zErrMsg);
+        } else {
+            read_properties_into_reports_store(data_passer);
+        }
+    }
+    /* Open read-only connection to database, save handle in data_passer. */
 
     return data_passer;
 }

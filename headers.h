@@ -16,6 +16,7 @@
  * \struct Data_passer
  */
 typedef struct {
+    gchar *sqlite_path;               /**< Path to sqlite database. */
     sqlite3 *db;                      /**< Pointer to sqlite database handle. */
     gchar *start_date;                /**< Start of date range for reporting purposes. */
     gchar *end_date;                  /**< End of date range for reporting purposes. */
@@ -40,6 +41,7 @@ typedef struct {
     GtkWidget *status_bar;            /**< Pointer to the status bar. */
     guint status_bar_context;         /**< ID of the status bar's context. There is only one status-bar context in this application. */
     guint error_condition;            /**< Indication of an error condition. See error_condition. */
+    JsonObject *root_obj;             /**< Pointer to the root JSON object in the file accounts.json. */
 } Data_passer;
 
 /**
@@ -72,7 +74,7 @@ void reports_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
 void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_iter, char *guid, Data_passer *data_passer);
 void read_properties_into_reports_store(Data_passer *data_passer);
 
-void get_account_description(gchar *guid, gchar *description, gpointer user_data);
+void get_account_description(const gchar *guid, gchar *description, Data_passer *data_passer);
 void get_parent_account_description(gchar *guid, gchar *description, gpointer user_data);
 
 void revert_report_tree(GtkButton *button, gpointer user_data);

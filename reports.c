@@ -1,6 +1,6 @@
 #include <json-glib/json-glib.h>
-#include "headers.h"
 
+#include "headers.h"
 
 /**
  * @file reports.c
@@ -9,7 +9,7 @@
 
 /**
  * Gtk callback fired when user clicks the revert button. This function clears out the current reports tree and populates it anew from the JSON file.
- * 
+ *
  * @param button Pointer to the clicked revert button.
  * @param user_data Pointer to a Data_passer struct.
  */
@@ -21,7 +21,7 @@ void revert_report_tree(GtkButton *button, gpointer user_data) {
 
 /**
  * Gtk callback fired when user clicks the save button. This function saves the current contes of the reports tree to a JSON file. For an illustration of the JSON object, see `~/.profit_loss/accounts.json`.
- * 
+ *
  * @param button Pointer to the clicked revert button.
  * @param user_data Pointer to a Data_passer struct.
  */
@@ -61,14 +61,12 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
 
     json_builder_begin_array(builder);
 
-
     JsonNode *barf;
     gchar code[100];
     GtkTreeIter income_expense_iter;
     GtkTreeIter line_item_iter;
     do {
-
-        gchar *guid; /* Memory freed below */
+        gchar *guid;        /* Memory freed below */
         gchar *description; /* Memory freed below */
         gtk_tree_model_get(tree_model, &report_store_top_iter, GUID_REPORT, &guid, DESCRIPTION_REPORT, &description, -1);
         json_builder_begin_object(builder);
@@ -213,39 +211,14 @@ void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_it
 
 /**
  * Reads the JSON file that contains accounts in the P&L report, and places those accounts into the reports tree store. The JSON file must be at `~/.profit_loss/accounts.json`.
- * 
+ *
  * This function fails if the JSON file does not exist, or if the file cannot be parsed as a JSON object.
  * @param data_passer Pointer to a Data_passer struct.
  */
 void read_properties_into_reports_store(Data_passer *data_passer) {
-
-    /* Memory is freed at end of this function */
-    gchar *input_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
-    gboolean input_file_exists = g_file_test(input_file, G_FILE_TEST_EXISTS);
-    if (input_file_exists) {
-        GError *error = NULL;
-        JsonParser *parser;
-        JsonNode *root;
-
-        /* Reference count decremented at end of this function. */
-        parser = json_parser_new();
-        json_parser_load_from_file(parser, input_file, &error);
-        if (error) {
-        char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "Unable to parse `%s': %s\n", input_file, error->message);
-        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
-        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "No properties in report tree, no save performed");
-        data_passer->error_condition = JSON_PROCESSING_FAILURE;
-
-
-     
-            g_error_free(error);
-        } else {
-            JsonNode *root = json_parser_get_root(parser);
-            JsonObject *root_obj = json_node_get_object(root);
-
+  
             /* Pretty sure no need to free following string as it is part of the root_obj instance. */
-            const gchar *start_date_string = json_object_get_string_member(root_obj, "start_date");
+            const gchar *start_date_string = json_object_get_string_member(data_passer->root_obj, "start_date");
             if (start_date_string != NULL) {
                 data_passer->start_date = g_strdup(start_date_string);
             } else {
@@ -253,23 +226,22 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
             }
 
             /* Pretty sure no need to free following string as it is part of the root_obj instance. */
-            const gchar *end_date_string = json_object_get_string_member(root_obj, "end_date");
+            const gchar *end_date_string = json_object_get_string_member(data_passer->root_obj, "end_date");
             if (end_date_string != NULL) {
                 data_passer->end_date = g_strdup(end_date_string);
             } else {
                 data_passer->end_date = NULL;
             }
 
-            JsonArray *property_array = (JsonArray *)json_object_get_array_member(root_obj, "properties");
+            JsonArray *property_array = (JsonArray *)json_object_get_array_member(data_passer->root_obj, "properties");
 
             guint len_properties = json_array_get_length(property_array);
 
             GtkTreeStore *reports_store = data_passer->reports_store;
             GtkTreeIter property_iter;
 
-
             /*
-                Loop through the `properties` object in the JSON file. For each object, 
+                Loop through the `properties` object in the JSON file. For each object,
                 add it to the store, and then add the associated income and expense accounts to the store.
             */
             for (int i = 0; i < len_properties; i++) {
@@ -286,11 +258,3 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
                 g_free(guid);
             }
         }
-        g_object_unref(parser);
-    } else {
-        gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
-        gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Input file containing accounts does not exist.");
-        data_passer->error_condition = JSON_PROCESSING_FAILURE;
-    }
-    g_free(input_file);
-}
