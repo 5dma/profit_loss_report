@@ -57,6 +57,21 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
         json_builder_add_string_value(builder, data_passer->end_date);
     }
 
+    json_builder_set_member_name(builder, "sqlite_file");
+    if (data_passer->sqlite_path == NULL) {
+        json_builder_add_null_value(builder);
+    } else {
+        json_builder_add_string_value(builder, data_passer->sqlite_path);
+    }
+
+    json_builder_set_member_name(builder, "output_file");
+    if (data_passer->output_file_name == NULL) {
+        json_builder_add_null_value(builder);
+    } else {
+        json_builder_add_string_value(builder, data_passer->output_file_name);
+    }
+
+
     json_builder_set_member_name(builder, "properties");
 
     json_builder_begin_array(builder);
