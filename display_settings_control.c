@@ -64,6 +64,46 @@ void get_sqlite_filename(GtkButton *button, gpointer user_data) {
 }
 
 /**
+ * Saves the selected date in Settings_passer. The saved date is of the form `YYYY-mm-dd hh:mm:ss`.
+ * 
+ * This function does the following:
+ * -# Extracts the selected date from the passed calendar.
+ * -# Converts that date to a prefix of the form `YYYY-mm-dd`.
+ * -# Determines which calender was passed, the start date or the end date.
+ * -# Depending on which calendar was passed:
+ *    - Appends the time ` 00:00:00` to the start date.
+ *    - Appends the time ` 23:59:59` to the end date.
+ * -# Saves the date in the appropriate field in Data_passer.
+ * @param calendar Pointer to the clicked calendar.
+ * @param user_data Pointer to a Data_passer struct.
+ */
+void save_date(GtkCalendar *calendar, gpointer user_data) {
+    Data_passer *data_passer = (Data_passer *)user_data;
+
+    guint year;
+    guint month;
+    guint day;
+    gchar *date_time;
+
+    gtk_calendar_get_date(calendar, &year, &month, &day);
+
+    gchar *date_prefix = g_strdup_printf("%i-%02i-%02i", year, month + 1, day);
+    gchar *timestamp;
+
+    if ((gpointer)calendar == (gpointer)(data_passer->settings_passer->start_calendar)) {
+        timestamp = g_strconcat(date_prefix, START_DATE_SUFFIX, NULL);
+        g_free(data_passer->start_date);
+        data_passer->start_date = g_strdup(timestamp);
+    } else {
+        timestamp = g_strconcat(date_prefix, END_DATE_SUFFIX, NULL);
+        g_free(data_passer->end_date);
+        data_passer->end_date = g_strdup(timestamp);
+    }
+    g_free(timestamp);
+    g_free(date_prefix);
+}
+
+/**
  * Gtk callback fired when the settings button is clicked. This function displays the settings window.
  * @param button Pointer to the clicked delete button.
  * @param user_data Pointer to a Data_passer struct.

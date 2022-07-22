@@ -19,6 +19,8 @@ typedef struct {
     GtkWidget *settings_window;      /**< Pointer to the settings window. */
     GtkWidget *text_output_filename; /**< Pointer to entry field holding the output file name. */
     GtkWidget *text_sqlite_filename; /**< Pointer to entry field holding the path to the SQLite file. */
+    GtkWidget *start_calendar;       /**< Pointer to the calendar for the start date. */
+    GtkWidget *end_calendar;         /**< Pointer to the calendar for the end date. */
 } Settings_passer;
 
 /**
@@ -55,7 +57,7 @@ typedef struct {
     JsonObject *root_obj;             /**< Pointer to the root JSON object in the file accounts.json. */
     GtkWidget *settings_dialog;       /**< Pointer to the settings dialog box. */
     Settings_passer *settings_passer; /**< Pointer to a struct Settings_passer. */
-    GDateTime *current_date_time;      /**< Pointer to current date and time. */
+    GDateTime *current_date_time;     /**< Pointer to current date and time. */
 } Data_passer;
 
 /**
@@ -102,6 +104,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer);
 void close_settings(GtkButton *button, gpointer user_data);
 void get_output_filename(GtkButton *button, gpointer user_data);
 void get_sqlite_filename(GtkButton *button, gpointer user_data);
+void save_date(GtkCalendar *calendar, gpointer user_data);
 
 void closeup(GtkWidget *button_close, gpointer data);
 /**
@@ -173,4 +176,9 @@ static gchar *INCOME_TOTAL = "<tr>\n<td>Total income</td>\n<td class=\"single_un
 static gchar *EXPENSE_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n";                                             /**< HTML template for printing the expense header in a fixed asset's report. See make_property_report(). */
 static gchar *EXPENSE_TOTAL = "<tr>\n<td>Total expenses</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";                               /**< HTML template for printing the total expenses in a fixed asset's report. See make_property_report(). */
 static gchar *NET_INCOME = "<tr class=\"table-success\">\n<td>Net income</td>\n<td><span class=\"double_underline\">%-#4.2f</span></td>\n</tr>\n"; /**< HTML template for printing the net income (INCOME_TOTAL − EXPENSE TOTAL) in a fixed asset's report. See make_property_report(). */
+
+static gchar *START_DATE_SUFFIX = " 00:00:00"; /**< Suffix appended to the date of a selected start date. See save_date(). */
+static gchar *END_DATE_SUFFIX = " 23:59:59"; /**< Suffix appended to the date of a selected end date. See save_date(). */
+
+
 #endif

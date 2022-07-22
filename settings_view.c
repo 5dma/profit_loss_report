@@ -22,6 +22,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     GtkWidget *label_end_date = gtk_label_new("End date");
 
     GtkWidget *calendar_start_date = gtk_calendar_new();
+    data_passer->settings_passer->start_calendar = calendar_start_date;
 
     /* gint values representing the current year, month day. Used to set the start and end calendars when
        no value is in the config file. */
@@ -39,7 +40,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
         gchar *start_day_string = g_utf8_substring(data_passer->start_date, 8, 10);
 
         gint start_year = atoi(start_year_string);
-        gint start_month = atoi(start_month_string);
+        gint start_month = atoi(start_month_string) - 1;
         gint start_day = atoi(start_day_string);
 
         gtk_calendar_select_month(GTK_CALENDAR(calendar_start_date), start_month, start_year);
@@ -50,9 +51,11 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
         g_free(start_day_string);
     }
 
-    /* Sets the ending calendar to either the current date or the date in the config file. */
     GtkWidget *calendar_end_date = gtk_calendar_new();
-     if (data_passer->end_date == NULL) {
+    data_passer->settings_passer->end_calendar = calendar_end_date;
+
+    /* Sets the ending calendar to either the current date or the date in the config file. */
+    if (data_passer->end_date == NULL) {
         gtk_calendar_select_month(GTK_CALENDAR(calendar_end_date), current_month, current_year);
         gtk_calendar_select_day(GTK_CALENDAR(calendar_end_date), current_day);
     } else {
@@ -92,6 +95,8 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     g_signal_connect(btn_output_filename, "clicked", G_CALLBACK(get_output_filename), data_passer);
     g_signal_connect(btn_sqlite_filename, "clicked", G_CALLBACK(get_sqlite_filename), data_passer);
     g_signal_connect(btn_settings_close, "clicked", G_CALLBACK(close_settings), data_passer);
+    g_signal_connect(calendar_end_date, "day-selected", G_CALLBACK(save_date), data_passer);
+    g_signal_connect(calendar_start_date, "day-selected", G_CALLBACK(save_date), data_passer);
 
     gtk_widget_set_tooltip_text(btn_settings_close, "Close. Any changes you make are automatically saved.");
 
