@@ -219,6 +219,7 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
         g_free(guid);
         g_free(description);
         gtk_tree_path_free(parent_tree_path);
+        gtk_widget_set_sensitive(data_passer->btn_add, FALSE);
         return;
     }
     gtk_tree_path_free(parent_tree_path);
@@ -260,6 +261,7 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
             gtk_tree_store_set(data_passer->reports_store, &new_income_expense_entry, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
             g_free(guid);
             g_free(description);
+            gtk_widget_set_sensitive(data_passer->btn_add, FALSE);
         }
     }
 }
