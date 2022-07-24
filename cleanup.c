@@ -25,9 +25,6 @@ void cleanup(GtkWidget *window, gpointer user_data) {
     g_free(data_passer->end_date);
 
 
-
-    gtk_widget_destroy(data_passer->settings_dialog);
-
     g_date_time_unref(data_passer->current_date_time);
 
     g_free(data_passer->settings_passer);

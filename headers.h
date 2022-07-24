@@ -55,7 +55,6 @@ typedef struct {
     guint status_bar_context;         /**< ID of the status bar's context. There is only one status-bar context in this application. */
     guint error_condition;            /**< Indication of an error condition. See error_condition. */
     JsonObject *root_obj;             /**< Pointer to the root JSON object in the file accounts.json. */
-    GtkWidget *settings_dialog;       /**< Pointer to the settings dialog box. */
     Settings_passer *settings_passer; /**< Pointer to a struct Settings_passer. */
     GDateTime *current_date_time;     /**< Pointer to current date and time. */
 } Data_passer;

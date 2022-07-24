@@ -7,7 +7,6 @@
  * @brief Contains functions for setting up the settings dialog box.
  */
 
-
 GCallback deleteme(GtkWidget *widget, gpointer data) {
     g_print("Delete event\n");
 }
@@ -17,20 +16,16 @@ GCallback destroyme(GtkWidget *widget, gpointer data) {
 }
 
 /**
- * Creates Gtk widgets for the settings window. 
+ * Creates Gtk widgets for the settings window.
  * @param data_passer Pointer to a Data_passer struct.
  * @return Pointer to a GTK widget.
  */
 GtkWidget *make_settings_dialog(Data_passer *data_passer) {
-
     /* The following window is destroyed in cleanup(). */
     GtkWidget *settings_dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(settings_dialog), "Settings");
     gtk_window_set_modal(GTK_WINDOW(settings_dialog), TRUE);
-    gtk_widget_hide_on_delete(settings_dialog);
-
-    g_signal_connect(settings_dialog,"delete-event", G_CALLBACK(deleteme), NULL);
-      g_signal_connect(settings_dialog,"destroy", G_CALLBACK(destroyme), NULL);
+    gtk_window_set_transient_for(GTK_WINDOW(settings_dialog), GTK_WINDOW(data_passer->window));
 
     data_passer->settings_passer->settings_window = settings_dialog;
 

@@ -153,8 +153,5 @@ GtkWidget *make_window(Data_passer *data_passer) {
 
     gtk_container_add(GTK_CONTAINER(window), grid);
 
-    /* Construct the dialog box for configuring the appliation. */
-    data_passer->settings_dialog = make_settings_dialog(data_passer);
-
     return window;
 }
