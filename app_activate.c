@@ -17,5 +17,5 @@ void on_app_activate(GApplication *app, gpointer data) {
     
     GtkWidget *window = make_window(data_passer);
 
-    gtk_widget_show_all(GTK_WIDGET(window));
+    gtk_widget_show_all(window);
 }
