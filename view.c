@@ -132,6 +132,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
     gtk_widget_set_tooltip_text(btn_delete, "Remove account from report");
     gtk_widget_set_tooltip_text(btn_go, "Run report");
     gtk_widget_set_tooltip_text(btn_exit, "Exit");
+    gtk_widget_set_tooltip_text(btn_settings,"Configure application");
 
     GtkWidget *grid = gtk_grid_new();
     gtk_grid_attach(GTK_GRID(grid), lbl_accounts, 0, 0, 1, 1);
@@ -152,6 +153,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
 
     gtk_container_add(GTK_CONTAINER(window), grid);
 
+    /* Construct the dialog box for configuring the appliation. */
     data_passer->settings_dialog = make_settings_dialog(data_passer);
 
     return window;

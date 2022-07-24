@@ -7,14 +7,30 @@
  * @brief Contains functions for setting up the settings dialog box.
  */
 
+
+GCallback deleteme(GtkWidget *widget, gpointer data) {
+    g_print("Delete event\n");
+}
+
+GCallback destroyme(GtkWidget *widget, gpointer data) {
+    g_print("Destroy event\n");
+}
+
 /**
- * Creates Gtk widgets for the settings window.
+ * Creates Gtk widgets for the settings window. 
  * @param data_passer Pointer to a Data_passer struct.
+ * @return Pointer to a GTK widget.
  */
 GtkWidget *make_settings_dialog(Data_passer *data_passer) {
+
+    /* The following window is destroyed in cleanup(). */
     GtkWidget *settings_dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(settings_dialog), "Settings");
     gtk_window_set_modal(GTK_WINDOW(settings_dialog), TRUE);
+    gtk_widget_hide_on_delete(settings_dialog);
+
+    g_signal_connect(settings_dialog,"delete-event", G_CALLBACK(deleteme), NULL);
+      g_signal_connect(settings_dialog,"destroy", G_CALLBACK(destroyme), NULL);
 
     data_passer->settings_passer->settings_window = settings_dialog;
 
@@ -64,7 +80,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
         gchar *start_day_string = g_utf8_substring(data_passer->end_date, 8, 10);
 
         gint start_year = atoi(start_year_string);
-        gint start_month = atoi(start_month_string);
+        gint start_month = atoi(start_month_string) - 1;
         gint start_day = atoi(start_day_string);
 
         gtk_calendar_select_month(GTK_CALENDAR(calendar_end_date), start_month, start_year);
@@ -88,9 +104,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
 
     GtkWidget *btn_sqlite_filename = gtk_button_new_with_label("Choose...");
 
-    data_passer->settings_passer->text_sqlite_filename = text_sqlite_filename;
-
-    GtkWidget *btn_settings_close = gtk_button_new_from_icon_name("stock-close", GTK_ICON_SIZE_BUTTON);
+    GtkWidget *btn_settings_close = gtk_button_new_from_icon_name("dialog-close", GTK_ICON_SIZE_BUTTON);
 
     g_signal_connect(btn_output_filename, "clicked", G_CALLBACK(get_output_filename), data_passer);
     g_signal_connect(btn_sqlite_filename, "clicked", G_CALLBACK(get_sqlite_filename), data_passer);

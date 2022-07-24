@@ -16,7 +16,6 @@
  * @return `TRUE` if the selected account's name is one of the account codes (242, 323, 349, etc.) and therefore can be included in the P&L report, `FALSE` otherwise.
  */
 void cleanup(GtkWidget *window, gpointer user_data) {
-    
     Data_passer *data_passer = (Data_passer *)user_data;
     g_signal_handler_disconnect(G_OBJECT(data_passer->tree_view_accounts), data_passer->handler);
 
@@ -24,6 +23,10 @@ void cleanup(GtkWidget *window, gpointer user_data) {
 
     g_free(data_passer->start_date);
     g_free(data_passer->end_date);
+
+
+
+    gtk_widget_destroy(data_passer->settings_dialog);
 
     g_date_time_unref(data_passer->current_date_time);
 

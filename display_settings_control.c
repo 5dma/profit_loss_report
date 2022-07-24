@@ -15,7 +15,7 @@
  */
 void close_settings(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
-    gtk_widget_destroy(data_passer->settings_passer->settings_window);
+    gtk_widget_hide (data_passer->settings_passer->settings_window);
 }
 
 /**
