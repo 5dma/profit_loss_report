@@ -7,12 +7,28 @@
  * @brief Contains functions for setting up the settings dialog box.
  */
 
-GCallback deleteme(GtkWidget *widget, gpointer data) {
-    g_print("Delete event\n");
-}
+void set_calendar_date(GtkWidget *widget, const gchar *date, const gint current_year, const gint current_month, const gint current_day) {
+    GtkCalendar *calendar = GTK_CALENDAR(widget);
+    if (date == NULL) {
+         gtk_calendar_select_month(calendar, current_month, current_year);
+        gtk_calendar_select_day(calendar, current_day);
+    } else {
+        gchar *start_year_string = g_utf8_substring(date, 0, 4);
+        gchar *start_month_string = g_utf8_substring(date, 5, 7);
+        gchar *start_day_string = g_utf8_substring(date, 8, 10);
 
-GCallback destroyme(GtkWidget *widget, gpointer data) {
-    g_print("Destroy event\n");
+        gint start_year = atoi(start_year_string);
+        gint start_month = atoi(start_month_string) - 1;
+        gint start_day = atoi(start_day_string);
+
+        gtk_calendar_select_month(calendar, start_month, start_year);
+        gtk_calendar_select_day(calendar, start_day);
+
+        g_free(start_year_string);
+        g_free(start_month_string);
+        g_free(start_day_string);
+
+    }
 }
 
 /**
@@ -37,54 +53,19 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
 
     /* gint values representing the current year, month day. Used to set the start and end calendars when
        no value is in the config file. */
-    gint current_year = g_date_time_get_year(data_passer->current_date_time);
-    gint current_month = g_date_time_get_month(data_passer->current_date_time);
-    gint current_day = g_date_time_get_day_of_month(data_passer->current_date_time);
+    const gint current_year = g_date_time_get_year(data_passer->current_date_time);
+    const gint current_month = g_date_time_get_month(data_passer->current_date_time);
+    const gint current_day = g_date_time_get_day_of_month(data_passer->current_date_time);
 
     /* Sets the starting calendar to either the current date or the date in the config file. */
-    if (data_passer->start_date == NULL) {
-        gtk_calendar_select_month(GTK_CALENDAR(calendar_start_date), current_month, current_year);
-        gtk_calendar_select_day(GTK_CALENDAR(calendar_start_date), current_day);
-    } else {
-        gchar *start_year_string = g_utf8_substring(data_passer->start_date, 0, 4);
-        gchar *start_month_string = g_utf8_substring(data_passer->start_date, 5, 7);
-        gchar *start_day_string = g_utf8_substring(data_passer->start_date, 8, 10);
-
-        gint start_year = atoi(start_year_string);
-        gint start_month = atoi(start_month_string) - 1;
-        gint start_day = atoi(start_day_string);
-
-        gtk_calendar_select_month(GTK_CALENDAR(calendar_start_date), start_month, start_year);
-        gtk_calendar_select_day(GTK_CALENDAR(calendar_start_date), start_day);
-
-        g_free(start_year_string);
-        g_free(start_month_string);
-        g_free(start_day_string);
-    }
+    set_calendar_date(calendar_start_date, data_passer->start_date, current_year, current_month, current_day);
 
     GtkWidget *calendar_end_date = gtk_calendar_new();
     data_passer->settings_passer->end_calendar = calendar_end_date;
 
     /* Sets the ending calendar to either the current date or the date in the config file. */
-    if (data_passer->end_date == NULL) {
-        gtk_calendar_select_month(GTK_CALENDAR(calendar_end_date), current_month, current_year);
-        gtk_calendar_select_day(GTK_CALENDAR(calendar_end_date), current_day);
-    } else {
-        gchar *start_year_string = g_utf8_substring(data_passer->end_date, 0, 4);
-        gchar *start_month_string = g_utf8_substring(data_passer->end_date, 5, 7);
-        gchar *start_day_string = g_utf8_substring(data_passer->end_date, 8, 10);
-
-        gint start_year = atoi(start_year_string);
-        gint start_month = atoi(start_month_string) - 1;
-        gint start_day = atoi(start_day_string);
-
-        gtk_calendar_select_month(GTK_CALENDAR(calendar_end_date), start_month, start_year);
-        gtk_calendar_select_day(GTK_CALENDAR(calendar_end_date), start_day);
-
-        g_free(start_year_string);
-        g_free(start_month_string);
-        g_free(start_day_string);
-    }
+    set_calendar_date(calendar_end_date, data_passer->end_date, current_year, current_month, current_day);
+    
 
     GtkWidget *label_output_filename = gtk_label_new("Output file name");
     GtkWidget *text_output_filename = gtk_entry_new();

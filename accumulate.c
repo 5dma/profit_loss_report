@@ -160,8 +160,8 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
     fputs(report_heading, data_passer->output_file);
 
     /* Extract printer-friendly start and end dates, send to output. */
-    const gchar *start_date = g_utf8_substring (data_passer->start_date, 0, 10);
-    const gchar *end_date = g_utf8_substring (data_passer->end_date, 0, 10);
+    gchar *start_date = g_utf8_substring (data_passer->start_date, 0, 10);
+    gchar *end_date = g_utf8_substring (data_passer->end_date, 0, 10);
     fprintf(data_passer->output_file, DATE_RANGE, start_date, end_date);
     g_free(end_date);
     g_free(start_date);
