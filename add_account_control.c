@@ -40,13 +40,19 @@ gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer)
 gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_iter, GtkTreeIter *corresponding_report_iter, Data_passer *data_passer) {
     gboolean return_value = FALSE;
     gchar *name; /* Memory freed below */
-    gtk_tree_model_get(model, &account_iter, 1, &name, -1);
+    gtk_tree_model_get(model, &account_iter, NAME_ACCOUNT, &name, -1);
 
     GtkTreeIter report_tree_iter;
     GtkTreeModel *report_model = GTK_TREE_MODEL(data_passer->reports_store);
 
     gtk_tree_model_get_iter_first(report_model, &report_tree_iter);
 
+    /*
+    Iterate over the top level fixed assets in the reports tree.
+    For each asset:
+    * See if the account name is in the current fixed asset's name.
+    * If it is then the current report iter is the ancestor of the selected account in the reports tree. Break out of the loop.
+    */
     do {
         gchar *report_account_description; /*Memory freed below */
         gtk_tree_model_get(report_model, &report_tree_iter, DESCRIPTION_REPORT, &report_account_description, -1);
@@ -190,13 +196,13 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
     GtkTreeIter iter_selection;
     gtk_tree_selection_get_selected(tree_view_accounts_selection, &accounts_model, &iter_selection);
 
-    /* Get iter of selected account's parent. */
+    /* Get iter and path of selected account's parent. */
     GtkTreeIter iter_parent;
     gtk_tree_model_iter_parent(accounts_model, &iter_parent, &iter_selection);
     /* Memory freed below */
     GtkTreePath *parent_tree_path = gtk_tree_model_get_path(accounts_model, &iter_parent);
 
-    /* If a fixed asset, add to reports model and exit. */
+    /* If parent's path is same as the path of the fixed asset root, then user selected a fixed asset. Add it to reports model and exit. */
     if (gtk_tree_path_compare(data_passer->fixed_asset_root, parent_tree_path) == 0) {
         GtkTreeIter iter_child;
         gchar *guid; /* Memory freed below */
@@ -238,6 +244,15 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
         GtkTreeIter income_expense_parent;
         gboolean found_income_expense_parent = gtk_tree_model_iter_children(reports_model, &income_expense_parent, &corresponding_report_iter);
 
+        /*
+            Iterate over the fixed asset's two child accounts Revenue and Expenses. One of those children is the parent where
+            we will add the selected account.
+            * Examine the current child.
+            * If it is "Revenue," and if the selected account is a revenue account, 
+              then this child is the parent where we add the selected account.
+            * If it is "Expense," and if the selected account is an expense account, 
+              then this child is the parent where we add the selected account.
+        */
         if (found_income_expense_parent) {
             do {
                 gchar *revenue_or_expenses; /* Memory freed below */
@@ -253,14 +268,14 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
 
             gchar *guid; /* Memory freed below */
             gtk_tree_model_get(accounts_model, &iter_selection, GUID_ACCOUNT, &guid, -1);
-            gchar *description; /* Memory freed below */
-            gtk_tree_model_get(accounts_model, &iter_parent, DESCRIPTION_ACCOUNT, &description, -1);
+            gchar *name; /* Memory freed below */
+            gtk_tree_model_get(accounts_model, &iter_parent, NAME_ACCOUNT, &name, -1);
 
             GtkTreeIter new_income_expense_entry;
             gtk_tree_store_append(data_passer->reports_store, &new_income_expense_entry, &income_expense_parent);
-            gtk_tree_store_set(data_passer->reports_store, &new_income_expense_entry, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
+            gtk_tree_store_set(data_passer->reports_store, &new_income_expense_entry, GUID_REPORT, guid, DESCRIPTION_REPORT, name, -1);
             g_free(guid);
-            g_free(description);
+            g_free(name);
             gtk_widget_set_sensitive(data_passer->btn_add, FALSE);
         }
     }
