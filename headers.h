@@ -168,6 +168,12 @@ static gchar *SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT = "SELECT parent.descriptio
 
 static gchar *SUM_OF_ACCOUNT_ACTIVITY = "SELECT COUNT(*), ABS(SUM(value_num/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date > \"%s\";"; /**< SQL statement that, for a given guid, retrieves the number of transactions and the subtotal of those transactions. See make_subtotals(). */
 
+/* String templates for HTML output */
+
+static gchar *DATE_RANGE = "<p class=\"text-center\">For the period %s to %s</p>\n";
+static gchar *RUN_DATE = "<p class=\"text-center\">Run date: %s</p>\n";
+
+
 static gchar *ACCOUNT_REPORT = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%-#4.2f</td>\n</tr>\n";                                  /**< HTML template for printing an account's subtotal. See make_subtotals(). */
 static gchar *PROPERTY_HEADER = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n";                                     /**< HTML template for printing a fixed asset's header. See make_property_report(). */
 static gchar *INCOME_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";                                                /**< HTML template for printing the income header in a fixed asset's report. See make_property_report(). */

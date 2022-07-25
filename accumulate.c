@@ -144,6 +144,7 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 
     const gchar *report_start = "<!DOCTYPE HTML>\n<html lang=\"en\">\n<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>P &amp; L Rental Properties</title>\n<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC\" crossorigin=\"anonymous\">\n<style>\ntd:nth-child(2) {text-align: right;}\n.single_underline {text-decoration: underline;}\n.double_underline {border-bottom:double black;}\n.left_indent {padding-left: 10px}\nh3 {margin-top: 50px;}\n</style>\n</head>\n<body class=\"p-4\">\n";
 
+    const gchar *report_heading = "<h2 class=\"text-center\">Profit and Loss Report, Rental Properties</h3>\n";
     const gchar *report_end = "</body>\n</html>";
 
     data_passer->output_file = fopen(data_passer->output_file_name, "w");
@@ -156,6 +157,14 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
     }
 
     fputs(report_start, data_passer->output_file);
+    fputs(report_heading, data_passer->output_file);
+
+    /* Extract printer-friendly start and end dates, send to output. */
+    const gchar *start_date = g_utf8_substring (data_passer->start_date, 0, 10);
+    const gchar *end_date = g_utf8_substring (data_passer->end_date, 0, 10);
+    fprintf(data_passer->output_file, DATE_RANGE, start_date, end_date);
+    g_free(end_date);
+    g_free(start_date);
 
     make_property_report(data_passer);
 
