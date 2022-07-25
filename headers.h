@@ -134,8 +134,8 @@ enum report_store_fields {
 };
 
 /**
- * \enum error_condition
  * Descriptors of an error condition's severity level.
+ * \enum error_condition
  */
 enum error_condition {
     NO_DATABASE_CONNECTION,    /**< Could not connect to the sqlite database. */
@@ -148,13 +148,10 @@ enum error_condition {
 static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8; /**< Need to get rid of this, along with PL_ACCOUNTS_ARRAY. */
 
 /**
+ * Array of account names that can be included in a P&L report. Need to make this dynamic.
  * \struct PL_ACCOUNTS_ARRAY
- * Array of account names that can be included in a P&L report. NEED TO MAKE THIS DYNAMIC.
  */
 static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325", "349", "351", "353", "9820"};
-typedef enum {
-    STRING,
-} target_info;
 
 void on_app_activate(GApplication *app, gpointer data);
 GtkWidget *make_window(Data_passer *data_passer);
@@ -170,11 +167,9 @@ static gchar *SUM_OF_ACCOUNT_ACTIVITY = "SELECT COUNT(*), ABS(SUM(value_num/valu
 
 /* String templates for HTML output */
 
-static gchar *DATE_RANGE = "<p class=\"text-center\">For the period %s to %s</p>\n";
-static gchar *RUN_DATE = "<p class=\"text-center\">Run date: %s</p>\n";
+static gchar *DATE_RANGE = "<p class=\"text-center\">For the period %s to %s</p>\n"; /**< String template for displaying a date range. See make_pl_report().  */
 
-
-static gchar *ACCOUNT_REPORT = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%-#4.2f</td>\n</tr>\n";                                  /**< HTML template for printing an account's subtotal. See make_subtotals(). */
+static gchar *ACCOUNT_REPORT = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%-#4.2f</td>\n</tr>\n";  /**< HTML template for printing an account's subtotal. See make_subtotals(). */
 static gchar *PROPERTY_HEADER = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n";                                     /**< HTML template for printing a fixed asset's header. See make_property_report(). */
 static gchar *INCOME_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";                                                /**< HTML template for printing the income header in a fixed asset's report. See make_property_report(). */
 static gchar *INCOME_TOTAL = "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%-#4.2f</td>\n</tr>\n";                                  /**< HTML template for printing the total income in a fixed asset's report. See make_property_report(). */

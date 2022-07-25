@@ -9,11 +9,10 @@
  */
 
 /**
- * Gtk callback fired when clicking the exit button or destroying the main window. The following members of `data_passer` are freed in other functions:
- * - output_file - Freed in save_report_tree().
+ * Gtk callback fired when clicking the exit button or destroying the main window. This function frees memory allocated to Data_passer.
  * @param window Pointer to the application window.
  * @param user_data Pointer to a Data_passer struct.
- * @return `TRUE` if the selected account's name is one of the account codes (242, 323, 349, etc.) and therefore can be included in the P&L report, `FALSE` otherwise.
+ * @see closeup()
  */
 void cleanup(GtkWidget *window, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
@@ -38,7 +37,7 @@ void cleanup(GtkWidget *window, gpointer user_data) {
 }
 
 /**
- * Callback that runs after clicking <b>Exit</b>. This function emits the \c destroy signal on the application window. The callback for that emitted signal is cleanup().
+ * Callback that runs after clicking the exit button. This function emits the \c destroy signal on the application window. The callback for that emitted signal is cleanup().
  * @param button_close Clicked button.
  * @param data Pointer to the data-passer structure.
  * @see cleanup()

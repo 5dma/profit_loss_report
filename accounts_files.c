@@ -55,6 +55,7 @@ void save_top_level_iters(Data_passer *data_passer) {
  * @param argc Number of columns in sqlite result.
  * @param argv Array of pointers to the results of a query.
  * @param azColName Array of pointers to strings corresponding to result column names.
+ * @return Always zero.
  * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html)
  */
 static int has_children(void *user_data, int argc, char **argv, char **azColName) {
@@ -66,7 +67,7 @@ static int has_children(void *user_data, int argc, char **argv, char **azColName
 /**
  * GList callback that frees the contents of a passed Iter_passer.
  *
- * @param iter_passer Pointer to a Iter_passer struct. The iter points to the current parent iter we are constructing during the recursion.
+ * @param iter_passer Pointer to an Iter_passer struct. The iter points to the current parent iter we are constructing during the recursion.
  * @see read_accounts_tree()
  */
 void iter_free(Iter_passer *iter_passer) {

@@ -19,7 +19,7 @@ void close_settings(GtkButton *button, gpointer user_data) {
 }
 
 /**
- * Gtk callback fired when the the Choose button corresponding to the output file is clicked. This function displays a GTK file chooser. If the user selects a file, it is saved into Data_passer.
+ * Gtk callback fired when clicking the Choose button corresponding to the output file. This function displays a GTK file chooser. If the user selects a file, it is saved into Data_passer.
  * @param button Pointer to the clicked choose button.
  * @param user_data Pointer to a Data_passer struct.
  */
@@ -41,7 +41,7 @@ void get_output_filename(GtkButton *button, gpointer user_data) {
 }
 
 /**
- * Gtk callback fired when the the Choose button corresponding to the SQLite file is clicked. This function displays a GTK file chooser. If the user selects a file, it is saved into Data_passer.
+ * Gtk callback fired when clicking the Choose button corresponding to the SQLite file. This function displays a GTK file chooser. If the user selects a file, it is saved into Data_passer.
  * @param button Pointer to the clicked choose button.
  * @param user_data Pointer to a Data_passer struct.
  */
@@ -74,6 +74,7 @@ void get_sqlite_filename(GtkButton *button, gpointer user_data) {
  *    - Appends the time ` 00:00:00` to the start date.
  *    - Appends the time ` 23:59:59` to the end date.
  * -# Saves the date in the appropriate field in Data_passer.
+ *
  * @param calendar Pointer to the clicked calendar.
  * @param user_data Pointer to a Data_passer struct.
  */

@@ -7,6 +7,17 @@
  * @brief Contains functions for setting up the settings dialog box.
  */
 
+/**
+ * Selects a date in the passed calendar based on the passed date string.
+ * - If the date string is `NULL`, the selected date is the current date.
+ * - If the date string is not `NULL`, the selected date is the passed date.
+ * 
+ * @param widget Pointer to a calendar widget.
+ * @param date Pointer to a date string of the form `YYYY-mm-dd hh:mm:ss`.
+ * @param current_year Integer representing the current year.
+ * @param current_month Integer representing the current month (1-12).
+ * @param current_day Integer representing the current day (0-30).
+*/ 
 void set_calendar_date(GtkWidget *widget, const gchar *date, const gint current_year, const gint current_month, const gint current_day) {
     GtkCalendar *calendar = GTK_CALENDAR(widget);
     if (date == NULL) {
@@ -88,7 +99,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     g_signal_connect(calendar_end_date, "day-selected", G_CALLBACK(save_date), data_passer);
     g_signal_connect(calendar_start_date, "day-selected", G_CALLBACK(save_date), data_passer);
 
-    gtk_widget_set_tooltip_text(btn_settings_close, "Close. Any changes you make are automatically saved.");
+    gtk_widget_set_tooltip_text(btn_settings_close, "Close.");
 
     GtkWidget *settings_grid = gtk_grid_new();
     gtk_grid_attach(GTK_GRID(settings_grid), label_start_date, 0, 0, 1, 1);

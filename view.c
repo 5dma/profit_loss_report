@@ -34,6 +34,7 @@ void on_drag_data_get(gpointer user_data) {
 /**
  * Creates Gtk widgets in the main window.
  * @param data_passer Pointer to a Data_passer struct.
+ * @return pointer to the main window.
  */
 GtkWidget *make_window(Data_passer *data_passer) {
     GApplication *app = data_passer->app;

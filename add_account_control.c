@@ -9,11 +9,11 @@
  */
 
 /**
- * Determins if a passed account name is 242, 323, 349, or any of the accounts in the PL_ACCOUNTS_ARRAY.
+ * Determines if a passed account name is `242`, `323`, `349`, or any of the accounts in the PL_ACCOUNTS_ARRAY.
  * @param name
  * @param iter
  * @param data_passer Pointer to a Data_passer struct.
- * @return `TRUE` if the selected account's name is one of the account codes (242, 323, 349, etc.) and therefore can be included in the P&L report, `FALSE` otherwise.
+ * @return `TRUE` if the selected account's name is one of the account codes (`242`, `323`, `349`, etc.) and therefore can be included in the P&L report, `FALSE` otherwise.
  */
 gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer) {
     GtkTreePath *tree_path = gtk_tree_model_get_path(GTK_TREE_MODEL(data_passer->accounts_store), &iter);
@@ -64,7 +64,7 @@ gboolean get_report_tree_fixed_asset(GtkTreeModel *model, GtkTreeIter account_it
 }
 
 /**
- * Determins if a passed GnuCash account is already in the reports tree.
+ * Determines if a passed GnuCash account is already in the reports tree.
  * @param accounts_model Pointer to the report model.
  * @param accounts_iter Pointer to the GnuCash account.
  * @param data_passer Pointer to a Data_passer struct.
@@ -108,11 +108,11 @@ gboolean account_parent_in_report_tree(GtkTreeModel *accounts_model, GtkTreeIter
 /**
  * Gtk callback fired when the selection in the GnuCash accounts tree view changes. This callback sets the add button's sensitivity to `TRUE` if the selected account can be added to the report, and sets the sensitivity to `FALSE` if the selected account cannot be added.
  *
- * The conditions for enabling a selected account to be added to the reports tree:
+ * The following conditions must be met for enabling a selected account to be added to the reports tree:
  *
- * - The selected account does not yet exist in the reports tree, AND
- * - The selected account is a child of the Fixed Assets root (meaning it is one of the top-level property fixed assets), OR
- * - The selected account is eligible to be in the P&L report.
+ * - The selected account does not yet exist in the reports tree, AND one of the following two conditions:
+ *   - The selected account is a child of the Fixed Assets root (meaning it is one of the top-level property fixed assets), OR
+ *   - The selected account is eligible to be in the P&L report.
  *
  * @param tree_view_accounts Pointer to the accounts tree view.
  * @param user_data Pointer to a Data_passer struct.
@@ -168,7 +168,7 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
 }
 
 /**
- * Gtk callback that adds a currently selected account to the reports tree. The callback is fired when the user clicks on the add button.
+ * Gtk callback fired when user clicks the add button. This function adds a currently selected account to the reports tree.
  *
  * The logic is as follows:
 

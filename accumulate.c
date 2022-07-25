@@ -135,7 +135,7 @@ void make_property_report(Data_passer *data_passer) {
 }
 
 /**
- * Callback fired when user clicks on the generate button.
+ * Callback fired when user clicks the generate button.
  * @param button Pointer to the generate button.
  * @param user_data Pointer to a Data_passer struct.
  */
