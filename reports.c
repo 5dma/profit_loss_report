@@ -265,7 +265,7 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
             GtkTreeIter property_iter;
 
             /*
-                Loop through the `properties` object in the JSON file. For each object,
+                Loop through the properties object in the JSON file. For each object,
                 add it to the store, and then add the associated income and expense accounts to the store.
             */
             for (int i = 0; i < len_properties; i++) {

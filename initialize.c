@@ -217,6 +217,7 @@ Data_passer *setup(GApplication *app) {
         int rc;
         char *sql;
         char *zErrMsg = 0;
+         /* Open read-only connection to database, save handle in data_passer. */
         rc = sqlite3_open_v2(data_passer->sqlite_path, &(data_passer->db), SQLITE_OPEN_READONLY, NULL);
         if (rc != SQLITE_OK) {
             char error_message[1000];
@@ -231,7 +232,5 @@ Data_passer *setup(GApplication *app) {
             read_properties_into_reports_store(data_passer);
         }
     }
-    /* Open read-only connection to database, save handle in data_passer. */
-
     return data_passer;
 }
