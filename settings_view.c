@@ -11,17 +11,17 @@
  * Selects a date in the passed calendar based on the passed date string.
  * - If the date string is `NULL`, the selected date is the current date.
  * - If the date string is not `NULL`, the selected date is the passed date.
- * 
+ *
  * @param widget Pointer to a calendar widget.
  * @param date Pointer to a date string of the form `YYYY-mm-dd hh:mm:ss`.
  * @param current_year Integer representing the current year.
  * @param current_month Integer representing the current month (1-12).
  * @param current_day Integer representing the current day (0-30).
-*/ 
+ */
 void set_calendar_date(GtkWidget *widget, const gchar *date, const gint current_year, const gint current_month, const gint current_day) {
     GtkCalendar *calendar = GTK_CALENDAR(widget);
     if (date == NULL) {
-         gtk_calendar_select_month(calendar, current_month, current_year);
+        gtk_calendar_select_month(calendar, current_month, current_year);
         gtk_calendar_select_day(calendar, current_day);
     } else {
         gchar *start_year_string = g_utf8_substring(date, 0, 4);
@@ -38,7 +38,6 @@ void set_calendar_date(GtkWidget *widget, const gchar *date, const gint current_
         g_free(start_year_string);
         g_free(start_month_string);
         g_free(start_day_string);
-
     }
 }
 
@@ -53,8 +52,6 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     gtk_window_set_title(GTK_WINDOW(settings_dialog), "Settings");
     gtk_window_set_modal(GTK_WINDOW(settings_dialog), TRUE);
     gtk_window_set_transient_for(GTK_WINDOW(settings_dialog), GTK_WINDOW(data_passer->window));
-
-    data_passer->settings_passer->settings_window = settings_dialog;
 
     GtkWidget *label_start_date = gtk_label_new("Start date");
     GtkWidget *label_end_date = gtk_label_new("End date");
@@ -76,7 +73,6 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
 
     /* Sets the ending calendar to either the current date or the date in the config file. */
     set_calendar_date(calendar_end_date, data_passer->end_date, current_year, current_month, current_day);
-    
 
     GtkWidget *label_output_filename = gtk_label_new("Output file name");
     GtkWidget *text_output_filename = gtk_entry_new();
@@ -122,5 +118,8 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
 
     gtk_container_add(GTK_CONTAINER(settings_dialog), settings_grid);
 
-    return settings_dialog;
+    data_passer->settings_passer->settings_window = settings_dialog;
+    settings_dialog = NULL;
+
+    return data_passer->settings_passer->settings_window;
 }

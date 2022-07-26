@@ -207,8 +207,7 @@ Data_passer *setup(GApplication *app) {
     /* The following line is here instead of in read_properties_into_reports_store(), because that function is used to load data into the tree store, not to instantiate the tree view. */
     data_passer->reports_store = gtk_tree_store_new(COLUMNS_REPORT, G_TYPE_STRING, G_TYPE_STRING);
 
-    Settings_passer *settings_passer = g_new(Settings_passer, 1);
-    data_passer->settings_passer = settings_passer;
+    data_passer->settings_passer = g_new(Settings_passer, 1);
 
     read_sqlite_filename_json_object(data_passer);
 
