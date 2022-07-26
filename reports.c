@@ -71,7 +71,6 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
         json_builder_add_string_value(builder, data_passer->output_file_name);
     }
 
-
     json_builder_set_member_name(builder, "properties");
 
     json_builder_begin_array(builder);
@@ -189,7 +188,7 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
  *    -# Get the sibling iter.
  *    -# Recurse with  store, sibling iter, guid we are looking for, and the data passer
  * -# Return.
- * 
+ *
  * @param reports_store Tree store holding the accounts included in the P&L report.
  * @param current_iter GtkTreeIter pointing to a position in the tree store.
  * @param guid The target `guid` we are seeking.
@@ -232,53 +231,53 @@ void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_it
  * @param data_passer Pointer to a Data_passer struct.
  */
 void read_properties_into_reports_store(Data_passer *data_passer) {
-  
-            /* Pretty sure no need to free following string as it is part of the root_obj instance. */
-            const gchar *start_date_string = json_object_get_string_member(data_passer->root_obj, "start_date");
-            if (start_date_string != NULL) {
-                data_passer->start_date = g_strdup(start_date_string);
-            } else {
-                data_passer->start_date = NULL;
-            }
+    /* Pretty sure no need to free following string as it is part of the root_obj instance. */
+    const gchar *start_date_string = json_object_get_string_member(data_passer->root_obj, "start_date");
+    if (start_date_string != NULL) {
+        data_passer->start_date = g_strdup(start_date_string);
+    } else {
+        data_passer->start_date = NULL;
+    }
 
-            /* Pretty sure no need to free following string as it is part of the root_obj instance. */
-            const gchar *end_date_string = json_object_get_string_member(data_passer->root_obj, "end_date");
-            if (end_date_string != NULL) {
-                data_passer->end_date = g_strdup(end_date_string);
-            } else {
-                data_passer->end_date = NULL;
-            }
+    /* Pretty sure no need to free following string as it is part of the root_obj instance. */
+    const gchar *end_date_string = json_object_get_string_member(data_passer->root_obj, "end_date");
+    if (end_date_string != NULL) {
+        data_passer->end_date = g_strdup(end_date_string);
+    } else {
+        data_passer->end_date = NULL;
+    }
 
-            /* Pretty sure no need to free following string as it is part of the root_obj instance. */
-            const gchar *output_file_path = json_object_get_string_member(data_passer->root_obj, "output_file");
-            if (output_file_path != NULL) {
-                data_passer->output_file_name = g_strdup(output_file_path);
-            } else {
-                data_passer->output_file_name = NULL;
-            }
+    /* Pretty sure no need to free following string as it is part of the root_obj instance. */
+    const gchar *output_file_path = json_object_get_string_member(data_passer->root_obj, "output_file");
+    if (output_file_path != NULL) {
+        data_passer->output_file_name = g_strdup(output_file_path);
+    } else {
+        data_passer->output_file_name = NULL;
+    }
 
-            JsonArray *property_array = (JsonArray *)json_object_get_array_member(data_passer->root_obj, "properties");
+    JsonArray *property_array = (JsonArray *)json_object_get_array_member(data_passer->root_obj, "properties");
 
-            guint len_properties = json_array_get_length(property_array);
+    guint len_properties = json_array_get_length(property_array);
 
-            GtkTreeStore *reports_store = data_passer->reports_store;
-            GtkTreeIter property_iter;
+    GtkTreeStore *reports_store = data_passer->reports_store;
+    GtkTreeIter property_iter;
 
-            /*
-                Loop through the properties object in the JSON file. For each object,
-                add it to the store, and then add the associated income and expense accounts to the store.
-            */
-            for (int i = 0; i < len_properties; i++) {
-                JsonObject *property_object = json_array_get_object_element(property_array, i);
-                gtk_tree_store_append(reports_store, &property_iter, NULL);
-                /* Memory freed below */
-                gchar *guid = g_strdup(json_object_get_string_member(property_object, "guid"));
-                gchar description[1000];
-                get_account_description(guid, description, data_passer);
-                gtk_tree_store_set(reports_store, &property_iter, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
+    /*
+        Loop through the properties object in the JSON file. For each object,
+        add it to the store, and then add the associated income and expense accounts to the store.
+    */
+    for (int i = 0; i < len_properties; i++) {
+        JsonObject *property_object = json_array_get_object_element(property_array, i);
+        gtk_tree_store_append(reports_store, &property_iter, NULL);
+        /* Memory freed below */
+        gchar *guid = g_strdup(json_object_get_string_member(property_object, "guid"));
+        gchar description[1000];
+        get_account_description(guid, description, data_passer);
+        gtk_tree_store_set(reports_store, &property_iter, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
 
-                add_accounts(data_passer, property_object, &property_iter, INCOME);
-                add_accounts(data_passer, property_object, &property_iter, EXPENSE);
-                g_free(guid);
-            }
-        }
+        add_accounts(data_passer, property_object, &property_iter, INCOME);
+        add_accounts(data_passer, property_object, &property_iter, EXPENSE);
+        g_free(guid);
+    }
+
+}

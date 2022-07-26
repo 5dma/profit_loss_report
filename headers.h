@@ -56,7 +56,7 @@ typedef struct {
     guint error_condition;            /**< Indication of an error condition. See error_condition. */
     JsonObject *root_obj;             /**< Pointer to the root JSON object in the file accounts.json. */
     Settings_passer *settings_passer; /**< Pointer to a struct Settings_passer. */
-    GDateTime *current_date_time;     /**< Pointer to current date and time. */
+    GDateTime *current_date_time;     /**< Pointer to current date and time. Calendars are set to this date if no start date or end date appear in the configuration file. In future, will be used to print run date on report. */
 } Data_passer;
 
 /**
