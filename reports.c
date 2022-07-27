@@ -235,7 +235,7 @@ void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_it
  * @param iter_b Iter pointing to the second entry in the model.
  * @param user_data `NULL` in this case.
  */
-gint sort_iter_compare_func(GtkTreeModel *model,
+gint sort_report_iter_compare_func(GtkTreeModel *model,
                             GtkTreeIter *iter_a,
                             GtkTreeIter *iter_b,
                             gpointer user_data) {
@@ -247,9 +247,6 @@ gint sort_iter_compare_func(GtkTreeModel *model,
     gtk_tree_model_get(model, iter_a, DESCRIPTION_REPORT, &description_a, -1);
     gtk_tree_model_get(model, iter_b, DESCRIPTION_REPORT, &description_b, -1);
 
-    g_print("Iter a: %s\n", description_a);
-    g_print("Iter b: %s\n", description_b);
-
     if ((g_strcmp0(description_a, REVENUE) == 0) && (g_strcmp0(description_b, EXPENSES) == 0)) {
         return_value = -1;
     } else if ((g_strcmp0(description_a, EXPENSES) == 0) && (g_strcmp0(description_b, REVENUE) == 0)) {
@@ -259,7 +256,6 @@ gint sort_iter_compare_func(GtkTreeModel *model,
     }
     g_free(description_b);
     g_free(description_a);
-    g_print("Return value: %d\n", return_value);
     return return_value;
 }
 
@@ -322,7 +318,7 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
     /* After populating the report tree, apply sorting. */
     GtkTreeSortable *sortable;
     sortable = GTK_TREE_SORTABLE(reports_store);
-    gtk_tree_sortable_set_sort_func(sortable, DESCRIPTION_REPORT, sort_iter_compare_func,
+    gtk_tree_sortable_set_sort_func(sortable, DESCRIPTION_REPORT, sort_report_iter_compare_func,
                                      GINT_TO_POINTER (DESCRIPTION_REPORT), NULL);
     gtk_tree_sortable_set_sort_column_id(sortable, DESCRIPTION_REPORT, GTK_SORT_ASCENDING);
 }

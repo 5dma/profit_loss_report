@@ -167,6 +167,44 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
     return 0;
 }
 
+
+/**
+ * Sorts the account tree. This tree effectively has two levels, and the sorting at each level is as follows:
+ * - At the top level, place accounts in the following order: Fixed Assets, Income, Expenses.
+ * - At the second level and below, sort by account name (e.g., Homeowners, Repairs, Taxes).
+ *
+ * @param model Pointer to the accounts model.
+ * @param iter_a Iter pointing to the first entry in the model.
+ * @param iter_b Iter pointing to the second entry in the model.
+ * @param user_data `NULL` in this case.
+ */
+gint sort_account_iter_compare_func(GtkTreeModel *model,
+                            GtkTreeIter *iter_a,
+                            GtkTreeIter *iter_b,
+                            gpointer user_data) {
+
+    gchar *name_a; /* Memory freed below. */
+    gchar *name_b; /* Memory freed below. */
+    gint return_value = 0;
+
+    gtk_tree_model_get(model, iter_a, NAME_ACCOUNT, &name_a, -1);
+    gtk_tree_model_get(model, iter_b, NAME_ACCOUNT, &name_b, -1);
+
+    if (((g_strcmp0(name_a, "Fixed Assets") == 0) && (g_strcmp0(name_b, "Expenses") == 0)) ||
+    ((g_strcmp0(name_a, "Income") == 0) && (g_strcmp0(name_b, "Expenses") == 0)) ||
+     ((g_strcmp0(name_a, "Income") == 0) && (g_strcmp0(name_b, "Fixed Assets") == 0))
+    )
+     {
+        return_value = -1;
+   
+    } else {
+        return_value = g_strcmp0(name_a, name_b);
+    }
+    g_free(name_b);
+    g_free(name_a);
+    return return_value;
+}
+
 /**
  * Selects the following accounts to be at the top level of the accounts tree: Fixed assets, Income, Expenses, and then recursively calls build_tree() to build the accounts tree. The logic is as follows:
  *
@@ -224,4 +262,12 @@ void read_accounts_tree(Data_passer *data_passer) {
     GList *iters_to_free = g_list_first(data_passer->iters_to_be_freed);
 
     g_list_free_full(iters_to_free, (GDestroyNotify)iter_free);
+
+
+    /* After populating the report tree, apply sorting. */
+    GtkTreeSortable *sortable;
+    sortable = GTK_TREE_SORTABLE(data_passer->accounts_store);
+    gtk_tree_sortable_set_sort_func(sortable, NAME_ACCOUNT, sort_account_iter_compare_func,
+                                     GINT_TO_POINTER (NAME_ACCOUNT), NULL);
+    gtk_tree_sortable_set_sort_column_id(sortable, NAME_ACCOUNT, GTK_SORT_ASCENDING);
 }
