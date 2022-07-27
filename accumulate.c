@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 
 #include "headers.h"
@@ -16,7 +17,7 @@
  * @param argv Array of pointers to the results of a query.
  * @param azColName Array of pointers to strings corresponding to result column names.
  * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html)
- */ 
+ */
 static int total_up_income(void *user_data, int argc, char **argv, char **azColName) {
     gfloat *subtotal = (gfloat *)user_data;
     if (g_strcmp0(argv[0], "0") == 0) {
@@ -25,6 +26,25 @@ static int total_up_income(void *user_data, int argc, char **argv, char **azColN
         *subtotal = g_ascii_strtod(argv[1], NULL);
     }
     return 0;
+}
+
+/**
+ * Formats a passed float number into a familiar currency value. For example, takes 51003 and formats it into 51,003.00.
+ * @param number Any gfloat less than 999999.99
+ * @return The formatted string.
+ */
+gchar *comma_formatted_amount(gfloat number) {
+    //    gfloat amount = *number;
+    gchar formatted_amount[100];
+    int num;
+    if (number < 1000) {
+        num = g_snprintf(formatted_amount, 11, "%.2f", number);
+    } else {
+        gdouble first_group = floor(number / 1000);
+        gfloat second_group = number - (first_group * 1000);
+        num = g_snprintf(formatted_amount, sizeof(formatted_amount), "%.0f,%06.2f", first_group, second_group);
+    }
+    return g_strdup(formatted_amount);
 }
 
 /**
@@ -54,7 +74,7 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
         gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = SQLITE_SELECT_FAILURE;
         sqlite3_free(zErrMsg);
-  }
+    }
 
     /* Add the subtotal to the total revenue or total expense for the current property. */
     if (data_passer->subtotaling_revenues) {
@@ -63,7 +83,11 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
         data_passer->total_expenses += subtotal;
     }
     /* Print the subtotal for the current account. */
-    fprintf(data_passer->output_file, ACCOUNT_REPORT, description, subtotal);
+
+    gchar *formatted_subtotal = comma_formatted_amount(subtotal);
+    fprintf(data_passer->output_file, ACCOUNT_REPORT, description, formatted_subtotal);
+    g_free(formatted_subtotal);
+
     g_free(description);
     g_free(guid);
 }
@@ -113,7 +137,10 @@ void make_property_report(Data_passer *data_passer) {
                 } while (gtk_tree_model_iter_next(tree_model, &line_item_iter));
             }
         }
-        fprintf(data_passer->output_file, INCOME_TOTAL, data_passer->total_revenues);
+
+        gchar *formatted_income_total = comma_formatted_amount(data_passer->total_revenues);
+        fprintf(data_passer->output_file, INCOME_TOTAL, formatted_income_total);
+        g_free(formatted_income_total);
 
         fputs(EXPENSE_HEADER, data_passer->output_file);
         data_passer->subtotaling_revenues = FALSE;
@@ -127,10 +154,16 @@ void make_property_report(Data_passer *data_passer) {
                 } while (gtk_tree_model_iter_next(tree_model, &line_item_iter));
             }
         }
-        fprintf(data_passer->output_file, EXPENSE_TOTAL, data_passer->total_expenses);
-        fprintf(data_passer->output_file, NET_INCOME, data_passer->total_revenues - data_passer->total_expenses);
+        gchar *formatted_expense_total = comma_formatted_amount(data_passer->total_expenses);
+        fprintf(data_passer->output_file, INCOME_TOTAL, formatted_expense_total);
+        g_free(formatted_expense_total);
+
+        gchar *formatted_net_income_total = comma_formatted_amount(data_passer->total_revenues - data_passer->total_expenses);
+        fprintf(data_passer->output_file, NET_INCOME, formatted_net_income_total);
+        g_free(formatted_net_income_total);
+
         fputs("</table>\n", data_passer->output_file);
-        g_free (description);
+        g_free(description);
     } while (gtk_tree_model_iter_next(tree_model, &report_store_top_iter));
 }
 
@@ -160,8 +193,8 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
     fputs(report_heading, data_passer->output_file);
 
     /* Extract printer-friendly start and end dates, send to output. */
-    gchar *start_date = g_utf8_substring (data_passer->start_date, 0, 10);
-    gchar *end_date = g_utf8_substring (data_passer->end_date, 0, 10);
+    gchar *start_date = g_utf8_substring(data_passer->start_date, 0, 10);
+    gchar *end_date = g_utf8_substring(data_passer->end_date, 0, 10);
     fprintf(data_passer->output_file, DATE_RANGE, start_date, end_date);
     g_free(end_date);
     g_free(start_date);

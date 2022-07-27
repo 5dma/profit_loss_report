@@ -218,7 +218,7 @@ gint sort_account_iter_compare_func(GtkTreeModel *model,
  *         - If so, loop through each child, calling build_tree() with the parent account as the current account and the child account as the current child account.
  *         - If not, return.
  *
- * As part of this recursion, we instantiate Iter_passer structs to manage the locaton of parent and child accounts. To free these structs, we place them in a `GList` as they are created. When the tree is constructed, we free the structs' memory using iter_free().
+ * As part of this recursion, we instantiate Iter_passer structs to manage the location of parent and child accounts. To free these structs, we place them in a `GList` as they are created. When the tree is constructed, we free the structs' memory using iter_free().
  * @param data_passer Pointer to a Data_passer struct.
  *
  */
