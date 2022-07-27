@@ -225,6 +225,45 @@ void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_it
 }
 
 /**
+ * Sorts the report tree. This tree has three levels, and the sorting at each level is as follows:
+ * - At the top level, sort by the address of the fixed asset.
+ * - At the second level, where the only entries are the strings Revenue and Expenses, ensure Revenue is before Expenses.
+ * - At the third level, sort by account name (e.g., Homeowners, Repairs, Taxes).
+ *
+ * @param model Pointer to the reports model.
+ * @param iter_a Iter pointing to the first entry in the model.
+ * @param iter_b Iter pointing to the second entry in the model.
+ * @param user_data `NULL` in this case.
+ */
+gint sort_iter_compare_func(GtkTreeModel *model,
+                            GtkTreeIter *iter_a,
+                            GtkTreeIter *iter_b,
+                            gpointer user_data) {
+
+    gchar *description_a; /* Memory freed below. */
+    gchar *description_b; /* Memory freed below. */
+    gint return_value = 0;
+
+    gtk_tree_model_get(model, iter_a, DESCRIPTION_REPORT, &description_a, -1);
+    gtk_tree_model_get(model, iter_b, DESCRIPTION_REPORT, &description_b, -1);
+
+    g_print("Iter a: %s\n", description_a);
+    g_print("Iter b: %s\n", description_b);
+
+    if ((g_strcmp0(description_a, REVENUE) == 0) && (g_strcmp0(description_b, EXPENSES) == 0)) {
+        return_value = -1;
+    } else if ((g_strcmp0(description_a, EXPENSES) == 0) && (g_strcmp0(description_b, REVENUE) == 0)) {
+        return_value = 1;
+    } else {
+        return_value = g_strcmp0(description_a, description_b);
+    }
+    g_free(description_b);
+    g_free(description_a);
+    g_print("Return value: %d\n", return_value);
+    return return_value;
+}
+
+/**
  * Reads the JSON file that contains accounts in the P&L report, and places those accounts into the reports tree store. The JSON file must be at `~/.profit_loss/accounts.json`.
  *
  * This function fails if the JSON file does not exist, or if the file cannot be parsed as a JSON object.
@@ -280,4 +319,10 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
         g_free(guid);
     }
 
+    /* After populating the report tree, apply sorting. */
+    GtkTreeSortable *sortable;
+    sortable = GTK_TREE_SORTABLE(reports_store);
+    gtk_tree_sortable_set_sort_func(sortable, DESCRIPTION_REPORT, sort_iter_compare_func,
+                                     GINT_TO_POINTER (DESCRIPTION_REPORT), NULL);
+    gtk_tree_sortable_set_sort_column_id(sortable, DESCRIPTION_REPORT, GTK_SORT_ASCENDING);
 }
