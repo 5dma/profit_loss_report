@@ -155,7 +155,7 @@ void make_property_report(Data_passer *data_passer) {
             }
         }
         gchar *formatted_expense_total = comma_formatted_amount(data_passer->total_expenses);
-        fprintf(data_passer->output_file, INCOME_TOTAL, formatted_expense_total);
+        fprintf(data_passer->output_file, EXPENSE_TOTAL, formatted_expense_total);
         g_free(formatted_expense_total);
 
         gchar *formatted_net_income_total = comma_formatted_amount(data_passer->total_revenues - data_passer->total_expenses);
