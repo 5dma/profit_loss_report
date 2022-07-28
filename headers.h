@@ -21,6 +21,10 @@ typedef struct {
     GtkWidget *text_sqlite_filename; /**< Pointer to entry field holding the path to the SQLite file. */
     GtkWidget *start_calendar;       /**< Pointer to the calendar for the start date. */
     GtkWidget *end_calendar;         /**< Pointer to the calendar for the end date. */
+    gint current_year;               /**< Holds the current year. */
+    gint current_month;              /**< Holds the current month. */
+    gint current_day;                /**< Holds the current day. */
+
 } Settings_passer;
 
 /**
@@ -169,16 +173,15 @@ static gchar *SUM_OF_ACCOUNT_ACTIVITY = "SELECT COUNT(*), ABS(SUM(CAST(value_num
 
 static gchar *DATE_RANGE = "<p class=\"text-center\">For the period %s to %s</p>\n"; /**< String template for displaying a date range. See make_pl_report().  */
 
-static gchar *ACCOUNT_REPORT = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%s</td>\n</tr>\n";  /**< HTML template for printing an account's subtotal. See make_subtotals(). */
-static gchar *PROPERTY_HEADER = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n";                                     /**< HTML template for printing a fixed asset's header. See make_property_report(). */
-static gchar *INCOME_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";                                                /**< HTML template for printing the income header in a fixed asset's report. See make_property_report(). */
+static gchar *ACCOUNT_REPORT = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%s</td>\n</tr>\n";                                  /**< HTML template for printing an account's subtotal. See make_subtotals(). */
+static gchar *PROPERTY_HEADER = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n";                                /**< HTML template for printing a fixed asset's header. See make_property_report(). */
+static gchar *INCOME_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";                                           /**< HTML template for printing the income header in a fixed asset's report. See make_property_report(). */
 static gchar *INCOME_TOTAL = "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%s</td>\n</tr>\n";                                  /**< HTML template for printing the total income in a fixed asset's report. See make_property_report(). */
-static gchar *EXPENSE_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n";                                             /**< HTML template for printing the expense header in a fixed asset's report. See make_property_report(). */
+static gchar *EXPENSE_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n";                                        /**< HTML template for printing the expense header in a fixed asset's report. See make_property_report(). */
 static gchar *EXPENSE_TOTAL = "<tr>\n<td>Total expenses</td>\n<td class=\"single_underline\">%s</td>\n</tr>\n";                               /**< HTML template for printing the total expenses in a fixed asset's report. See make_property_report(). */
 static gchar *NET_INCOME = "<tr class=\"table-success\">\n<td>Net income</td>\n<td><span class=\"double_underline\">%s</span></td>\n</tr>\n"; /**< HTML template for printing the net income (INCOME_TOTAL − EXPENSE TOTAL) in a fixed asset's report. See make_property_report(). */
 
 static gchar *START_DATE_SUFFIX = " 00:00:00"; /**< Suffix appended to the date of a selected start date. See save_date(). */
-static gchar *END_DATE_SUFFIX = " 23:59:59"; /**< Suffix appended to the date of a selected end date. See save_date(). */
-
+static gchar *END_DATE_SUFFIX = " 23:59:59";   /**< Suffix appended to the date of a selected end date. See save_date(). */
 
 #endif
