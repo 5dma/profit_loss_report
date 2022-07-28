@@ -278,8 +278,10 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
     const gchar *end_date_string = json_object_get_string_member(data_passer->root_obj, "end_date");
     if (end_date_string != NULL) {
         data_passer->end_date = g_strdup(end_date_string);
+        data_passer->settings_passer->using_today_date = FALSE;
     } else {
         data_passer->end_date = NULL;
+        data_passer->settings_passer->using_today_date = TRUE;
     }
 
     /* Pretty sure no need to free following string as it is part of the root_obj instance. */

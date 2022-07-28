@@ -42,6 +42,34 @@ void set_calendar_date(GtkWidget *widget, const gchar *date, const Settings_pass
 }
 
 /**
+ * Callback fired when user clicks the checkbox to user today's date for the end date.
+ * - If the user toggles ON the checkbox:
+ *   -# Set the calendar's sensitivity to `FALSE`.
+ *   -# Select today's date in the calendar.
+ * - If the user toggles OFF the checkbox:
+ *   -# Set the sensitivity to `TRUE`.
+ *
+ * @param button Pointer to the clicked checkbox.
+ * @param user_data Pointer to a Data_passer struct.
+ */
+void set_today_end_date(GtkWidget *button, gpointer user_data) {
+    Data_passer *data_passer = (Data_passer *)user_data;
+
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
+        /* User wants to use today's date. */
+        gtk_widget_set_sensitive(data_passer->settings_passer->end_calendar, FALSE);
+        set_calendar_date(data_passer->settings_passer->end_calendar, NULL, data_passer->settings_passer);
+        data_passer->end_date = NULL;
+
+    } else {
+        /* User wants to select an end date. */
+        g_print("Checkbox is inactive\n");
+        gtk_widget_set_sensitive(data_passer->settings_passer->end_calendar, TRUE);
+        gtk_widget_grab_focus(data_passer->settings_passer->end_calendar);
+    }
+}
+
+/**
  * Creates Gtk widgets for the settings window.
  * @param data_passer Pointer to a Data_passer struct.
  * @return Pointer to a GTK widget.
@@ -76,6 +104,14 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
 
     GtkWidget *use_today_end_date = gtk_check_button_new_with_label("Use today's date");
 
+    if (data_passer->settings_passer->using_today_date == TRUE) {
+    /* If we are using today's date, then display the checkbox as checked and disable the ending calendar. */
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_today_end_date), TRUE);
+        gtk_widget_set_sensitive(data_passer->settings_passer->end_calendar, FALSE);
+    } else {
+        /* If we are NOT using today's date, then display the checkbox as clear. */
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_today_end_date), FALSE);
+    }
 
     GtkWidget *label_output_filename = gtk_label_new("Output file name");
     GtkWidget *text_output_filename = gtk_entry_new();
@@ -97,6 +133,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     g_signal_connect(btn_settings_close, "clicked", G_CALLBACK(close_settings), data_passer);
     g_signal_connect(calendar_end_date, "day-selected", G_CALLBACK(save_date), data_passer);
     g_signal_connect(calendar_start_date, "day-selected", G_CALLBACK(save_date), data_passer);
+    g_signal_connect(use_today_end_date, "toggled", G_CALLBACK(set_today_end_date), data_passer);
 
     gtk_widget_set_tooltip_text(btn_settings_close, "Close.");
 
@@ -105,6 +142,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     gtk_grid_attach(GTK_GRID(settings_grid), calendar_start_date, 1, 0, 1, 1);
     gtk_grid_attach(GTK_GRID(settings_grid), label_end_date, 0, 1, 1, 1);
     gtk_grid_attach(GTK_GRID(settings_grid), calendar_end_date, 1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(settings_grid), use_today_end_date, 2, 1, 1, 1);
 
     gtk_grid_attach(GTK_GRID(settings_grid), label_output_filename, 0, 2, 1, 1);
     gtk_grid_attach(GTK_GRID(settings_grid), text_output_filename, 1, 2, 1, 1);

@@ -24,7 +24,7 @@ typedef struct {
     gint current_year;               /**< Holds the current year. */
     gint current_month;              /**< Holds the current month. */
     gint current_day;                /**< Holds the current day. */
-
+    gboolean using_today_date;       /**< Indicates user is using today's date. Required to manage appearance of end date calendar and checkbox. */
 } Settings_passer;
 
 /**
