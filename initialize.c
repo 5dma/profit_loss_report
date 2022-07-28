@@ -209,6 +209,12 @@ Data_passer *setup(GApplication *app) {
 
     data_passer->settings_passer = g_new(Settings_passer, 1);
 
+    /* gint values representing the current year, month day. Used to set the start and end calendars when
+       no value is in the config file. */
+    data_passer->settings_passer->current_year = g_date_time_get_year(data_passer->current_date_time);
+    data_passer->settings_passer->current_month = g_date_time_get_month(data_passer->current_date_time);
+    data_passer->settings_passer->current_day = g_date_time_get_day_of_month(data_passer->current_date_time);
+
     read_sqlite_filename_json_object(data_passer);
 
     /* Go read the JSON file containing list of accounts in the P&L report. */

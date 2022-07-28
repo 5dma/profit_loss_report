@@ -63,7 +63,6 @@ void set_today_end_date(GtkWidget *button, gpointer user_data) {
 
     } else {
         /* User wants to select an end date. */
-        g_print("Checkbox is inactive\n");
         gtk_widget_set_sensitive(data_passer->settings_passer->end_calendar, TRUE);
         gtk_widget_grab_focus(data_passer->settings_passer->end_calendar);
     }
@@ -86,12 +85,6 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
 
     GtkWidget *calendar_start_date = gtk_calendar_new();
     data_passer->settings_passer->start_calendar = calendar_start_date;
-
-    /* gint values representing the current year, month day. Used to set the start and end calendars when
-       no value is in the config file. */
-    data_passer->settings_passer->current_year = g_date_time_get_year(data_passer->current_date_time);
-    data_passer->settings_passer->current_month = g_date_time_get_month(data_passer->current_date_time);
-    data_passer->settings_passer->current_day = g_date_time_get_day_of_month(data_passer->current_date_time);
 
     /* Sets the starting calendar to either the current date or the date in the config file. */
     set_calendar_date(calendar_start_date, data_passer->start_date, data_passer->settings_passer);

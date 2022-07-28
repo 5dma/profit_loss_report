@@ -194,9 +194,22 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 
     /* Extract printer-friendly start and end dates, send to output. */
     gchar *start_date = g_utf8_substring(data_passer->start_date, 0, 10);
-    gchar *end_date = g_utf8_substring(data_passer->end_date, 0, 10);
-    fprintf(data_passer->output_file, DATE_RANGE, start_date, end_date);
-    g_free(end_date);
+    gchar end_date[100];
+
+
+    /* Create the end date for the report. */
+    if (data_passer->end_date == NULL) {
+        /* if the end date is null, then user wants to use the current date as the end date. */
+        GDate *end_date_for_heading = g_date_new_dmy(data_passer->settings_passer->current_day, data_passer->settings_passer->current_month, data_passer->settings_passer->current_year);
+        gsize barf = g_date_strftime(end_date, 20, "%Y-%m-%d", end_date_for_heading);
+        g_date_free(end_date_for_heading);
+    } else {
+        /* If end date is not null, then use the end date stored in Data_passer. */
+        gchar *bozo = g_utf8_substring(data_passer->end_date, 0, 10);
+        g_stpcpy (&end_date[0], bozo);
+        g_free(bozo);
+    }
+    fprintf(data_passer->output_file, DATE_RANGE, start_date, &end_date[0]);
     g_free(start_date);
 
     make_property_report(data_passer);
