@@ -14,8 +14,12 @@
  * @param user_data Pointer to a Data_passer struct.
  */
 void close_settings(GtkButton *button, gpointer user_data) {
+ 
     Data_passer *data_passer = (Data_passer *)user_data;
     gtk_widget_destroy(data_passer->settings_passer->settings_window);
+    //data_passer->settings_passer->settings_window = NULL;
+    //g_free(data_passer->settings_passer->settings_window);
+
 }
 
 /**

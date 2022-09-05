@@ -77,6 +77,8 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     /* The following window is destroyed in cleanup(). */
     GtkWidget *settings_dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(settings_dialog), "Settings");
+
+    /* Turning on modal gives run-time memory errors. Need to resolve. */
     gtk_window_set_modal(GTK_WINDOW(settings_dialog), TRUE);
     gtk_window_set_transient_for(GTK_WINDOW(settings_dialog), GTK_WINDOW(data_passer->window));
 
