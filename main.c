@@ -20,6 +20,7 @@
  * @param argv Arguments passed from the command line, none in this case.
 */
 int main(int argc, char *argv[]) {
+
     GtkApplication *app = gtk_application_new(
         "net.lautman.customgnucashplreport",
         G_APPLICATION_FLAGS_NONE);
