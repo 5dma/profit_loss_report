@@ -1,6 +1,7 @@
 profit_loss_report
 report.html
-report_files/
+report_files/bootstrap.css
 html/
 GUI_Elements.odg
 .~lock*
+*.swp

@@ -9,7 +9,7 @@
  */
 
 /**
- * Gets the iters pointing to the top-level GnuCash accounts Fixed Assets, Expenses, and Income. The iters are saved in `data_passer->fixed_asset_root`, and `data_passer->expenses_root`, and `data_passer->income_root`, respectively.
+ * Gets the iters pointing to the top-level GnuCash accounts `Fixed Assets`, `Expenses`, and `Income`. The iters are saved in `data_passer->fixed_asset_root`, `data_passer->expenses_root`, and `data_passer->income_root`, respectively.
  *
  * @param data_passer Pointer to a Data_passer struct.
  */
@@ -49,10 +49,10 @@ void save_top_level_iters(Data_passer *data_passer) {
 }
 
 /**
- * Sqlite callback that returns the number of children associated with a passed parent iter. The number of children is placed in `iter_passer->number_of_children`.
+ * SQLite callback that returns the number of children associated with a passed parent iter. The number of children is placed in `iter_passer->number_of_children`.
  *
- * @param user_data Pointer to a Iter_passer struct.
- * @param argc Number of columns in sqlite result.
+ * @param user_data Pointer to an Iter_passer struct.
+ * @param argc Number of columns in an SQLite result.
  * @param argv Array of pointers to the results of a query.
  * @param azColName Array of pointers to strings corresponding to result column names.
  * @return Always zero.
@@ -67,7 +67,7 @@ static int has_children(void *user_data, int argc, char **argv, char **azColName
 /**
  * GList callback that frees the contents of a passed Iter_passer.
  *
- * @param iter_passer Pointer to an Iter_passer struct. The iter points to the current parent iter we are constructing during the recursion.
+ * @param iter_passer Pointer to an Iter_passer struct. The iter points to the current parent iter currently being freed.
  * @see read_accounts_tree()
  */
 void iter_free(Iter_passer *iter_passer) {
@@ -83,10 +83,10 @@ void iter_free(Iter_passer *iter_passer) {
 }
 
 /**
- * Sqlite callback that recursively builds a tree of accounts from the top-level GnuCash accounts Fixed Assets, Income, and Expenses.
+ * SQLite callback that recursively builds a tree of accounts from the top-level GnuCash accounts `Fixed Assets`, `Income`, and `Expenses`.
  *
- * @param user_data Pointer to a Iter_passer struct. The iter points to the current parent iter we are constructing during the recursion.
- * @param argc Number of columns in sqlite result.
+ * @param user_data Pointer to an Iter_passer struct. The iter points to the current parent iter being constructed during the recursion.
+ * @param argc Number of columns in an SQLite result.
  * @param argv Array of pointers to the results of a query.
  * @param azColName Array of pointers to strings corresponding to result column names.
  * @return 0 if the recursion is successful.
@@ -206,7 +206,7 @@ gint sort_account_iter_compare_func(GtkTreeModel *model,
 }
 
 /**
- * Selects the following accounts to be at the top level of the accounts tree: Fixed assets, Income, Expenses, and then recursively calls build_tree() to build the accounts tree. The logic is as follows:
+ * Recursively calls build_tree() to build the accounts tree from the following top-level accounts: `Fixed Assets`, `Income`, and `Expenses`. The logic is as follows:
  *
  * -# Retrieve the three accounts at the top level.
  * -# For each such account:

@@ -12,7 +12,7 @@
  */
 
 /**
- * Structure for passing an iter to functions and callbacks.
+ * Structure for passing an iterator to functions and callbacks.
  * \struct Settings_passer
  */
 typedef struct {
@@ -64,7 +64,7 @@ typedef struct {
 } Data_passer;
 
 /**
- * Structure for passing an iter to functions and callbacks.
+ * Structure for passing an iterator to functions and callbacks.
  * \struct Iter_passer
  */
 typedef struct {

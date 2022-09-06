@@ -49,10 +49,10 @@ void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTree
 }
 
 /**
- * Sqlite callback that retrieves a property's description. The function places the description in the passed `user_data` pointer.
+ * SQLite callback that retrieves a property's description. The function places the description in the passed `user_data` pointer.
  *
  * @param user_data Pointer to `gchar`.
- * @param argc Number of columns in sqlite result.
+ * @param argc Number of columns in SQLite result.
  * @param argv Array of pointers to the results of a query.
  * @param azColName Array of pointers to strings corresponding to result column names.
  * @return 0.

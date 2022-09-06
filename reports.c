@@ -4,7 +4,7 @@
 
 /**
  * @file reports.c
- * @brief Contains functions pertaining to the tree view containg accounts in the P&L report.
+ * @brief Contains functions pertaining to the tree view containing accounts in the P&L report.
  */
 
 /**

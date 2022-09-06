@@ -14,9 +14,7 @@
  *
  * @param widget Pointer to a calendar widget.
  * @param date Pointer to a date string of the form `YYYY-mm-dd hh:mm:ss`.
- * @param current_year Integer representing the current year.
- * @param current_month Integer representing the current month (1-12).
- * @param current_day Integer representing the current day (0-30).
+ * @param settings_passer Pointer to an variable of type Settings_passer.
  */
 void set_calendar_date(GtkWidget *widget, const gchar *date, const Settings_passer *settings_passer) {
     GtkCalendar *calendar = GTK_CALENDAR(widget);
@@ -70,7 +68,8 @@ void set_today_end_date(GtkWidget *button, gpointer user_data) {
 
 /**
  * Creates Gtk widgets for the settings window.
- * @param data_passer Pointer to a Data_passer struct.
+ * @param button Pointer to the clicked settings button.
+ * @param user_data Pointer to a Data_passer struct.
  * @return Pointer to a GTK widget.
  */
 void make_settings_dialog(GtkButton *button, gpointer user_data) {

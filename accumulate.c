@@ -10,10 +10,10 @@
  */
 
 /**
- * Sqlite callback that returns the totals charged to a given account. The result is placed in a passed pointer.
+ * SQLite callback that returns the totals charged to a given account. The result is placed in a passed pointer.
  *
  * @param user_data Pointer to a `gfloat`. This pointer points to the account total.
- * @param argc Number of columns in sqlite result.
+ * @param argc Number of columns in SQLite result.
  * @param argv Array of pointers to the results of a query.
  * @param azColName Array of pointers to strings corresponding to result column names.
  * @see [One-Step Query Execution Interface](https://www.sqlite.org/c3ref/exec.html)
