@@ -99,8 +99,6 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
 void revert_report_tree(GtkButton *button, gpointer user_data);
 void save_report_tree(GtkButton *button, gpointer user_data);
 
-void show_settings(GtkButton *button, gpointer user_data);
-
 void make_settings_dialog(GtkButton *button, gpointer user_data);
 
 /* Prototypes for the settings dialog */

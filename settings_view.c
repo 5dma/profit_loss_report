@@ -79,6 +79,8 @@ void make_settings_dialog(GtkButton *button, gpointer user_data) {
 
     GtkWidget *settings_dialog = gtk_dialog_new_with_buttons("Settings", GTK_WINDOW(data_passer->window), GTK_DIALOG_MODAL, "Close", GTK_RESPONSE_CLOSE, NULL);
 
+    data_passer->settings_passer->settings_window = settings_dialog;
+
     GtkWidget *label_start_date = gtk_label_new("Start date");
     GtkWidget *label_end_date = gtk_label_new("End date");
 
@@ -145,12 +147,9 @@ void make_settings_dialog(GtkButton *button, gpointer user_data) {
     GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(settings_dialog));
 
     gtk_container_add(GTK_CONTAINER(content_area), settings_grid);
-    //gtk_hbox_pack_start_defaults(GTK_BOX(GTK_DIALOG(settings_dialog)->vbox),settings_grid);
 
     gtk_window_set_transient_for(GTK_WINDOW(settings_dialog), GTK_WINDOW(data_passer->window));
     gtk_widget_show_all(settings_dialog);
-    gint omg = gtk_dialog_run(GTK_DIALOG(settings_dialog));
-    g_print("The return value is %d\n", omg);
+    gtk_dialog_run(GTK_DIALOG(settings_dialog));
     gtk_widget_destroy(settings_dialog);
-    g_print("After destroy\n");
 }

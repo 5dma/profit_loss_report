@@ -107,18 +107,3 @@ void save_date(GtkCalendar *calendar, gpointer user_data) {
     g_free(timestamp);
     g_free(date_prefix);
 }
-
-/**
- * Gtk callback fired when the settings button is clicked. This function displays the settings window.
- * @param button Pointer to the clicked delete button.
- * @param user_data Pointer to a Data_passer struct.
- * @see make_settings_dialog()
-
-void show_settings(GtkButton *button, gpointer user_data) {
-    Data_passer *data_passer = (Data_passer *)user_data;
-
-    GtkWidget *settings_dialog = make_settings_dialog(data_passer);
-
-   // gtk_widget_show_all(settings_dialog);
-
-} */
