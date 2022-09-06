@@ -101,7 +101,7 @@ void save_report_tree(GtkButton *button, gpointer user_data);
 
 void show_settings(GtkButton *button, gpointer user_data);
 
-GtkWidget *make_settings_dialog(Data_passer *data_passer);
+void make_settings_dialog(GtkButton *button, gpointer user_data);
 
 /* Prototypes for the settings dialog */
 void close_settings(GtkButton *button, gpointer user_data);

@@ -14,7 +14,7 @@
  * @param user_data Pointer to a Data_passer struct.
  */
 void close_settings(GtkButton *button, gpointer user_data) {
- 
+    g_print("Inside close_settings\n");
     Data_passer *data_passer = (Data_passer *)user_data;
     gtk_widget_destroy(data_passer->settings_passer->settings_window);
     //data_passer->settings_passer->settings_window = NULL;
@@ -113,12 +113,12 @@ void save_date(GtkCalendar *calendar, gpointer user_data) {
  * @param button Pointer to the clicked delete button.
  * @param user_data Pointer to a Data_passer struct.
  * @see make_settings_dialog()
- */
+
 void show_settings(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
 
     GtkWidget *settings_dialog = make_settings_dialog(data_passer);
 
-    gtk_widget_show_all(settings_dialog);
+   // gtk_widget_show_all(settings_dialog);
 
-}
+} */

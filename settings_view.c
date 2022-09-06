@@ -73,16 +73,11 @@ void set_today_end_date(GtkWidget *button, gpointer user_data) {
  * @param data_passer Pointer to a Data_passer struct.
  * @return Pointer to a GTK widget.
  */
-GtkWidget *make_settings_dialog(Data_passer *data_passer) {
+void make_settings_dialog(GtkButton *button, gpointer user_data) {
+    Data_passer *data_passer = (Data_passer *)user_data;
     /* The following window is destroyed in cleanup(). */
 
-    GtkWidget *settings_dialog = gtk_dialog_new_with_buttons ("Settings",GTK_WINDOW(data_passer->window), GTK_DIALOG_MODAL, "Close", GTK_RESPONSE_CLOSE, NULL);
-//    GtkWidget *settings_dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-//    gtk_window_set_title(GTK_WINDOW(settings_dialog), "Settings");
-
-    /* Turning on modal gives run-time memory errors. Need to resolve. */
-//    gtk_window_set_modal(GTK_WINDOW(settings_dialog), TRUE);
-//    gtk_window_set_transient_for(GTK_WINDOW(settings_dialog), GTK_WINDOW(data_passer->window));
+    GtkWidget *settings_dialog = gtk_dialog_new_with_buttons("Settings", GTK_WINDOW(data_passer->window), GTK_DIALOG_MODAL, "Close", GTK_RESPONSE_CLOSE, NULL);
 
     GtkWidget *label_start_date = gtk_label_new("Start date");
     GtkWidget *label_end_date = gtk_label_new("End date");
@@ -102,7 +97,7 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     GtkWidget *use_today_end_date = gtk_check_button_new_with_label("Use today's date");
 
     if (data_passer->settings_passer->using_today_date == TRUE) {
-    /* If we are using today's date, then display the checkbox as checked and disable the ending calendar. */
+        /* If we are using today's date, then display the checkbox as checked and disable the ending calendar. */
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_today_end_date), TRUE);
         gtk_widget_set_sensitive(data_passer->settings_passer->end_calendar, FALSE);
     } else {
@@ -123,16 +118,11 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
 
     GtkWidget *btn_sqlite_filename = gtk_button_new_with_label("Choose...");
 
-//    GtkWidget *btn_settings_close = gtk_button_new_from_icon_name("dialog-close", GTK_ICON_SIZE_BUTTON);
-
     g_signal_connect(btn_output_filename, "clicked", G_CALLBACK(get_output_filename), data_passer);
     g_signal_connect(btn_sqlite_filename, "clicked", G_CALLBACK(get_sqlite_filename), data_passer);
- //   g_signal_connect(btn_settings_close, "clicked", G_CALLBACK(close_settings), data_passer);
     g_signal_connect(calendar_end_date, "day-selected", G_CALLBACK(save_date), data_passer);
     g_signal_connect(calendar_start_date, "day-selected", G_CALLBACK(save_date), data_passer);
     g_signal_connect(use_today_end_date, "toggled", G_CALLBACK(set_today_end_date), data_passer);
-
- //   gtk_widget_set_tooltip_text(btn_settings_close, "Close.");
 
     GtkWidget *settings_grid = gtk_grid_new();
     gtk_grid_attach(GTK_GRID(settings_grid), label_start_date, 0, 0, 1, 1);
@@ -149,19 +139,18 @@ GtkWidget *make_settings_dialog(Data_passer *data_passer) {
     gtk_grid_attach(GTK_GRID(settings_grid), text_sqlite_filename, 1, 3, 1, 1);
     gtk_grid_attach(GTK_GRID(settings_grid), btn_sqlite_filename, 2, 3, 1, 1);
 
-  //  gtk_grid_attach(GTK_GRID(settings_grid), btn_settings_close, 2, 4, 1, 1);
-
     gtk_grid_set_row_spacing(GTK_GRID(settings_grid), 20);
     gtk_grid_set_column_spacing(GTK_GRID(settings_grid), 20);
 
-    GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (settings_dialog));
-
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(settings_dialog));
 
     gtk_container_add(GTK_CONTAINER(content_area), settings_grid);
-  //  gtk_hbox_pack_start_defaults(GTK_BOX(GTK_DIALOG(settings_dialog)->vbox),settings_grid);
+    //gtk_hbox_pack_start_defaults(GTK_BOX(GTK_DIALOG(settings_dialog)->vbox),settings_grid);
 
-    data_passer->settings_passer->settings_window = settings_dialog;
-    settings_dialog = NULL;
-
-    return data_passer->settings_passer->settings_window;
+    gtk_window_set_transient_for(GTK_WINDOW(settings_dialog), GTK_WINDOW(data_passer->window));
+    gtk_widget_show_all(settings_dialog);
+    gint omg = gtk_dialog_run(GTK_DIALOG(settings_dialog));
+    g_print("The return value is %d\n", omg);
+    gtk_widget_destroy(settings_dialog);
+    g_print("After destroy\n");
 }
