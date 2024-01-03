@@ -63,6 +63,7 @@ void set_today_end_date(GtkWidget *button, gpointer user_data) {
         /* User wants to select an end date. */
         gtk_widget_set_sensitive(data_passer->settings_passer->end_calendar, TRUE);
         gtk_widget_grab_focus(data_passer->settings_passer->end_calendar);
+        data_passer->settings_passer->using_today_date = FALSE;
     }
 }
 
