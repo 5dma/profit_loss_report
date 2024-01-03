@@ -64,7 +64,7 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
     gtk_tree_model_get(GTK_TREE_MODEL(data_passer->reports_store), &income_expense_iter, GUID_REPORT, &guid, DESCRIPTION_REPORT, &description, -1);
 
     /* Make a database call to accumulate the amounts charged to the account. */
-    gint num_bytes = g_snprintf(sql, 1000, SUM_OF_ACCOUNT_ACTIVITY, guid, guid, data_passer->start_date);
+    gint num_bytes = g_snprintf(sql, 1000, SUM_OF_ACCOUNT_ACTIVITY, guid, guid, data_passer->start_date, data_passer->end_date);
     rc = sqlite3_exec(data_passer->db, sql, total_up_income, &subtotal, &zErrMsg);
 
     if (rc != SQLITE_OK) {

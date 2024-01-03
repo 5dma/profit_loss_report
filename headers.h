@@ -165,7 +165,7 @@ static gchar *SELECT_DESCRIPTION_FROM_ACCOUNT = "SELECT description FROM account
 
 static gchar *SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT = "SELECT parent.name FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\";"; /**< SQL statement that, for a given guid, retrieves the parent guid's description. See get_parent_account_description(). */
 
-static gchar *SUM_OF_ACCOUNT_ACTIVITY = "SELECT COUNT(*), ABS(SUM(CAST(value_num AS REAL)/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date > \"%s\";"; /**< SQL statement that, for a given guid, retrieves the number of transactions and the subtotal of those transactions. See make_subtotals(). */
+static gchar *SUM_OF_ACCOUNT_ACTIVITY = "SELECT COUNT(*), ABS(SUM(CAST(value_num AS REAL)/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date >= \"%s\" AND post_date <= \"%s\";"; /**< SQL statement that, for a given guid, retrieves the number of transactions and the subtotal of those transactions. See make_subtotals(). */
 
 /* String templates for HTML output */
 
