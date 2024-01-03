@@ -29,8 +29,8 @@ static int total_up_income(void *user_data, int argc, char **argv, char **azColN
 }
 
 /**
- * Formats a passed float number into a familiar currency value. For example, takes 51003 and formats it into 51,003.00.
- * @param number Any gfloat less than 999999.99
+ * Formats a passed float into a familiar currency value. For example, takes `51003` and formats it into `51,003.00`.
+ * @param number Any `gfloat` less than 999999.99
  * @return The formatted string.
  */
 gchar *comma_formatted_amount(gfloat number) {

@@ -19,7 +19,7 @@
 void set_calendar_date(GtkWidget *widget, const gchar *date, const Settings_passer *settings_passer) {
     GtkCalendar *calendar = GTK_CALENDAR(widget);
     if (date == NULL) {
-        gtk_calendar_select_month(calendar, settings_passer->current_month, settings_passer->current_year);
+        gtk_calendar_select_month(calendar, settings_passer->current_month - 1, settings_passer->current_year);
         gtk_calendar_select_day(calendar, settings_passer->current_day);
     } else {
         gchar *start_year_string = g_utf8_substring(date, 0, 4);
