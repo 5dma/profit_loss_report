@@ -5,3 +5,4 @@ html/
 GUI_Elements.odg
 .~lock*
 *.swp
+*.o
