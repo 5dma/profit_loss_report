@@ -1,6 +1,6 @@
 #include <stdio.h>
-
-#include "headers.h"
+#include <sqlite3.h>
+#include <headers.h>
 
 /**
  * @file cleanup.c

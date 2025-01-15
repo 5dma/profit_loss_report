@@ -1,5 +1,5 @@
 #include <gtk/gtk.h>
-#include "headers.h"
+#include <headers.h>
 
 /**
  * @file app_activate.c

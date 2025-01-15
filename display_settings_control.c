@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 
-#include "headers.h"
+#include <headers.h>
 
 /**
  * @file display_settings_control.c
@@ -88,8 +88,7 @@ void save_date(GtkCalendar *calendar, gpointer user_data) {
     guint year;
     guint month;
     guint day;
-    gchar *date_time;
-
+    
     gtk_calendar_get_date(calendar, &year, &month, &day);
 
     gchar *date_prefix = g_strdup_printf("%i-%02i-%02i", year, month + 1, day);

@@ -1,5 +1,5 @@
 #include <gtk/gtk.h>
-#include "headers.h"
+#include <headers.h>
 
 /**
  * @file delete_account_control.c
@@ -22,7 +22,7 @@ void delete_account_from_reports(GtkButton *button, gpointer user_data) {
     GtkTreeIter iter_selection;
     gtk_tree_selection_get_selected(tree_view_reports_selection, &reports_model, &iter_selection);
 
-    gboolean omg = gtk_tree_store_remove(data_passer->reports_store, &iter_selection);
+    gtk_tree_store_remove(data_passer->reports_store, &iter_selection);
 }
 
 /**

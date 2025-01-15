@@ -1,6 +1,5 @@
 #include <sqlite3.h>
-
-#include "headers.h"
+#include <headers.h>
 
 /**
  * @file accounts_files.c
@@ -112,7 +111,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
 
     /* Get the child accounts associated with the passed parent. */
     char sql[1000];
-    gint num_bytes = g_snprintf(sql, 1000, "SELECT COUNT(*) FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
+    g_snprintf(sql, 1000, "SELECT COUNT(*) FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
 
     int rc;
     char *zErrMsg = 0;
@@ -120,7 +119,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
     rc = sqlite3_exec(iter_passer->db, sql, has_children, iter_passer, &zErrMsg);
     if (rc != SQLITE_OK) {
         char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(iter_passer->data_passer->db));
+        g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(iter_passer->data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context, error_message);
         iter_passer->data_passer->error_condition = SQLITE_SELECT_FAILURE;
@@ -133,7 +132,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
     */
     if (iter_passer->number_of_children > 0) {
         char child_sql[1000];
-        gint num_bytes = g_snprintf(child_sql, 1000, "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
+        g_snprintf(child_sql, 1000, "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
 
         /* Memory freed in read_accounts_tree */
         Iter_passer *iter_passer_child = g_new(Iter_passer, 1);
@@ -157,7 +156,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
 
         if (rc != SQLITE_OK) {
             char error_message[1000];
-            gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(iter_passer->data_passer->db));
+            g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(iter_passer->data_passer->db));
             gtk_statusbar_pop(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context);
             gtk_statusbar_push(GTK_STATUSBAR(iter_passer->data_passer->status_bar), iter_passer->data_passer->status_bar_context, error_message);
             iter_passer->data_passer->error_condition = SQLITE_SELECT_FAILURE;
@@ -250,7 +249,7 @@ void read_accounts_tree(Data_passer *data_passer) {
 
     if (rc != SQLITE_OK) {
         char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
+        g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = SQLITE_SELECT_FAILURE;

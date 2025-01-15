@@ -1,6 +1,6 @@
 #include <json-glib/json-glib.h>
 
-#include "headers.h"
+#include <headers.h>
 
 /**
  * @file reports.c
@@ -27,7 +27,7 @@ void revert_report_tree(GtkButton *button, gpointer user_data) {
  */
 void save_report_tree(GtkButton *button, gpointer user_data) {
     Data_passer *data_passer = (Data_passer *)user_data;
-    GtkTreeStore *reports_store = data_passer->reports_store;
+    //GtkTreeStore *reports_store = data_passer->reports_store;
     GtkTreeModel *tree_model = GTK_TREE_MODEL(data_passer->reports_store);
     GtkTreeIter report_store_top_iter;
     gboolean found_top_iter = gtk_tree_model_get_iter_first(tree_model, &report_store_top_iter);
@@ -165,7 +165,7 @@ void save_report_tree(GtkButton *button, gpointer user_data) {
     GError *gerror = NULL;
     gchar *output_file = g_build_filename(g_get_home_dir(), ".profit_loss/accounts.json", NULL);
 
-    gboolean wrote_json_file = json_generator_to_file(generator, output_file, &gerror);
+    json_generator_to_file(generator, output_file, &gerror);
     json_node_free(root);
     g_object_unref(generator);
     g_object_unref(builder);
@@ -215,7 +215,6 @@ void is_guid_in_reports_tree(GtkTreeStore *reports_store, GtkTreeIter current_it
         is_guid_in_reports_tree(reports_store, child_iter, guid, data_passer);
     }
 
-    GtkTreeIter sibling_iter;
     gboolean current_iter_has_sibling = gtk_tree_model_iter_next(GTK_TREE_MODEL(reports_store), &current_iter);
     if (current_iter_has_sibling == TRUE) {
         is_guid_in_reports_tree(reports_store, current_iter, guid, data_passer);

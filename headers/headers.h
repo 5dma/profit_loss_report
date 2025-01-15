@@ -3,8 +3,7 @@
 #include <json-glib/json-glib.h>
 #include <sqlite3.h>
 #include <stdio.h>
-#ifndef __HEADER
-#define __HEADER
+
 
 /**
  * @file headers.h
@@ -147,39 +146,33 @@ enum error_condition {
     NONE                       /**< No error condition. */
 };
 
-static const gint LENGTH_PL_ACCOUNTS_ARRAY = 8; /**< Need to get rid of this, along with PL_ACCOUNTS_ARRAY. */
-
-/**
- * Array of account names that can be included in a P&L report. Need to make this dynamic.
- * \struct PL_ACCOUNTS_ARRAY
- */
-static const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325", "349", "351", "353", "9820"};
 
 void on_app_activate(GApplication *app, gpointer data);
 GtkWidget *make_window(Data_passer *data_passer);
 
-static gchar *REVENUE = "Revenue";   /**< String constant for adding a `Revenue` heading in the P&L report's store. */
-static gchar *EXPENSES = "Expenses"; /**< String constant for adding an `Expenses` heading in the P&L report's store. */
+#define REVENUE "Revenue"
+#define EXPENSES "Expenses"
+//static gchar *REVENUE = "Revenue";   /**< String constant for adding a `Revenue` heading in the P&L report's store. */
+//static gchar *EXPENSES = "Expenses"; /**< String constant for adding an `Expenses` heading in the P&L report's store. */
 
-static gchar *SELECT_DESCRIPTION_FROM_ACCOUNT = "SELECT description FROM accounts WHERE guid = \"%s\";"; /**< SQL statement that retrieves a description for a given guid. See get_account_description().  */
+#define SELECT_DESCRIPTION_FROM_ACCOUNT "SELECT description FROM accounts WHERE guid = \"%s\";" /**< SQL statement that retrieves a description for a given guid. See get_account_description().  */
 
-static gchar *SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT = "SELECT parent.name FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\";"; /**< SQL statement that, for a given guid, retrieves the parent guid's description. See get_parent_account_description(). */
+#define SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT "SELECT parent.name FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\";" /**< SQL statement that, for a given guid, retrieves the parent guid's description. See get_parent_account_description(). */
 
-static gchar *SUM_OF_ACCOUNT_ACTIVITY = "SELECT COUNT(*), ABS(SUM(CAST(value_num AS REAL)/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date >= \"%s\" AND post_date <= \"%s\";"; /**< SQL statement that, for a given guid, retrieves the number of transactions and the subtotal of those transactions. See make_subtotals(). */
+#define SUM_OF_ACCOUNT_ACTIVITY "SELECT COUNT(*), ABS(SUM(CAST(value_num AS REAL)/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date >= \"%s\" AND post_date <= \"%s\";" /**< SQL statement that, for a given guid, retrieves the number of transactions and the subtotal of those transactions. See make_subtotals(). */
 
 /* String templates for HTML output */
+#define DATE_RANGE "<p class=\"text-center\">For the period %s to %s</p>\n" /**< String template for displaying a date range. See make_pl_report().  */
 
-static gchar *DATE_RANGE = "<p class=\"text-center\">For the period %s to %s</p>\n"; /**< String template for displaying a date range. See make_pl_report().  */
+#define ACCOUNT_REPORT "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%s</td>\n</tr>\n" /**< HTML template for printing an account's subtotal. See make_subtotals(). */
+#define PROPERTY_HEADER "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%%;\">\n"  /**< HTML template for printing a fixed asset's header. See make_property_report(). */
+#define INCOME_HEADER "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n"  /**< HTML template for printing the income header in a fixed asset's report. See make_property_report(). */
+#define INCOME_TOTAL "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%s</td>\n</tr>\n"                                  /**< HTML template for printing the total income in a fixed asset's report. See make_property_report(). */
+#define EXPENSE_HEADER "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n"                                        /**< HTML template for printing the expense header in a fixed asset's report. See make_property_report(). */
+#define EXPENSE_TOTAL "<tr>\n<td>Total expenses</td>\n<td class=\"single_underline\">%s</td>\n</tr>\n"                               /**< HTML template for printing the total expenses in a fixed asset's report. See make_property_report(). */
+#define NET_INCOME "<tr class=\"table-success\">\n<td>Net income</td>\n<td><span class=\"double_underline\">%s</span></td>\n</tr>\n" /**< HTML template for printing the net income (INCOME_TOTAL − EXPENSE TOTAL) in a fixed asset's report. See make_property_report(). */
 
-static gchar *ACCOUNT_REPORT = "<tr>\n<td><span class=\"left_indent\">%s</span></td>\n<td>%s</td>\n</tr>\n";                                  /**< HTML template for printing an account's subtotal. See make_subtotals(). */
-static gchar *PROPERTY_HEADER = "<h3>%s</h3>\n<table class=\"table table-bordered\" style=\"width: 50%;\">\n";                                /**< HTML template for printing a fixed asset's header. See make_property_report(). */
-static gchar *INCOME_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Income</td></tr>\n";                                           /**< HTML template for printing the income header in a fixed asset's report. See make_property_report(). */
-static gchar *INCOME_TOTAL = "<tr>\n<td>Total income</td>\n<td class=\"single_underline\">%s</td>\n</tr>\n";                                  /**< HTML template for printing the total income in a fixed asset's report. See make_property_report(). */
-static gchar *EXPENSE_HEADER = "<tr class=\"table-primary\">\n<td colspan=\"2\">Expenses</td></tr>\n";                                        /**< HTML template for printing the expense header in a fixed asset's report. See make_property_report(). */
-static gchar *EXPENSE_TOTAL = "<tr>\n<td>Total expenses</td>\n<td class=\"single_underline\">%s</td>\n</tr>\n";                               /**< HTML template for printing the total expenses in a fixed asset's report. See make_property_report(). */
-static gchar *NET_INCOME = "<tr class=\"table-success\">\n<td>Net income</td>\n<td><span class=\"double_underline\">%s</span></td>\n</tr>\n"; /**< HTML template for printing the net income (INCOME_TOTAL − EXPENSE TOTAL) in a fixed asset's report. See make_property_report(). */
+#define START_DATE_SUFFIX " 00:00:00" /**< Suffix appended to the date of a selected start date. See save_date(). */
+#define END_DATE_SUFFIX " 23:59:59"   /**< Suffix appended to the date of a selected end date. See save_date(). */
 
-static gchar *START_DATE_SUFFIX = " 00:00:00"; /**< Suffix appended to the date of a selected start date. See save_date(). */
-static gchar *END_DATE_SUFFIX = " 23:59:59";   /**< Suffix appended to the date of a selected end date. See save_date(). */
 
-#endif

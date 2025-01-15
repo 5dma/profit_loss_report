@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "headers.h"
+#include <headers.h>
 
 /**
  * @file accumulate.c
@@ -36,13 +36,12 @@ static int total_up_income(void *user_data, int argc, char **argv, char **azColN
 gchar *comma_formatted_amount(gfloat number) {
     //    gfloat amount = *number;
     gchar formatted_amount[100];
-    int num;
     if (number < 1000) {
-        num = g_snprintf(formatted_amount, 11, "%.2f", number);
+        g_snprintf(formatted_amount, 11, "%.2f", number);
     } else {
         gdouble first_group = floor(number / 1000);
         gfloat second_group = number - (first_group * 1000);
-        num = g_snprintf(formatted_amount, sizeof(formatted_amount), "%.0f,%06.2f", first_group, second_group);
+        g_snprintf(formatted_amount, sizeof(formatted_amount), "%.0f,%06.2f", first_group, second_group);
     }
     return g_strdup(formatted_amount);
 }
@@ -64,12 +63,12 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
     gtk_tree_model_get(GTK_TREE_MODEL(data_passer->reports_store), &income_expense_iter, GUID_REPORT, &guid, DESCRIPTION_REPORT, &description, -1);
 
     /* Make a database call to accumulate the amounts charged to the account. */
-    gint num_bytes = g_snprintf(sql, 1000, SUM_OF_ACCOUNT_ACTIVITY, guid, guid, data_passer->start_date, data_passer->end_date);
+    g_snprintf(sql, 1000, SUM_OF_ACCOUNT_ACTIVITY, guid, guid, data_passer->start_date, data_passer->end_date);
     rc = sqlite3_exec(data_passer->db, sql, total_up_income, &subtotal, &zErrMsg);
 
     if (rc != SQLITE_OK) {
         char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
+        g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = SQLITE_SELECT_FAILURE;
@@ -201,7 +200,7 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
     if (data_passer->end_date == NULL) {
         /* if the end date is null, then user wants to use the current date as the end date. */
         GDate *end_date_for_heading = g_date_new_dmy(data_passer->settings_passer->current_day, data_passer->settings_passer->current_month, data_passer->settings_passer->current_year);
-        gsize barf = g_date_strftime(end_date, 20, "%Y-%m-%d", end_date_for_heading);
+        g_date_strftime(end_date, 20, "%Y-%m-%d", end_date_for_heading);
         g_date_free(end_date_for_heading);
     } else {
         /* If end date is not null, then use the end date stored in Data_passer. */

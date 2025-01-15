@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 
-#include "headers.h"
+#include <headers.h>
 
 /**
  * @file add_account_control.c
@@ -16,6 +16,16 @@
  * @return `TRUE` if the selected account's name is one of the account codes (`242`, `323`, `349`, etc.) and therefore can be included in the P&L report, `FALSE` otherwise.
  */
 gboolean is_p_l_account(gchar *name, GtkTreeIter iter, Data_passer *data_passer) {
+	/**
+ 
+ 	* Array of account names that can be included in a P&L report. Need to make this dynamic.
+ 	* \struct PL_ACCOUNTS_ARRAY
+ 	*/
+	const gchar *PL_ACCOUNTS_ARRAY[] = {"12201", "242", "323", "325", "349", "351", "353", "9820"};
+
+	const int LENGTH_PL_ACCOUNTS_ARRAY = 8;
+
+
     GtkTreePath *tree_path = gtk_tree_model_get_path(GTK_TREE_MODEL(data_passer->accounts_store), &iter);
     gboolean is_pl_account = FALSE;
 
@@ -133,7 +143,7 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
     gtk_tree_selection_set_mode(tree_view_accounts_selection, GTK_SELECTION_SINGLE);
     GtkTreeModel *model = gtk_tree_view_get_model(tree_view_accounts);
     GtkTreeIter iter; /* Attempts to free this memory resulted in seg fault */
-    gboolean omg = gtk_tree_selection_get_selected(tree_view_accounts_selection, &model, &iter);
+    gtk_tree_selection_get_selected(tree_view_accounts_selection, &model, &iter);
     gchar *guid; /* Memory freed in three places, need to make this easier. */
     gchar *name; /* Memory freed in three places, need to make this easier. */
     gtk_tree_model_get(model, &iter, GUID_ACCOUNT, &guid, NAME_ACCOUNT, &name, -1);
@@ -141,7 +151,7 @@ void account_tree_cursor_changed(GtkTreeView *tree_view_accounts, gpointer user_
     /* Check if the currently selected account is already in the reports list. */
     data_passer->is_guid_in_reports_tree = FALSE;
     GtkTreeIter reports_root_iter;
-    gboolean found_root = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(data_passer->reports_store), &reports_root_iter);
+    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(data_passer->reports_store), &reports_root_iter);
     is_guid_in_reports_tree(data_passer->reports_store, reports_root_iter, guid, data_passer);
 
     if (data_passer->is_guid_in_reports_tree == FALSE) {
@@ -212,7 +222,6 @@ void add_account_to_reports(GtkButton *button, gpointer user_data) {
 
         gtk_tree_store_append(data_passer->reports_store, &iter_child, NULL);
         gtk_tree_store_set(data_passer->reports_store, &iter_child, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
-        GSList *accounts_in_reports_store;
 
         GtkTreeIter child_iter_income;
         gtk_tree_store_append(data_passer->reports_store, &child_iter_income, &iter_child);

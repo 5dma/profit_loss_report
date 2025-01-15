@@ -1,50 +1,54 @@
-CC = gcc
-CFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --cflags json-glib-1.0`
-LFLAGS = -lm `pkg-config --libs gtk+-3.0` `pkg-config --libs json-glib-1.0` `pkg-config --libs sqlite3`
-OBJFILES = accounts_files.o accumulate.o add_account_control.o app_activate.o cleanup.o delete_account_control.o display_settings_control.o initialize.o main.o reports.o settings_view.o view.o
+#Compiler and Linker
+CC          := gcc
 
-all: profit_loss_report
+#Name of executable
+TARGET      := profit_loss_report
 
-profit_loss_report: $(OBJFILES)
-	$(CC) -o $@ $^ $(LFLAGS)
+#Source, header, object, and target directories
+SRCDIR      := .
+INCDIR      := headers
+OBJDIR      := obj
+TARGETDIR   := bin
+SRCEXT      := c
+OBJEXT      := o
+INSTALLDIR  := /usr/local/bin/
+#Flags, Libraries and Includes
+CFLAGS      := -Wall `pkg-config --cflags json-glib-1.0` `pkg-config --cflags glib-2.0` `pkg-config --cflags gtk+-3.0` 
+LFLAGS      := `pkg-config --libs glib-2.0` `pkg-config --libs json-glib-1.0` `pkg-config --libs gtk+-3.0` `pkg-config --libs sqlite3` -lm
+INC         := -I$(INCDIR)
 
-accounts_files.o: accounts_files.c
-	$(CC) -c $< $(CFLAGS)
+#---------------------------------------------------------------------------------
+#DO NOT EDIT BELOW THIS LINE
+#---------------------------------------------------------------------------------
+#Find all source files
+SOURCES     := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
+#Create object file names from the source file names; uses nested pattern substitution
+OBJECTS     := $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
 
-accumulate.o: accumulate.c
-	$(CC) -c $< $(CFLAGS)
+all: directories $(TARGET)
 
-add_account_control.o: add_account_control.c
-	$(CC) -c $< $(CFLAGS)
+# Make directories
+directories:
+	@mkdir -p $(TARGETDIR)
+	@mkdir -p $(OBJDIR)
 
-app_activate.o: app_activate.c
-	$(CC) -c $< $(CFLAGS)
+#Link
+$(TARGET): $(OBJECTS)
+	$(CC) -o $(TARGETDIR)/$(TARGET) $^ $(LFLAGS)
 
-cleanup.o: cleanup.c
-	$(CC) -c $< $(CFLAGS)
 
-delete_account_control.o: delete_account_control.c
-	$(CC) -c $< $(CFLAGS)
+#Compile
+$(OBJDIR)/%.$(OBJEXT): $(SRCDIR)/%.$(SRCEXT)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
-display_settings_control.o: display_settings_control.c
-	$(CC) -c $< $(CFLAGS)
+#Clean objects
+clean:
+	@$(RM) -rf $(OBJDIR)
 
-initialize.o: initialize.c
-	$(CC) -c $< $(CFLAGS)
+# Install
+install: $(TARGETDIR)/$(TARGET)
+	install -p $(TARGETDIR)/$(TARGET) $(INSTALLDIR)
 
-main.o: main.c
-	$(CC) -c $< $(CFLAGS)
-
-reports.o: reports.c
-	$(CC) -c $< $(CFLAGS)
-
-settings_view.o: settings_view.c
-	$(CC) -c $< $(CFLAGS)
-
-view.o: view.c
-	$(CC) -c $< $(CFLAGS)
 
 .PHONY: clean
-clean:
-	rm -f $(OBJFILES)
-

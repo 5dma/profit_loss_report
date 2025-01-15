@@ -3,7 +3,7 @@
 #include <sqlite3.h>
 #include <stdio.h>
 
-#include "headers.h"
+#include <headers.h>
 
 /**
  * @file initialize.c
@@ -61,7 +61,7 @@ void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTree
  */
 static int retrieve_property_description(void *user_data, int argc, char **argv, char **azColName) {
     gchar *description = (gchar *)user_data;
-    gsize mylength = g_strlcpy(description, argv[0], 1000);
+    g_strlcpy(description, argv[0], 1000);
     return 0;
 }
 
@@ -77,11 +77,11 @@ void get_account_description(const gchar *guid, gchar *description, Data_passer 
     char sql[1000];
     char *zErrMsg = 0;
 
-    gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, guid);
+    g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_ACCOUNT, guid);
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, description, &zErrMsg);
     if (rc != SQLITE_OK) {
         char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
+        g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = SQLITE_SELECT_FAILURE;
@@ -103,11 +103,11 @@ void get_parent_account_description(gchar *guid, gchar *description, gpointer us
     char sql[1000];
     char *zErrMsg = 0;
 
-    gint num_bytes = g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT, guid);
+    g_snprintf(sql, 1000, SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT, guid);
     rc = sqlite3_exec(data_passer->db, sql, retrieve_property_description, description, &zErrMsg);
     if (rc != SQLITE_OK) {
         char error_message[1000];
-        gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
+        g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
         gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
         gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
         data_passer->error_condition = SQLITE_SELECT_FAILURE;
@@ -137,15 +137,13 @@ void read_sqlite_filename_json_object(Data_passer *data_passer) {
     if (input_file_exists) {
         GError *error = NULL;
 
-        JsonNode *root;
-
         /* Reference count decremented at end of this function. */
         parser = json_parser_new();
         json_parser_load_from_file(parser, input_file, &error);
 
         if (error) {
             char error_message[1000];
-            gint num_bytes = g_snprintf(error_message, 1000, "Unable to parse `%s': %s\n", input_file, error->message);
+            g_snprintf(error_message, 1000, "Unable to parse `%s': %s\n", input_file, error->message);
             gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
             gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "No properties in report tree, no save performed");
             data_passer->error_condition = JSON_PROCESSING_FAILURE;
@@ -220,14 +218,13 @@ Data_passer *setup(GApplication *app) {
     /* Go read the JSON file containing list of accounts in the P&L report. */
     if (data_passer->error_condition != JSON_PROCESSING_FAILURE) {
         int rc;
-        char *sql;
         char *zErrMsg = 0;
          /* Open read-only connection to database, save handle in data_passer. */
         rc = sqlite3_open_v2(data_passer->sqlite_path, &(data_passer->db), SQLITE_OPEN_READONLY, NULL);
         if (rc != SQLITE_OK) {
             char error_message[1000];
 
-            gint num_bytes = g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
+            g_snprintf(error_message, 1000, "SQLite error: %s", sqlite3_errmsg(data_passer->db));
 
             gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
             gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, error_message);
