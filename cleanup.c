@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include <sqlite3.h>
 #include <headers.h>
+#include <sqlite3.h>
+#include <stdio.h>
 
 /**
  * @file cleanup.c
@@ -15,25 +15,24 @@
  * @see closeup()
  */
 void cleanup(GtkWidget *window, gpointer user_data) {
-    Data_passer *data_passer = (Data_passer *)user_data;
-    g_signal_handler_disconnect(G_OBJECT(data_passer->tree_view_accounts), data_passer->handler);
+	Data_passer *data_passer = (Data_passer *)user_data;
+	g_signal_handler_disconnect(G_OBJECT(data_passer->tree_view_accounts), data_passer->handler);
 
-    sqlite3_close(data_passer->db);
+	sqlite3_close(data_passer->db);
 
-    g_free(data_passer->start_date);
-    g_free(data_passer->end_date);
+	g_free(data_passer->start_date);
+	g_free(data_passer->end_date);
 
+	g_date_time_unref(data_passer->current_date_time);
 
-    g_date_time_unref(data_passer->current_date_time);
+	// g_free(data_passer->settings_passer);
 
-   // g_free(data_passer->settings_passer);
-
-    gtk_tree_store_clear(data_passer->accounts_store);
-    gtk_tree_store_clear(data_passer->reports_store);
-    gtk_tree_path_free(data_passer->fixed_asset_root);
-    gtk_tree_path_free(data_passer->income_root);
-    gtk_tree_path_free(data_passer->expenses_root);
-    g_free(data_passer);
+	gtk_tree_store_clear(data_passer->accounts_store);
+	gtk_tree_store_clear(data_passer->reports_store);
+	gtk_tree_path_free(data_passer->fixed_asset_root);
+	gtk_tree_path_free(data_passer->income_root);
+	gtk_tree_path_free(data_passer->expenses_root);
+	g_free(data_passer);
 }
 
 /**
@@ -43,6 +42,6 @@ void cleanup(GtkWidget *window, gpointer user_data) {
  * @see cleanup()
  */
 void closeup(GtkWidget *button_close, gpointer data) {
-    Data_passer *data_passer = (Data_passer *)data;
-    gtk_widget_destroy(data_passer->window);
+	Data_passer *data_passer = (Data_passer *)data;
+	gtk_widget_destroy(data_passer->window);
 }
