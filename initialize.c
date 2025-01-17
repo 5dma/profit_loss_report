@@ -164,6 +164,8 @@ void read_sqlite_filename_json_object(Data_passer *data_passer) {
 		gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
 		gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Configuration file accounts.json does not exist.");
 		data_passer->error_condition = JSON_PROCESSING_FAILURE;
+		g_print("Configuration file .profit_loss/accounts.json does not exist.\n");
+		exit(-1);
 	}
 	g_free(input_file);
 	// g_object_unref(parser); /* Possible memory leak here. If I unref, I get a seg fault. */

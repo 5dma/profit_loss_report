@@ -6,3 +6,4 @@ GUI_Elements.odg
 .~lock*
 *.swp
 *.o
+.vscode/**
