@@ -143,10 +143,9 @@ void read_sqlite_filename_json_object(Data_passer *data_passer) {
 		if (error) {
 			char error_message[1000];
 			g_snprintf(error_message, 1000, "Unable to parse `%s': %s\n", input_file, error->message);
-			gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
-			gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "No properties in report tree, no save performed");
-			data_passer->error_condition = JSON_PROCESSING_FAILURE;
-			g_error_free(error);
+				g_print(error_message);
+				g_error_free(error);
+				exit(-1);
 		} else {
 			JsonNode *root = json_parser_get_root(parser);
 			data_passer->root_obj = json_node_get_object(root);
@@ -161,9 +160,6 @@ void read_sqlite_filename_json_object(Data_passer *data_passer) {
 		}
 
 	} else {
-		gtk_statusbar_pop(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context);
-		gtk_statusbar_push(GTK_STATUSBAR(data_passer->status_bar), data_passer->status_bar_context, "Configuration file accounts.json does not exist.");
-		data_passer->error_condition = JSON_PROCESSING_FAILURE;
 		g_print("Configuration file .profit_loss/accounts.json does not exist.\n");
 		exit(-1);
 	}

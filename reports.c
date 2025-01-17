@@ -293,6 +293,11 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
 
 	guint len_properties = json_array_get_length(property_array);
 
+	/* If there are no properties, then return immediately. */
+	if (len_properties == 0) {
+		g_print("There are no properties in the configuration file.\n");
+	}
+
 	GtkTreeStore *reports_store = data_passer->reports_store;
 	GtkTreeIter property_iter;
 
@@ -300,12 +305,12 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
 		Loop through the properties object in the JSON file. For each object,
 		add it to the store, and then add the associated income and expense accounts to the store.
 	*/
+	gchar description[1000];
 	for (int i = 0; i < len_properties; i++) {
 		JsonObject *property_object = json_array_get_object_element(property_array, i);
 		gtk_tree_store_append(reports_store, &property_iter, NULL);
 		/* Memory freed below */
 		gchar *guid = g_strdup(json_object_get_string_member(property_object, "guid"));
-		gchar description[1000];
 		get_account_description(guid, description, data_passer);
 		gtk_tree_store_set(reports_store, &property_iter, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
 

@@ -258,7 +258,7 @@ void read_accounts_tree(Data_passer *data_passer) {
 
 	g_list_free_full(iters_to_free, (GDestroyNotify)iter_free);
 
-	/* After populating the report tree, apply sorting. */
+	/* After populating the account tree, apply sorting. */
 	GtkTreeSortable *sortable;
 	sortable = GTK_TREE_SORTABLE(data_passer->accounts_store);
 	gtk_tree_sortable_set_sort_func(sortable, NAME_ACCOUNT, sort_account_iter_compare_func,
