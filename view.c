@@ -44,7 +44,7 @@ GtkWidget *make_window(Data_passer *data_passer) {
 	data_passer->window = window;
 
 	/* Upon destroying the application, call cleanup() to free memory in data passer. */
-	g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(cleanup), data_passer);
+	g_signal_connect(window, "destroy", G_CALLBACK(cleanup), data_passer);
 
 	GtkWidget *lbl_accounts = gtk_label_new("Accounts");
 	GtkWidget *lbl_reports = gtk_label_new("Reports");
@@ -87,22 +87,22 @@ GtkWidget *make_window(Data_passer *data_passer) {
 	gtk_container_add(GTK_CONTAINER(scrolled_window_tree_view_reports), tree_view_reports);
 	gtk_widget_set_size_request(scrolled_window_tree_view_reports, 300, 400);
 
-	data_passer->handler = g_signal_connect(G_OBJECT(tree_view_accounts), "cursor-changed", G_CALLBACK(account_tree_cursor_changed), data_passer);
-	g_signal_connect(G_OBJECT(tree_view_reports), "cursor-changed", G_CALLBACK(reports_tree_cursor_changed), data_passer);
+	data_passer->handler = g_signal_connect(tree_view_accounts, "cursor-changed", G_CALLBACK(account_tree_cursor_changed), data_passer);
+	g_signal_connect(tree_view_reports, "cursor-changed", G_CALLBACK(reports_tree_cursor_changed), data_passer);
 
 	/*
 		GtkTargetEntry target_entries[] = {
 		  {"text/plain", 0, STRING}};
 	   gtk_drag_source_set(tree_view_accounts, GDK_BUTTON1_MASK, target_entries, 1, GDK_ACTION_COPY);
-	  g_signal_connect(G_OBJECT(tree_view_accounts), "drag_begin", G_CALLBACK(on_drag_begin), NULL);
-	  g_signal_connect(G_OBJECT(tree_view_accounts), "drag_data_get", G_CALLBACK(on_drag_data_get), NULL);
-	  g_signal_connect(G_OBJECT(tree_view_accounts), "drag_end", G_CALLBACK(on_drag_end), NULL);
+	  g_signal_connect(tree_view_accounts, "drag_begin", G_CALLBACK(on_drag_begin), NULL);
+	  g_signal_connect(tree_view_accounts, "drag_data_get", G_CALLBACK(on_drag_data_get), NULL);
+	  g_signal_connect(tree_view_accounts, "drag_end", G_CALLBACK(on_drag_end), NULL);
 
 	  gtk_drag_dest_set(tree_view_reports, GTK_DEST_DEFAULT_DROP, target_entries, 1, GDK_ACTION_PRIVATE);
-	  g_signal_connect(G_OBJECT(tree_view_reports), "drag_data_received", G_CALLBACK(on_drag_data_received), NULL);
-	  g_signal_connect(G_OBJECT(tree_view_reports), "drag_drop", G_CALLBACK(on_drag_drop), NULL);
-	  g_signal_connect(G_OBJECT(tree_view_reports), "drag_motion", G_CALLBACK(on_drag_motion), NULL);
-	  g_signal_connect(G_OBJECT(tree_view_reports), "drag_leave", G_CALLBACK(on_drag_leave), NULL); */
+	  g_signal_connect(tree_view_reports, "drag_data_received", G_CALLBACK(on_drag_data_received), NULL);
+	  g_signal_connect(tree_view_reports, "drag_drop", G_CALLBACK(on_drag_drop), NULL);
+	  g_signal_connect(tree_view_reports, "drag_motion", G_CALLBACK(on_drag_motion), NULL);
+	  g_signal_connect(tree_view_reports, "drag_leave", G_CALLBACK(on_drag_leave), NULL); */
 
 	GtkWidget *btn_save = gtk_button_new_from_icon_name("document-save", GTK_ICON_SIZE_BUTTON);
 	GtkWidget *btn_revert = gtk_button_new_from_icon_name("document-revert", GTK_ICON_SIZE_BUTTON);
