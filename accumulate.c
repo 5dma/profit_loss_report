@@ -203,7 +203,7 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 	} else {
 		/* If end date is not null, then use the end date stored in Data_passer. */
 		gchar *bozo = g_utf8_substring(data_passer->end_date, 0, 10);
-		g_stpcpy(&end_date[0], bozo);
+		g_stpcpy(end_date, bozo);
 		g_free(bozo);
 	}
 	fprintf(data_passer->output_file, DATE_RANGE, start_date, &end_date[0]);
