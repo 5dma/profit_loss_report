@@ -175,7 +175,7 @@ void read_sqlite_filename_json_object(Data_passer *data_passer) {
  */
 Data_passer *setup(GApplication *app) {
 	/* Memory freed in cleanup(). */
-	Data_passer *data_passer = g_new(Data_passer, 1);
+	Data_passer *data_passer = g_malloc(sizeof(Data_passer));
 
 	data_passer->db = NULL;
 	data_passer->start_date = NULL;
