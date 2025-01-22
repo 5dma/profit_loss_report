@@ -30,9 +30,14 @@ void cleanup(GtkWidget *window, gpointer user_data) {
 		g_free(data_passer->end_date);
 	}
 
+	if (data_passer->output_file_name != NULL) {
+		g_free(data_passer->output_file_name);
+	}
+
+
 	g_date_time_unref(data_passer->current_date_time);
 
-	// g_free(data_passer->settings_passer);
+	g_free(data_passer->settings_passer);
 
 	gtk_tree_store_clear(data_passer->accounts_store);
 	gtk_tree_store_clear(data_passer->reports_store);
