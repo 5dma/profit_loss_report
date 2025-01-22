@@ -222,7 +222,7 @@ void read_accounts_tree(Data_passer *data_passer) {
 	data_passer->accounts_store = gtk_tree_store_new(COLUMNS_ACCOUNT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
 	/* Memory freed as part of g_list_free_full(), below.  */
-	Iter_passer *iter_passer = g_new(Iter_passer, 1);
+	Iter_passer *iter_passer = g_malloc(sizeof(Iter_passer));
 	iter_passer->db = data_passer->db;
 	iter_passer->number_of_children = 0;
 	iter_passer->accounts_store = data_passer->accounts_store;
@@ -231,9 +231,10 @@ void read_accounts_tree(Data_passer *data_passer) {
 	iter_passer->child = NULL;
 	iter_passer->iters_to_be_freed = NULL;
 	iter_passer->data_passer = data_passer;
+	data_passer->iters_to_be_freed = iter_passer->iters_to_be_freed;
+	
 	iter_passer->iters_to_be_freed = g_list_append(iter_passer->iters_to_be_freed, iter_passer);
 
-	data_passer->iters_to_be_freed = iter_passer->iters_to_be_freed;
 
 	/* Select the following accounts to be at the top level: Fixed assets, income, expenses. The forced sorting ensures the accounts tree starts in this order. */
 	const gchar *sql = "SELECT guid,name,description,parent_guid FROM accounts WHERE guid IN (\"09f67b1fbae223eca818ba617edf1b3c\",  \"bde70db24873e7950e43316a246a8131\", \"420eea01b86f3681273064826ef58c7d\") ORDER BY parent_guid DESC, name DESC;";
