@@ -9,6 +9,7 @@
  * @brief Contains data structures and function prototypes.
  */
 
+#define GUID_LENGTH 40
 /**
  * Structure for passing an iterator to functions and callbacks.
  * \struct Settings_passer

@@ -295,7 +295,8 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
 
 	/* If there are no properties, then return immediately. */
 	if (len_properties == 0) {
-		g_print("There are no properties in the configuration file.\n");
+		g_print("There are no properties in the configuration file. Exiting.\n");
+		exit(-1);
 	}
 
 	GtkTreeStore *reports_store = data_passer->reports_store;
@@ -306,17 +307,17 @@ void read_properties_into_reports_store(Data_passer *data_passer) {
 		add it to the store, and then add the associated income and expense accounts to the store.
 	*/
 	gchar description[1000];
+	gchar guid[GUID_LENGTH];
 	for (int i = 0; i < len_properties; i++) {
 		JsonObject *property_object = json_array_get_object_element(property_array, i);
 		gtk_tree_store_append(reports_store, &property_iter, NULL);
-		/* Memory freed below */
-		gchar *guid = g_strdup(json_object_get_string_member(property_object, "guid"));
+		
+		g_stpcpy (guid, json_object_get_string_member(property_object, "guid"));
 		get_account_description(guid, description, data_passer);
 		gtk_tree_store_set(reports_store, &property_iter, GUID_REPORT, guid, DESCRIPTION_REPORT, description, -1);
 
 		add_accounts(data_passer, property_object, &property_iter, INCOME);
 		add_accounts(data_passer, property_object, &property_iter, EXPENSE);
-		g_free(guid);
 	}
 
 	/* After populating the report tree, apply sorting. */

@@ -37,12 +37,12 @@ void add_accounts(Data_passer *data_passer, JsonObject *property_object, GtkTree
 		guint len_accounts = json_array_get_length(account_array);
 		gchar parent_description[1000];
 		GtkTreeIter account_iter;
+		gchar guid[GUID_LENGTH];
 		for (int i = 0; i < len_accounts; i++) {
-			gchar *guid = strdup(json_array_get_string_element(account_array, i));
+			g_stpcpy(guid, json_array_get_string_element(account_array, i));
 			get_parent_account_description(guid, parent_description, data_passer);
 			gtk_tree_store_append(reports_store, &account_iter, &revenue_expense_iter);
 			gtk_tree_store_set(reports_store, &account_iter, GUID_REPORT, guid, DESCRIPTION_REPORT, parent_description, -1);
-			g_free(guid);
 		}
 	}
 }
@@ -202,7 +202,7 @@ Data_passer *setup(GApplication *app) {
 	/* The following line is here instead of in read_properties_into_reports_store(), because that function is used to load data into the tree store, not to instantiate the tree view. */
 	data_passer->reports_store = gtk_tree_store_new(COLUMNS_REPORT, G_TYPE_STRING, G_TYPE_STRING);
 
-	data_passer->settings_passer = g_new(Settings_passer, 1);
+	data_passer->settings_passer = g_malloc(sizeof(Settings_passer));
 
 	/* gint values representing the current year, month day. Used to set the start and end calendars when
 	   no value is in the config file. */
