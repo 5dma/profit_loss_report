@@ -56,6 +56,7 @@ void set_today_end_date(GtkWidget *button, gpointer user_data) {
 		/* User wants to use today's date. */
 		gtk_widget_set_sensitive(data_passer->settings_passer->end_calendar, FALSE);
 		set_calendar_date(data_passer->settings_passer->end_calendar, NULL, data_passer->settings_passer);
+		data_passer->settings_passer->using_today_date = TRUE;
 		data_passer->end_date = NULL;
 
 	} else {
