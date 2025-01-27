@@ -158,7 +158,7 @@ GtkWidget *make_window(Data_passer *data_passer);
 
 #define SELECT_DESCRIPTION_FROM_PARENT_ACCOUNT "SELECT parent.name FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\";" /**< SQL statement that, for a given guid, retrieves the parent guid's description. See get_parent_account_description(). */
 
-#define SUM_OF_ACCOUNT_ACTIVITY "SELECT COUNT(*), ABS(SUM(CAST(value_num AS REAL)/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date >= \"%s\" AND post_date <= \"%s\";" /**< SQL statement that, for a given guid, retrieves the number of transactions and the subtotal of those transactions. See make_subtotals(). */
+#define SUM_OF_ACCOUNT_ACTIVITY "SELECT COUNT(*), ABS(SUM(CAST(value_num AS REAL)/value_denom)), (SELECT parent.description FROM accounts child JOIN accounts parent ON child.parent_guid = parent.guid WHERE child.guid=\"%s\") FROM splits LEFT JOIN transactions ON tx_guid = transactions.guid WHERE account_guid = \"%s\" AND post_date >= \"%s 00:00:00\" AND post_date <= \"%s 23:59:59\";" /**< SQL statement that, for a given guid, retrieves the number of transactions and the subtotal of those transactions. See make_subtotals(). */
 
 /* String templates for HTML output */
 #define DATE_RANGE "<p class=\"text-center\">For the period %s to %s</p>\n" /**< String template for displaying a date range. See make_pl_report().  */
