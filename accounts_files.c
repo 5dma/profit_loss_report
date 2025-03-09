@@ -100,11 +100,11 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
 		add a row at that root level and store the guid, name, and description.
 	*/
 	if (iter_passer->at_root_level == TRUE) {
-		iter_passer->parent = g_new(GtkTreeIter, 1);
+		iter_passer->parent = g_malloc(sizeof(GtkTreeIter));
 		gtk_tree_store_append(store, iter_passer->parent, NULL);
 		gtk_tree_store_set(store, iter_passer->parent, GUID_ACCOUNT, argv[0], NAME_ACCOUNT, argv[1], DESCRIPTION_ACCOUNT, argv[2], -1);
 	} else {
-		iter_passer->child = g_new(GtkTreeIter, 1);
+		iter_passer->child = g_malloc(sizeof(GtkTreeIter));
 		gtk_tree_store_append(store, iter_passer->child, iter_passer->parent);
 		gtk_tree_store_set(store, iter_passer->child, GUID_ACCOUNT, argv[0], NAME_ACCOUNT, argv[1], DESCRIPTION_ACCOUNT, argv[2], -1);
 	}
@@ -135,7 +135,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
 		g_snprintf(child_sql, 1000, "SELECT guid,name,description,parent_guid FROM accounts WHERE parent_guid = \"%s\";", argv[0]);
 
 		/* Memory freed in read_accounts_tree */
-		Iter_passer *iter_passer_child = g_new(Iter_passer, 1);
+		Iter_passer *iter_passer_child = g_malloc(sizeof(Iter_passer));
 		iter_passer_child->db = iter_passer->db;
 		iter_passer_child->accounts_store = iter_passer->accounts_store;
 		iter_passer_child->number_of_children = 0;
