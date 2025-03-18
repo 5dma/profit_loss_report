@@ -21,26 +21,26 @@ typedef struct RGB {
 } RGB;
 
 typedef struct Page_Layout {
-	int right_margin;
-	int left_margin;
-	int top_margin;
-	int bottom_margin;
-	int height;
-	int width;
+	HPDF_REAL right_margin;
+	HPDF_REAL left_margin;
+	HPDF_REAL top_margin;
+	HPDF_REAL bottom_margin;
+	HPDF_REAL height;
+	HPDF_REAL width;
 	RGB shading[ROW_TYPES];
 	RGB borders;
-	int cell_margin_top;
-	int cell_margin_left;
-	int cell_indent;
-	int row_height;
-	int table_top;
-	int table_width;
-	int text_vertical_offset;
+	HPDF_REAL cell_margin_top;
+	HPDF_REAL cell_margin_left;
+	HPDF_REAL cell_indent;
+	HPDF_REAL row_height;
+	HPDF_REAL table_top;
+	HPDF_REAL table_width;
+	HPDF_REAL text_vertical_offset;
 	float first_column_percent;
-	int first_column_width;
-	int second_column_width;
-	int single_underline_offset;
-	int double_underline_offset;
+	HPDF_REAL first_column_width;
+	HPDF_REAL second_column_width;
+	HPDF_REAL single_underline_offset;
+	HPDF_REAL double_underline_offset;
 } Page_Layout;
 
 
@@ -51,7 +51,6 @@ void draw_row_one_cell (HPDF_Page *page,
 		int row_number,
 		const HPDF_BYTE *text) {
 
-	HPDF_STATUS status;
 	HPDF_Page_SetRGBFill (*page,
 		page_layout->shading[row_type].red,
 		page_layout->shading[row_type].green,
@@ -69,10 +68,10 @@ void draw_row_one_cell (HPDF_Page *page,
 	HPDF_Page_FillStroke (*page);
 
 	HPDF_Page_BeginText (*page);
-    status = HPDF_Page_SetRGBFill (*page, 0, 0, 0);
+    HPDF_Page_SetRGBFill (*page, 0, 0, 0);
     HPDF_Page_SetTextRenderingMode (*page, HPDF_FILL);
     HPDF_Page_SetFontAndSize (*page, *font, 15);
-	status = HPDF_Page_TextRect (*page,
+	HPDF_Page_TextRect (*page,
 		page_layout->left_margin + page_layout->cell_margin_left, 
 		page_layout->table_top - page_layout->row_height * row_number - page_layout->cell_margin_top, 
 		page_layout->left_margin + page_layout->table_width - page_layout->cell_margin_left, 
@@ -91,7 +90,6 @@ void draw_row_two_cells(HPDF_Page *page,
 		const HPDF_BYTE *label,
 		const HPDF_BYTE *amount) {
 
-	HPDF_STATUS status;
 	HPDF_Page_SetRGBFill (*page,
 		page_layout->shading[row_type].red,
 		page_layout->shading[row_type].green,
@@ -115,14 +113,14 @@ void draw_row_two_cells(HPDF_Page *page,
 
 	/* Write text */
 	HPDF_Page_BeginText (*page);
-    status = HPDF_Page_SetRGBFill (*page, 0, 0, 0);
+    HPDF_Page_SetRGBFill (*page, 0, 0, 0);
     HPDF_Page_SetTextRenderingMode (*page, HPDF_FILL);
     HPDF_Page_SetFontAndSize (*page, *font, 15);
 	int left = page_layout->left_margin + page_layout->cell_margin_left; 
 	if (row_type == BODY_INDENT) {
 		left += page_layout->cell_indent;
 	}
-	status = HPDF_Page_TextRect (*page,
+	HPDF_Page_TextRect (*page,
 		left,
 		page_layout->table_top - page_layout->row_height * row_number - page_layout->cell_margin_top, 
 		page_layout->left_margin + page_layout->table_width - page_layout->cell_margin_left, 
@@ -130,7 +128,7 @@ void draw_row_two_cells(HPDF_Page *page,
 				(char *)label,
 				HPDF_TALIGN_LEFT,
 				NULL); 
-	status = HPDF_Page_TextRect (*page,
+	HPDF_Page_TextRect (*page,
 		left,
 		page_layout->table_top - page_layout->row_height * row_number - page_layout->cell_margin_top, 
 		page_layout->left_margin + page_layout->table_width - page_layout->cell_margin_left, 
@@ -164,7 +162,6 @@ void print_row(enum Row_Type row_type,
 	HPDF_Font *font,
 	HPDF_BYTE *label,
 	HPDF_BYTE *amount) {
-	HPDF_STATUS status;
 	/* Draw rectangle with shading */
 	if (row_type == HEADING) {
 		draw_row_one_cell (page, page_layout, font, row_type, row_number, label);
@@ -175,7 +172,6 @@ void print_row(enum Row_Type row_type,
 } 
 
 int main(int argc, char *argv[]) {
-	HPDF_STATUS status;
 	Page_Layout page_layout;
 	page_layout.right_margin = 72;
 	page_layout.left_margin = 72;
@@ -227,36 +223,53 @@ int main(int argc, char *argv[]) {
     }
 
 
-	HPDF_Font DVS = HPDF_GetFont (pdf, "Helvetica", NULL);
-    if (!DVS) {
+	HPDF_Font font = HPDF_GetFont (pdf, "Helvetica", NULL);
+    if (!font) {
         printf ("error: cannot create a font object\n");
         return 1;
     }
 
+	/* Cover page */
+	
+ 	HPDF_Page title = HPDF_AddPage (pdf);
+	HPDF_Page_SetSize (title, HPDF_PAGE_SIZE_LETTER, HPDF_PAGE_PORTRAIT);
+
+	HPDF_Page_BeginText (title);
+    HPDF_Page_SetRGBFill (title, 0, 0, 0);
+    HPDF_Page_SetTextRenderingMode (title, HPDF_FILL);
+    HPDF_Page_SetFontAndSize (title, font, 35);
+	HPDF_Page_TextRect (title,
+		page_layout.left_margin, 
+		page_layout.table_top, 
+		page_layout.width - page_layout.right_margin, 
+		300,
+				"Profit and Loss, Rentals",
+				HPDF_TALIGN_CENTER,
+				NULL); 
+    HPDF_Page_EndText (title); 
+
  	HPDF_Page page_1 = HPDF_AddPage (pdf);
 	HPDF_Page_SetSize (page_1, HPDF_PAGE_SIZE_LETTER, HPDF_PAGE_PORTRAIT);
-
-
 	/* Heading */
 	HPDF_Page_BeginText (page_1);
-    status = HPDF_Page_SetRGBFill (page_1, 0, 0, 0);
+    HPDF_Page_SetRGBFill (page_1, 0, 0, 0);
     HPDF_Page_SetTextRenderingMode (page_1, HPDF_FILL);
-    HPDF_Page_SetFontAndSize (page_1, DVS, 15);
+    HPDF_Page_SetFontAndSize (page_1, font, 15);
     HPDF_Page_TextOut (page_1, 
 		page_layout.left_margin, 
 		page_layout.height - page_layout.top_margin, 
 		"12202 Main Street, Bethesda MD 20852");
     HPDF_Page_EndText (page_1);
-	print_row(HEADING, 0, &page_layout, &page_1, &DVS, (HPDF_BYTE *)"Income", NULL);
-	print_row(BODY_INDENT, 1, &page_layout, &page_1, &DVS, (HPDF_BYTE *)"Rents", (HPDF_BYTE *)"19,300");
-	print_row(SUBTOTAL, 2, &page_layout, &page_1, &DVS, (HPDF_BYTE *)"Total income", (HPDF_BYTE *)"19,300");
-	print_row(FOOTER, 3, &page_layout, &page_1, &DVS, (HPDF_BYTE *)"Net income", (HPDF_BYTE *)"29,300");
+	print_row(HEADING, 0, &page_layout, &page_1, &font, (HPDF_BYTE *)"Income", NULL);
+	print_row(BODY_INDENT, 1, &page_layout, &page_1, &font, (HPDF_BYTE *)"Rents", (HPDF_BYTE *)"19,300");
+	print_row(SUBTOTAL, 2, &page_layout, &page_1, &font, (HPDF_BYTE *)"Total income", (HPDF_BYTE *)"19,300");
+	print_row(FOOTER, 3, &page_layout, &page_1, &font, (HPDF_BYTE *)"Net income", (HPDF_BYTE *)"29,300");
 
 	HPDF_Outline outline[1];
 	HPDF_Outline root = HPDF_CreateOutline(pdf, NULL,"PL Report",NULL);
     HPDF_Outline_SetOpened (root, HPDF_TRUE);
 
-	outline[0] = HPDF_CreateOutline (pdf, root, "page1", NULL);
+	outline[0] = HPDF_CreateOutline (pdf, root, "12202", NULL);
 	HPDF_Destination dst = HPDF_Page_CreateDestination (page_1);
 	HPDF_Destination_SetXYZ(dst, 0, HPDF_Page_GetHeight(page_1), 1);
 	HPDF_Outline_SetDestination(outline[0], dst);
