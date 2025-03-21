@@ -218,7 +218,7 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 
 	/* Create PDF */
 	data_passer->page_layout = configure_pdf_layout();
-	data_passer->pdf = instantiate_pdf();
+	data_passer->pdf = instantiate_pdf(hpdf_error_handler, NULL);
 	data_passer->pdf_font = configure_pdf_font(data_passer->pdf);
 
 	/* Extract printer-friendly start and end dates, send to output. */

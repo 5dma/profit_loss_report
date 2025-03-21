@@ -1,9 +1,9 @@
 #include <glib-2.0/glib.h>
 #include <gtk/gtk.h>
+#include <hpdf.h>
 #include <json-glib/json-glib.h>
 #include <sqlite3.h>
 #include <stdio.h>
-#include <hpdf.h>
 
 /**
  * @file headers.h
@@ -33,9 +33,13 @@ typedef struct RGB {
 	float blue;
 } RGB;
 
-
-enum Row_Type{TEXT_COLOR,HEADING, BODY, BODY_INDENT, SUBTOTAL, FOOTER, ROW_TYPES};
-
+enum Row_Type { TEXT_COLOR,
+				HEADING,
+				BODY,
+				BODY_INDENT,
+				SUBTOTAL,
+				FOOTER,
+				ROW_TYPES };
 
 typedef struct Page_Layout {
 	HPDF_REAL right_margin;
@@ -59,7 +63,6 @@ typedef struct Page_Layout {
 	HPDF_REAL single_underline_offset;
 	HPDF_REAL double_underline_offset;
 } Page_Layout;
-
 
 /**
  * Structure for passing data to functions and callbacks.
@@ -96,13 +99,12 @@ typedef struct {
 	Settings_passer *settings_passer; /**< Pointer to a struct Settings_passer. */
 	GDateTime *current_date_time; /**< Pointer to current date and time. Calendars are set to this date if no start date or end date appear in the configuration file. In future, will be used to print run date on report. */
 	Page_Layout *page_layout; /**< Pointer to structure configuring the PDF page layout. */
- 	HPDF_Doc *pdf; /**< Pointer to the PDF. */
+	HPDF_Doc *pdf; /**< Pointer to the PDF. */
 	HPDF_Font *pdf_font; /**< Pointer to the PDF's font. */
 	unsigned int pdf_page_number; /**< Stores the current row number in a PDF page's P&L table. */
 	GSList *pdf_pages; /**< List of pages added to the pdf. */
 	guint pdf_current_row_number;
 } Data_passer;
-
 
 /**
  * Structure for passing an iterator to functions and callbacks.
@@ -118,7 +120,6 @@ typedef struct {
 	GList *iters_to_be_freed; /**< List of iters that need to be freed after they are created in read_accounts_tree() and build_tree(). */
 	Data_passer *data_passer; /**< Pointer to the Data_passer */
 } Iter_passer;
-
 
 void make_pl_report(GtkButton *button, gpointer user_data);
 void cleanup(GtkWidget *window, gpointer user_data);
@@ -215,10 +216,9 @@ GtkWidget *make_window(Data_passer *data_passer);
 #define START_DATE_SUFFIX " 00:00:00" /**< Suffix appended to the date of a selected start date. See save_date(). */
 #define END_DATE_SUFFIX " 23:59:59" /**< Suffix appended to the date of a selected end date. See save_date(). */
 
-
 HPDF_Doc *instantiate_pdf();
 Page_Layout *configure_pdf_layout();
-void hpdf_error_handler (HPDF_STATUS error_no, HPDF_STATUS detail_no, void *user_data);
+void hpdf_error_handler(HPDF_STATUS error_no, HPDF_STATUS detail_no, void *user_data);
 HPDF_Font *configure_pdf_font(HPDF_Doc *pdf);
 void add_heading_to_pdf(Data_passer *data_passer, char *description);
 void create_pdf_title_page(Data_passer *data_passer,
@@ -231,3 +231,6 @@ void draw_row_two_cells(Data_passer *data_passer,
 						enum Row_Type row_type,
 						const HPDF_BYTE *label,
 						const HPDF_BYTE *amount);
+void hpdf_error_handler(HPDF_STATUS error_no,
+						HPDF_STATUS detail_no,
+						void *user_data);

@@ -44,7 +44,7 @@ void draw_row_one_cell(Data_passer *data_passer,
 					   HPDF_TALIGN_LEFT,
 					   NULL);
 	HPDF_Page_EndText(*page);
-	(data_passer->pdf_current_row_number)++;
+	data_passer->pdf_current_row_number++;
 }
 
 void draw_row_two_cells(Data_passer *data_passer,
@@ -117,7 +117,7 @@ void draw_row_two_cells(Data_passer *data_passer,
 			HPDF_Page_Stroke(*page);
 		}
 	}
-	(data_passer->pdf_current_row_number)++;
+	data_passer->pdf_current_row_number++;
 }
 
 /* void print_pdf_row(enum Row_Type row_type,
@@ -236,7 +236,7 @@ void create_pdf_title_page(Data_passer *data_passer,
 					   NULL);
 
 	HPDF_Page_EndText(*title_page);
-	g_slist_append(data_passer->pdf_pages, title_page);
+	data_passer->pdf_pages = g_slist_append(data_passer->pdf_pages, title_page);
 	data_passer->pdf_current_row_number = 0;
 }
 
@@ -254,7 +254,7 @@ void add_heading_to_pdf(Data_passer *data_passer,
 					  data_passer->page_layout->height - data_passer->page_layout->top_margin,
 					  description);
 	HPDF_Page_EndText(*page);
-	g_slist_append(data_passer->pdf_pages, page);
+	data_passer->pdf_pages = g_slist_append(data_passer->pdf_pages, page);
 }
 /*
 void add_property_to_pdf(Data_passer *data_passer,
