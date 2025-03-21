@@ -3,6 +3,7 @@
 #include <json-glib/json-glib.h>
 #include <sqlite3.h>
 #include <stdio.h>
+#include <hpdf.h>
 
 /**
  * @file headers.h
@@ -25,6 +26,40 @@ typedef struct {
 	gint current_day; /**< Holds the current day. */
 	gboolean using_today_date; /**< Indicates user is using today's date. Required to manage appearance of end date calendar and checkbox. */
 } Settings_passer;
+
+typedef struct RGB {
+	float red;
+	float green;
+	float blue;
+} RGB;
+
+
+enum Row_Type{TEXT_COLOR,HEADING, BODY, BODY_INDENT, SUBTOTAL, FOOTER, ROW_TYPES};
+
+
+typedef struct Page_Layout {
+	HPDF_REAL right_margin;
+	HPDF_REAL left_margin;
+	HPDF_REAL top_margin;
+	HPDF_REAL bottom_margin;
+	HPDF_REAL height;
+	HPDF_REAL width;
+	RGB shading[ROW_TYPES];
+	RGB borders;
+	HPDF_REAL cell_margin_top;
+	HPDF_REAL cell_margin_left;
+	HPDF_REAL cell_indent;
+	HPDF_REAL row_height;
+	HPDF_REAL table_top;
+	HPDF_REAL table_width;
+	HPDF_REAL text_vertical_offset;
+	float first_column_percent;
+	HPDF_REAL first_column_width;
+	HPDF_REAL second_column_width;
+	HPDF_REAL single_underline_offset;
+	HPDF_REAL double_underline_offset;
+} Page_Layout;
+
 
 /**
  * Structure for passing data to functions and callbacks.
@@ -60,7 +95,14 @@ typedef struct {
 	JsonObject *root_obj; /**< Pointer to the root JSON object in the file accounts.json. */
 	Settings_passer *settings_passer; /**< Pointer to a struct Settings_passer. */
 	GDateTime *current_date_time; /**< Pointer to current date and time. Calendars are set to this date if no start date or end date appear in the configuration file. In future, will be used to print run date on report. */
+	Page_Layout *page_layout; /**< Pointer to structure configuring the PDF page layout. */
+ 	HPDF_Doc *pdf; /**< Pointer to the PDF. */
+	HPDF_Font *pdf_font; /**< Pointer to the PDF's font. */
+	unsigned int pdf_page_number; /**< Stores the current row number in a PDF page's P&L table. */
+	GSList *pdf_pages; /**< List of pages added to the pdf. */
+	guint pdf_current_row_number;
 } Data_passer;
+
 
 /**
  * Structure for passing an iterator to functions and callbacks.
@@ -77,7 +119,6 @@ typedef struct {
 	Data_passer *data_passer; /**< Pointer to the Data_passer */
 } Iter_passer;
 
-Data_passer *setup();
 
 void make_pl_report(GtkButton *button, gpointer user_data);
 void cleanup(GtkWidget *window, gpointer user_data);
@@ -173,3 +214,20 @@ GtkWidget *make_window(Data_passer *data_passer);
 
 #define START_DATE_SUFFIX " 00:00:00" /**< Suffix appended to the date of a selected start date. See save_date(). */
 #define END_DATE_SUFFIX " 23:59:59" /**< Suffix appended to the date of a selected end date. See save_date(). */
+
+
+HPDF_Doc *instantiate_pdf();
+Page_Layout *configure_pdf_layout();
+void hpdf_error_handler (HPDF_STATUS error_no, HPDF_STATUS detail_no, void *user_data);
+HPDF_Font *configure_pdf_font(HPDF_Doc *pdf);
+void add_heading_to_pdf(Data_passer *data_passer, char *description);
+void create_pdf_title_page(Data_passer *data_passer,
+						   char *start_date,
+						   char *end_date);
+void draw_row_one_cell(Data_passer *data_passer,
+					   enum Row_Type row_type,
+					   const HPDF_BYTE *text);
+void draw_row_two_cells(Data_passer *data_passer,
+						enum Row_Type row_type,
+						const HPDF_BYTE *label,
+						const HPDF_BYTE *amount);

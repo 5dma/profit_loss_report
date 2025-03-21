@@ -84,6 +84,11 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
 
 	gchar *formatted_subtotal = comma_formatted_amount(subtotal);
 	fprintf(data_passer->output_file, ACCOUNT_REPORT, description, formatted_subtotal);
+	draw_row_two_cells(data_passer,
+							BODY_INDENT,
+							(HPDF_BYTE *)description,
+							(HPDF_BYTE *)formatted_subtotal);
+
 	g_free(formatted_subtotal);
 
 	g_free(description);
@@ -91,7 +96,7 @@ void make_subtotals(GtkTreeIter income_expense_iter, Data_passer *data_passer) {
 }
 
 /**
- * Outputs a P&L report for each asset in the reports tree.
+ * Outputs two P&L reports for each asset in the reports tree. One report is in HTML format, the other in PDF format.
  *
  * @param data_passer Pointer to a Data_passer struct.
  */
@@ -116,8 +121,11 @@ void make_property_report(Data_passer *data_passer) {
 		data_passer->total_expenses = 0;
 		gtk_tree_model_get(tree_model, &report_store_top_iter, DESCRIPTION_REPORT, &description, -1);
 		fprintf(data_passer->output_file, PROPERTY_HEADER, description);
+		add_heading_to_pdf(data_passer, description);
 
 		fputs(INCOME_HEADER, data_passer->output_file);
+		draw_row_one_cell(data_passer, HEADING, (HPDF_BYTE *)"Income");
+
 		data_passer->subtotaling_revenues = TRUE;
 
 		/* print the revenue entries for the current property. */
@@ -138,9 +146,16 @@ void make_property_report(Data_passer *data_passer) {
 
 		gchar *formatted_income_total = comma_formatted_amount(data_passer->total_revenues);
 		fprintf(data_passer->output_file, INCOME_TOTAL, formatted_income_total);
+		draw_row_two_cells(data_passer,
+								SUBTOTAL,
+								(HPDF_BYTE *)"Total income",
+								(HPDF_BYTE *)formatted_income_total);
+
 		g_free(formatted_income_total);
 
 		fputs(EXPENSE_HEADER, data_passer->output_file);
+		draw_row_one_cell(data_passer, HEADING, (HPDF_BYTE *)"Expenses");
+
 		data_passer->subtotaling_revenues = FALSE;
 		gboolean found_expenses_header = gtk_tree_model_iter_nth_child(tree_model, &income_expense_iter, &report_store_top_iter, EXPENSE);
 		if (found_expenses_header) {
@@ -154,10 +169,21 @@ void make_property_report(Data_passer *data_passer) {
 		}
 		gchar *formatted_expense_total = comma_formatted_amount(data_passer->total_expenses);
 		fprintf(data_passer->output_file, EXPENSE_TOTAL, formatted_expense_total);
+		draw_row_two_cells(data_passer,
+								SUBTOTAL,
+								(HPDF_BYTE *)"Total expenses",
+								(HPDF_BYTE *)formatted_expense_total);
+
 		g_free(formatted_expense_total);
 
 		gchar *formatted_net_income_total = comma_formatted_amount(data_passer->total_revenues - data_passer->total_expenses);
 		fprintf(data_passer->output_file, NET_INCOME, formatted_net_income_total);
+
+		draw_row_two_cells(data_passer,
+								FOOTER,
+								(HPDF_BYTE *)"Net income",
+								(HPDF_BYTE *)formatted_net_income_total);
+
 		g_free(formatted_net_income_total);
 
 		fputs("</table>\n", data_passer->output_file);
@@ -190,6 +216,11 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 	fputs(report_start, data_passer->output_file);
 	fputs(report_heading, data_passer->output_file);
 
+	/* Create PDF */
+	data_passer->page_layout = configure_pdf_layout();
+	data_passer->pdf = instantiate_pdf();
+	data_passer->pdf_font = configure_pdf_font(data_passer->pdf);
+
 	/* Extract printer-friendly start and end dates, send to output. */
 	gchar *start_date = g_utf8_substring(data_passer->start_date, 0, 10);
 	gchar end_date[100];
@@ -207,6 +238,9 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 		g_free(bozo);
 	}
 	fprintf(data_passer->output_file, DATE_RANGE, start_date, &end_date[0]);
+
+	create_pdf_title_page(data_passer, start_date, end_date);
+
 	g_free(start_date);
 
 	make_property_report(data_passer);
@@ -214,4 +248,7 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 	fputs(report_end, data_passer->output_file);
 
 	fclose(data_passer->output_file);
+
+	HPDF_SaveToFile(*(data_passer->pdf), "/tmp/profit_loss.pdf");
+	HPDF_Free(*(data_passer->pdf));
 }
