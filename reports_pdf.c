@@ -217,7 +217,7 @@ void create_pdf_title_page(Data_passer *data_passer,
 	HPDF_Page_BeginText(*title_page);
 	HPDF_Page_SetRGBFill(*title_page, 0, 0, 0);
 	HPDF_Page_SetTextRenderingMode(*title_page, HPDF_FILL);
-	HPDF_Page_SetFontAndSize(*title_page, *(data_passer->pdf_font), 35);
+	HPDF_Page_SetFontAndSize(*title_page, *(data_passer->pdf_font), 25);
 	HPDF_Page_TextRect(*title_page,
 					   page_layout->left_margin,
 					   page_layout->table_top,
@@ -226,9 +226,10 @@ void create_pdf_title_page(Data_passer *data_passer,
 					   "Profit and Loss, Rentals",
 					   HPDF_TALIGN_CENTER,
 					   NULL);
+	HPDF_Page_SetFontAndSize(*title_page, *(data_passer->pdf_font), 15);
 	HPDF_Page_TextRect(*title_page,
 					   page_layout->left_margin,
-					   page_layout->table_top + 100,
+					   page_layout->table_top - 50,
 					   page_layout->width - page_layout->right_margin,
 					   300,
 					   date_string,

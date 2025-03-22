@@ -248,7 +248,6 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 	fputs(report_end, data_passer->output_file);
 
 	fclose(data_passer->output_file);
-
 	HPDF_SaveToFile(*(data_passer->pdf), "/tmp/profit_loss.pdf");
 	HPDF_Free(*(data_passer->pdf));
 }
