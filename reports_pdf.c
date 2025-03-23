@@ -244,7 +244,6 @@ void create_pdf_title_page(Data_passer *data_passer,
 
 	HPDF_Page_EndText(*title_page);
 	data_passer->pdf_pages = g_slist_append(data_passer->pdf_pages, title_page);
-	data_passer->pdf_current_row_number = 0;
 }
 
 void add_heading_to_pdf(Data_passer *data_passer,
@@ -262,6 +261,7 @@ void add_heading_to_pdf(Data_passer *data_passer,
 					  description);
 	HPDF_Page_EndText(*page);
 	data_passer->pdf_pages = g_slist_append(data_passer->pdf_pages, page);
+	data_passer->pdf_current_row_number = 0;
 }
 /*
 void add_property_to_pdf(Data_passer *data_passer,
