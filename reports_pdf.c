@@ -244,6 +244,12 @@ void create_pdf_title_page(Data_passer *data_passer,
 
 	HPDF_Page_EndText(*title_page);
 	data_passer->pdf_pages = g_slist_append(data_passer->pdf_pages, title_page);
+
+	data_passer->pdf_outline_root = (HPDF_Outline *)g_malloc(sizeof(HPDF_Outline));
+
+	*data_passer->pdf_outline_root = HPDF_CreateOutline(*data_passer->pdf, NULL,"P&L Report",NULL);
+	HPDF_Outline_SetOpened (*data_passer->pdf_outline_root, HPDF_TRUE);
+	
 }
 
 void add_heading_to_pdf(Data_passer *data_passer,
@@ -262,22 +268,11 @@ void add_heading_to_pdf(Data_passer *data_passer,
 	HPDF_Page_EndText(*page);
 	data_passer->pdf_pages = g_slist_append(data_passer->pdf_pages, page);
 	data_passer->pdf_current_row_number = 0;
+
+	HPDF_Outline *outline = (HPDF_Outline *)g_malloc(sizeof(HPDF_Outline));
+	*outline = HPDF_CreateOutline (*data_passer->pdf, *data_passer->pdf_outline_root, description, NULL);
+	HPDF_Destination dst = HPDF_Page_CreateDestination (*page);
+	HPDF_Destination_SetXYZ(dst, 0, HPDF_Page_GetHeight(*page), 1);
+	HPDF_Outline_SetDestination(*outline, dst);
+	data_passer->pdf_outline = g_slist_append(data_passer->pdf_outline, outline); 
 }
-/*
-void add_property_to_pdf(Data_passer *data_passer,
-						 Page_Layout *page_layout,
-						 char *description) {
-	print_row(HEADING, 0, page_layout, &page_1, data_passer->pdf_font, (HPDF_BYTE *)"Income", NULL);
-	print_row(BODY_INDENT, 1, page_layout, &page_1, data_passer->pdf_font, (HPDF_BYTE *)"Rents", (HPDF_BYTE *)"19,300");
-	print_row(SUBTOTAL, 2, &page_layout, &page_1, data_passer->pdf_font, (HPDF_BYTE *)"Total income", (HPDF_BYTE *)"19,300");
-	print_row(FOOTER, 3, &page_layout, &page_1, data_passer->pdf_font, (HPDF_BYTE *)"Net income", (HPDF_BYTE *)"29,300");
-
-	//HPDF_Outline outline[1];
-	HPDF_Outline root = HPDF_CreateOutline(pdf, NULL,"PL Report",NULL);
-	HPDF_Outline_SetOpened (root, HPDF_TRUE);
-
-	outline[0] = HPDF_CreateOutline (pdf, root, "12202", NULL);
-	HPDF_Destination dst = HPDF_Page_CreateDestination (page_1);
-	HPDF_Destination_SetXYZ(dst, 0, HPDF_Page_GetHeight(page_1), 1);
-	HPDF_Outline_SetDestination(outline[0], dst); 
-}*/

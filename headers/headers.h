@@ -104,6 +104,8 @@ typedef struct {
 	unsigned int pdf_page_number; /**< Stores the current row number in a PDF page's P&L table. */
 	GSList *pdf_pages; /**< List of pages added to the pdf. */
 	guint pdf_current_row_number;
+	HPDF_Outline *pdf_outline_root; /**< Stores the root of the PDF's outline. */
+	GSList *pdf_outline; /**< List of PDF's bookmarks (outline). */
 } Data_passer;
 
 /**
@@ -121,6 +123,8 @@ typedef struct {
 	Data_passer *data_passer; /**< Pointer to the Data_passer */
 } Iter_passer;
 
+
+Data_passer *setup(GApplication *app);
 void make_pl_report(GtkButton *button, gpointer user_data);
 void cleanup(GtkWidget *window, gpointer user_data);
 void read_accounts_tree(Data_passer *data_passer);
