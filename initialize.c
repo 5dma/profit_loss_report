@@ -198,6 +198,12 @@ Data_passer *setup(GApplication *app) {
 	data_passer->error_condition = NONE;
 	data_passer->root_obj = NULL;
 	data_passer->current_date_time = g_date_time_new_now_local();
+	data_passer->page_layout = NULL;
+	data_passer->pdf = NULL; 
+	data_passer->pdf_font = NULL;
+	data_passer->pdf_page_number = 0;
+	data_passer->pdf_pages = NULL;
+	data_passer->pdf_current_row_number = 0;
 
 	/* The following line is here instead of in read_properties_into_reports_store(), because that function is used to load data into the tree store, not to instantiate the tree view. */
 	data_passer->reports_store = gtk_tree_store_new(COLUMNS_REPORT, G_TYPE_STRING, G_TYPE_STRING);

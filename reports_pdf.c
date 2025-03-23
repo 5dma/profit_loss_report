@@ -14,7 +14,10 @@ void draw_row_one_cell(Data_passer *data_passer,
 					   enum Row_Type row_type,
 					   const HPDF_BYTE *text) {
 	Page_Layout *page_layout = data_passer->page_layout;
-	HPDF_Page *page = (HPDF_Page *)g_slist_last(data_passer->pdf_pages);
+	
+	guint list_length = g_slist_length (data_passer->pdf_pages);
+	HPDF_Page *page = (HPDF_Page *)	g_slist_nth_data (data_passer->pdf_pages, list_length - 1);
+	
 	HPDF_Page_SetRGBFill(*page,
 						 page_layout->shading[row_type].red,
 						 page_layout->shading[row_type].green,
@@ -51,7 +54,10 @@ void draw_row_two_cells(Data_passer *data_passer,
 						enum Row_Type row_type,
 						const HPDF_BYTE *label,
 						const HPDF_BYTE *amount) {
-	HPDF_Page *page = (HPDF_Page *)g_slist_last(data_passer->pdf_pages);
+
+	guint list_length = g_slist_length (data_passer->pdf_pages);
+	HPDF_Page *page = (HPDF_Page *)	g_slist_nth_data (data_passer->pdf_pages, list_length - 1);
+							
 	Page_Layout *page_layout = data_passer->page_layout;
 
 	HPDF_Page_SetRGBFill(*page,
