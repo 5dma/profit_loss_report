@@ -7,3 +7,4 @@ GUI_Elements.odg
 *.swp
 *.o
 .vscode/**
+*.bak
