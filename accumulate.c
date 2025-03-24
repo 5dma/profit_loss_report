@@ -217,7 +217,7 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 	fputs(report_heading, data_passer->output_file);
 
 	/* Create PDF */
-	data_passer->page_layout = configure_pdf_layout();
+
 	data_passer->pdf = instantiate_pdf(hpdf_error_handler, NULL);
 	data_passer->pdf_font = configure_pdf_font(data_passer->pdf);
 
@@ -248,6 +248,12 @@ void make_pl_report(GtkButton *button, gpointer user_data) {
 	fputs(report_end, data_passer->output_file);
 
 	fclose(data_passer->output_file);
+
 	HPDF_SaveToFile(*(data_passer->pdf), "/tmp/profit_loss.pdf");
-	HPDF_Free(*(data_passer->pdf));
+	g_slist_free_full (data_passer->pdf_pages, free_pdf_pages);
+	g_slist_free_full (data_passer->pdf_outline, free_pdf_outline);
+	g_free(data_passer->pdf_font);
+	g_free(data_passer->pdf_outline_root);
+	HPDF_Free(*data_passer->pdf);
+	g_free(data_passer->pdf);
 }

@@ -8,6 +8,15 @@
  *
  */
 
+void free_pdf_pages(gpointer data) {
+	g_free((HPDF_Page *)data);
+}
+
+void free_pdf_outline(gpointer data) {
+	g_free((HPDF_Outline *)data);
+}
+
+
 /**
  * Gtk callback fired when clicking the exit button or destroying the main window. This function frees memory allocated to Data_passer.
  * @param window Pointer to the application window.
@@ -44,6 +53,10 @@ void cleanup(GtkWidget *window, gpointer user_data) {
 	gtk_tree_path_free(data_passer->fixed_asset_root);
 	gtk_tree_path_free(data_passer->income_root);
 	gtk_tree_path_free(data_passer->expenses_root);
+
+	g_free(data_passer->page_layout);
+
+	
 	g_free(data_passer);
 }
 

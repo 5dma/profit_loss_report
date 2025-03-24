@@ -123,7 +123,6 @@ typedef struct {
 	Data_passer *data_passer; /**< Pointer to the Data_passer */
 } Iter_passer;
 
-
 Data_passer *setup(GApplication *app);
 void make_pl_report(GtkButton *button, gpointer user_data);
 void cleanup(GtkWidget *window, gpointer user_data);
@@ -238,3 +237,6 @@ void draw_row_two_cells(Data_passer *data_passer,
 void hpdf_error_handler(HPDF_STATUS error_no,
 						HPDF_STATUS detail_no,
 						void *user_data);
+
+void free_pdf_pages(gpointer data);
+void free_pdf_outline(gpointer data);
