@@ -8,14 +8,21 @@
  *
  */
 
+/**
+ * Gtk callback from a function g_slist_free_full for freeing the list of PDF pages.
+ * @param data Generic pointer pointing to an `HPDF_Page`.
+ */
 void free_pdf_pages(gpointer data) {
 	g_free((HPDF_Page *)data);
 }
 
+/**
+ * Gtk callback from a function g_slist_free_full for freeing the list of PDF bookmarks.
+ * @param data Generic pointer pointing to an `HPDF_Outline`.
+ */
 void free_pdf_outline(gpointer data) {
 	g_free((HPDF_Outline *)data);
 }
-
 
 /**
  * Gtk callback fired when clicking the exit button or destroying the main window. This function frees memory allocated to Data_passer.

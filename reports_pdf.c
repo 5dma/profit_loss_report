@@ -4,12 +4,26 @@
 #include <stdio.h>
 #include <string.h>
 
+/**
+ * Prints the error from a libharu exception.
+ *
+ * @param error_no Error number passed from the Haru library.
+ * @param detail_no Error description passed from the Haru library.
+ * @param user_data `NULL` in this case.
+ */
 void hpdf_error_handler(HPDF_STATUS error_no,
 						HPDF_STATUS detail_no,
 						void *user_data) {
 	printf("ERROR: error_no=%04X, detail_no=%u\n", (HPDF_UINT)error_no, (HPDF_UINT)detail_no);
 }
 
+/**
+ * Draws a table row with one cell in the PDF output.
+ *
+ * @param data_passer Pointer to a Data_passer struct.
+ * @param row_type Indicates type of row being drawn. @see Row_Type.
+ * @param text Text printed in the cell.
+ */
 void draw_row_one_cell(Data_passer *data_passer,
 					   enum Row_Type row_type,
 					   const HPDF_BYTE *text) {
@@ -50,6 +64,14 @@ void draw_row_one_cell(Data_passer *data_passer,
 	data_passer->pdf_current_row_number++;
 }
 
+/**
+ * Draws a table row with two cells in the PDF output.
+ *
+ * @param data_passer Pointer to a Data_passer struct.
+ * @param row_type Indicates type of row being drawn. @see Row_Type.
+ * @param label Text printed in the first cell.
+ * @param amount Text printed in the second cell.
+ */
 void draw_row_two_cells(Data_passer *data_passer,
 						enum Row_Type row_type,
 						const HPDF_BYTE *label,
@@ -126,21 +148,12 @@ void draw_row_two_cells(Data_passer *data_passer,
 	data_passer->pdf_current_row_number++;
 }
 
-/* void print_pdf_row(enum Row_Type row_type,
-				   int row_number,
-				   Page_Layout *page_layout,
-				   HPDF_Page *page,
-				   HPDF_Font *font,
-				   HPDF_BYTE *label,
-				   HPDF_BYTE *amount) {
-	// Draw rectangle with shading 
-	if (row_type == HEADING) {
-		draw_row_one_cell(page, page_layout, font, row_type, row_number, label);
-	} else {
-		draw_row_two_cells(page, page_layout, font, row_type, row_number, label, amount);
-	}
-} */
 
+/**
+ * Instantiates a structure for configuring a PDF page's layout.
+ *
+ * @return Pointer to the structure.
+ */
 Page_Layout *configure_pdf_layout() {
 	Page_Layout *page_layout = g_malloc(sizeof(Page_Layout));
 	page_layout->right_margin = 72;
@@ -176,7 +189,6 @@ Page_Layout *configure_pdf_layout() {
 	page_layout->cell_indent = 6;
 	page_layout->row_height = 30;
 	page_layout->table_top = 650;
-	page_layout->text_vertical_offset = -7;
 	page_layout->table_width = round(page_layout->width / 2.0);
 	page_layout->first_column_percent = 0.70;
 	page_layout->first_column_width = round(page_layout->table_width * page_layout->first_column_percent);
@@ -188,6 +200,11 @@ Page_Layout *configure_pdf_layout() {
 	return page_layout;
 }
 
+/**
+ * Instantiates a PDF document using the Haru library.
+ *
+ * @return Pointer to the instantiated document.
+ */
 HPDF_Doc *instantiate_pdf() {
 	HPDF_Doc *pdf = (HPDF_Doc *)g_malloc(sizeof(HPDF_Doc));
 	*pdf = HPDF_New(hpdf_error_handler, NULL);
@@ -197,6 +214,12 @@ HPDF_Doc *instantiate_pdf() {
 	return pdf;
 }
 
+/**
+ * Instantiates a font for a PDF document.
+ *
+ * @param pdf Pointer to an `HPDF_Doc`.
+ * @return Pointer to the instantiated font.
+ */
 HPDF_Font *configure_pdf_font(HPDF_Doc *pdf) {
 	HPDF_Font *font = (HPDF_Font *)g_malloc(sizeof(HPDF_Font));
 
@@ -207,8 +230,13 @@ HPDF_Font *configure_pdf_font(HPDF_Doc *pdf) {
 	return font;
 }
 
-/* Cover page */
-
+/**
+ * Creates a title page for the  PDF document.
+ *
+ * @param data_passer Pointer to a Data_passer struct.
+ * @param start_date String for the report's starting date.
+ * @param end_date String for the report's ending date.
+ */
 void create_pdf_title_page(Data_passer *data_passer,
 						   char *start_date,
 						   char *end_date) {
@@ -252,6 +280,12 @@ void create_pdf_title_page(Data_passer *data_passer,
 	
 }
 
+/**
+ * Creates a new PDF page and adds the heading (the property address).
+ * 
+ * @param data_passer Pointer to a Data_passer struct.
+ * @param description Text for the heading (the property address).
+ */
 void add_heading_to_pdf(Data_passer *data_passer,
 						char *description) {
 	HPDF_Page *page = g_malloc(sizeof(HPDF_Page));

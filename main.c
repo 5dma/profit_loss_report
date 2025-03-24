@@ -16,6 +16,7 @@
  * Starts the GTK loop.
  * @param argc Number of arguments from the command line, none in this case.
  * @param argv Arguments passed from the command line, none in this case.
+ * @return Status of the GTK application at termination.
  */
 int main(int argc, char *argv[]) {
 	GtkApplication *app = gtk_application_new(

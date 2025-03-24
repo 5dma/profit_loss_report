@@ -175,6 +175,7 @@ static int build_tree(void *user_data, int argc, char **argv, char **azColName) 
  * @param iter_a Iter pointing to the first entry in the model.
  * @param iter_b Iter pointing to the second entry in the model.
  * @param user_data `NULL` in this case.
+ * @return 0, 1, or -1 depending on the value of the strings at `iter_a` and `iter_b`.
  */
 gint sort_account_iter_compare_func(GtkTreeModel *model,
 									GtkTreeIter *iter_a,

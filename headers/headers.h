@@ -10,6 +10,10 @@
  * @brief Contains data structures and function prototypes.
  */
 
+/**
+ * \def GUID_LENGTH
+ * \brief A macro that specifies the length of a GnuCash GUID.
+ */
 #define GUID_LENGTH 40
 /**
  * Structure for passing an iterator to functions and callbacks.
@@ -27,46 +31,58 @@ typedef struct {
 	gboolean using_today_date; /**< Indicates user is using today's date. Required to manage appearance of end date calendar and checkbox. */
 } Settings_passer;
 
+/**
+ * Structure for defining a color in RGB [0-1] format.
+ * \typedef RGB
+ */
 typedef struct RGB {
-	float red;
-	float green;
-	float blue;
+	float red; /**< Intensity of red component. */
+	float green; /**< Intensity of green component. */
+	float blue; /**< Intensity of blue component. */
 } RGB;
 
-enum Row_Type { TEXT_COLOR,
-				HEADING,
-				BODY,
-				BODY_INDENT,
-				SUBTOTAL,
-				FOOTER,
-				ROW_TYPES };
+/**
+ * Enumeration for types of rows in the PDF output.
+ * \enum Row_Type
+ */
+enum Row_Type { TEXT_COLOR, /**< Constant representing the text color within the table. */
+				HEADING, /**< Constant representing the table's income or expenses heading. */
+				BODY, /**< Constant representing the table's body text. */
+				BODY_INDENT, /**< Constant representing the table's indented body text. */
+				SUBTOTAL, /**< Constant representing the table's subtotal (for income and expenses). */
+				FOOTER, /**< Constant representing the table's net income. */
+				ROW_TYPES /**< Constant representing the number of row types. */
+};
 
+/**
+ * Structure for configuring pages of the PDF output.
+ * \typedef Page_Layout
+ */
 typedef struct Page_Layout {
-	HPDF_REAL right_margin;
-	HPDF_REAL left_margin;
-	HPDF_REAL top_margin;
-	HPDF_REAL bottom_margin;
-	HPDF_REAL height;
-	HPDF_REAL width;
-	RGB shading[ROW_TYPES];
-	RGB borders;
-	HPDF_REAL cell_margin_top;
-	HPDF_REAL cell_margin_left;
-	HPDF_REAL cell_indent;
-	HPDF_REAL row_height;
-	HPDF_REAL table_top;
-	HPDF_REAL table_width;
-	HPDF_REAL text_vertical_offset;
-	float first_column_percent;
-	HPDF_REAL first_column_width;
-	HPDF_REAL second_column_width;
-	HPDF_REAL single_underline_offset;
-	HPDF_REAL double_underline_offset;
+	HPDF_REAL right_margin; /**< PDF page's right margin. */
+	HPDF_REAL left_margin; /**< PDF page's left margin. */
+	HPDF_REAL top_margin; /**< PDF page's top margin. */
+	HPDF_REAL bottom_margin; /**< PDF page's bottom margin. */
+	HPDF_REAL height; /**< PDF page's height. */
+	HPDF_REAL width; /**< PDF page's width. */
+	RGB shading[ROW_TYPES]; /**< Array of row shadings in RGB[0-1] format. The length of the array is `ROW_TYPES`. @see Row_Type */
+	RGB borders; /**< Shading of the table borders in in RGB[0-1] format. */
+	HPDF_REAL cell_margin_top; /**< Top margin within a table cell. */
+	HPDF_REAL cell_margin_left; /**< Left margin within a table cell. */
+	HPDF_REAL cell_indent; /**< Indent within a table cell. */
+	HPDF_REAL row_height; /**< Height of a table row. */
+	HPDF_REAL table_top; /**< y-location of the table's top edge. */
+	HPDF_REAL table_width; /**< Width of a table. */
+	float first_column_percent; /**< Percentage of total table width allocated to the first column. */
+	HPDF_REAL first_column_width; /**< Width of the table's first column. */
+	HPDF_REAL second_column_width; /**<  Width of the table's second column. */
+	HPDF_REAL single_underline_offset; /**< Vertical offset from text for drawing a single underline. */
+	HPDF_REAL double_underline_offset; /**< Vertical offset from text for drawing the second line in a double underline. */
 } Page_Layout;
 
 /**
  * Structure for passing data to functions and callbacks.
- * \struct Data_passer
+ * \typedef Data_passer
  */
 typedef struct {
 	gchar *sqlite_path; /**< Path to sqlite database. */
@@ -103,7 +119,7 @@ typedef struct {
 	HPDF_Font *pdf_font; /**< Pointer to the PDF's font. */
 	unsigned int pdf_page_number; /**< Stores the current row number in a PDF page's P&L table. */
 	GSList *pdf_pages; /**< List of pages added to the pdf. */
-	guint pdf_current_row_number;
+	guint pdf_current_row_number; /**< Indicates the current row of a PDF table. */
 	HPDF_Outline *pdf_outline_root; /**< Stores the root of the PDF's outline. */
 	GSList *pdf_outline; /**< List of PDF's bookmarks (outline). */
 } Data_passer;
@@ -194,10 +210,17 @@ enum error_condition {
 void on_app_activate(GApplication *app, gpointer data);
 GtkWidget *make_window(Data_passer *data_passer);
 
+/**
+ * \def REVENUE
+ * \brief A macro that defines the string for revenue.
+ */
 #define REVENUE "Revenue"
+
+/**
+ * \def EXPENSES
+ * \brief A macro that defines the string for expenses.
+ */
 #define EXPENSES "Expenses"
-// static gchar *REVENUE = "Revenue";   /**< String constant for adding a `Revenue` heading in the P&L report's store. */
-// static gchar *EXPENSES = "Expenses"; /**< String constant for adding an `Expenses` heading in the P&L report's store. */
 
 #define SELECT_DESCRIPTION_FROM_ACCOUNT "SELECT description FROM accounts WHERE guid = \"%s\";" /**< SQL statement that retrieves a description for a given guid. See get_account_description().  */
 

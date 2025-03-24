@@ -71,7 +71,6 @@ void set_today_end_date(GtkWidget *button, gpointer user_data) {
  * Creates Gtk widgets for the settings window.
  * @param button Pointer to the clicked settings button.
  * @param user_data Pointer to a Data_passer struct.
- * @return Pointer to a GTK widget.
  */
 void make_settings_dialog(GtkButton *button, gpointer user_data) {
 	Data_passer *data_passer = (Data_passer *)user_data;
