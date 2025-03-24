@@ -15,6 +15,7 @@
  * \brief A macro that specifies the length of a GnuCash GUID.
  */
 #define GUID_LENGTH 40
+
 /**
  * Structure for passing an iterator to functions and callbacks.
  * \struct Settings_passer
@@ -33,16 +34,16 @@ typedef struct {
 
 /**
  * Structure for defining a color in RGB [0-1] format.
- * \typedef RGB
+ * \struct RGB
  */
-typedef struct RGB {
+typedef struct {
 	float red; /**< Intensity of red component. */
 	float green; /**< Intensity of green component. */
 	float blue; /**< Intensity of blue component. */
 } RGB;
 
 /**
- * Enumeration for types of rows in the PDF output.
+ * Enumeration for types of table rows in the PDF output.
  * \enum Row_Type
  */
 enum Row_Type { TEXT_COLOR, /**< Constant representing the text color within the table. */
@@ -56,9 +57,9 @@ enum Row_Type { TEXT_COLOR, /**< Constant representing the text color within the
 
 /**
  * Structure for configuring pages of the PDF output.
- * \typedef Page_Layout
+ * \struct Page_Layout
  */
-typedef struct Page_Layout {
+typedef struct {
 	HPDF_REAL right_margin; /**< PDF page's right margin. */
 	HPDF_REAL left_margin; /**< PDF page's left margin. */
 	HPDF_REAL top_margin; /**< PDF page's top margin. */
@@ -82,7 +83,7 @@ typedef struct Page_Layout {
 
 /**
  * Structure for passing data to functions and callbacks.
- * \typedef Data_passer
+ * \struct Data_passer
  */
 typedef struct {
 	gchar *sqlite_path; /**< Path to sqlite database. */
@@ -114,13 +115,13 @@ typedef struct {
 	JsonObject *root_obj; /**< Pointer to the root JSON object in the file accounts.json. */
 	Settings_passer *settings_passer; /**< Pointer to a struct Settings_passer. */
 	GDateTime *current_date_time; /**< Pointer to current date and time. Calendars are set to this date if no start date or end date appear in the configuration file. In future, will be used to print run date on report. */
-	Page_Layout *page_layout; /**< Pointer to structure configuring the PDF page layout. */
+	Page_Layout *page_layout; /**< Pointer to structure configuring the PDF page layout. @see Page_Layout */
 	HPDF_Doc *pdf; /**< Pointer to the PDF. */
 	HPDF_Font *pdf_font; /**< Pointer to the PDF's font. */
 	unsigned int pdf_page_number; /**< Stores the current row number in a PDF page's P&L table. */
 	GSList *pdf_pages; /**< List of pages added to the pdf. */
 	guint pdf_current_row_number; /**< Indicates the current row of a PDF table. */
-	HPDF_Outline *pdf_outline_root; /**< Stores the root of the PDF's outline. */
+	HPDF_Outline *pdf_outline_root; /**< Stores the root of the PDF's bookmarks (outline). */
 	GSList *pdf_outline; /**< List of PDF's bookmarks (outline). */
 } Data_passer;
 

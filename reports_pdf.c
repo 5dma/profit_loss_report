@@ -5,6 +5,12 @@
 #include <string.h>
 
 /**
+ * @file reports_pdf.c
+ * @brief Contains functions for generating PDF output. Relies on the [Haru PDF library](https://github.com/libharu/libharu).
+ *
+ */
+
+/**
  * Prints the error from a libharu exception.
  *
  * @param error_no Error number passed from the Haru library.
@@ -18,10 +24,10 @@ void hpdf_error_handler(HPDF_STATUS error_no,
 }
 
 /**
- * Draws a table row with one cell in the PDF output.
+ * Draws a table row with one cell.
  *
  * @param data_passer Pointer to a Data_passer struct.
- * @param row_type Indicates type of row being drawn. @see Row_Type.
+ * @param row_type Indicates type of row being drawn.
  * @param text Text printed in the cell.
  */
 void draw_row_one_cell(Data_passer *data_passer,
@@ -65,10 +71,10 @@ void draw_row_one_cell(Data_passer *data_passer,
 }
 
 /**
- * Draws a table row with two cells in the PDF output.
+ * Draws a table row with two cells.
  *
  * @param data_passer Pointer to a Data_passer struct.
- * @param row_type Indicates type of row being drawn. @see Row_Type.
+ * @param row_type Indicates type of row being drawn.
  * @param label Text printed in the first cell.
  * @param amount Text printed in the second cell.
  */
@@ -201,7 +207,7 @@ Page_Layout *configure_pdf_layout() {
 }
 
 /**
- * Instantiates a PDF document using the Haru library.
+ * Instantiates a PDF document.
  *
  * @return Pointer to the instantiated document.
  */
@@ -281,7 +287,7 @@ void create_pdf_title_page(Data_passer *data_passer,
 }
 
 /**
- * Creates a new PDF page and adds the heading (the property address).
+ * Creates a new PDF page and adds the heading (the property address) to that page.
  * 
  * @param data_passer Pointer to a Data_passer struct.
  * @param description Text for the heading (the property address).

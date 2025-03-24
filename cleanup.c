@@ -9,7 +9,7 @@
  */
 
 /**
- * Gtk callback from a function g_slist_free_full for freeing the list of PDF pages.
+ * Gtk callback from a function `g_slist_free_full` for freeing the list of PDF pages.
  * @param data Generic pointer pointing to an `HPDF_Page`.
  */
 void free_pdf_pages(gpointer data) {
@@ -17,7 +17,7 @@ void free_pdf_pages(gpointer data) {
 }
 
 /**
- * Gtk callback from a function g_slist_free_full for freeing the list of PDF bookmarks.
+ * Gtk callback from a function `g_slist_free_full` for freeing the list of PDF bookmarks.
  * @param data Generic pointer pointing to an `HPDF_Outline`.
  */
 void free_pdf_outline(gpointer data) {
